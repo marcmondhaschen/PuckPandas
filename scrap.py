@@ -82,3 +82,25 @@
 # #     column_string = "{}'{}', ".format(column_string, col)
 #
 # print(column_string)
+
+import os
+import pandas as pd
+from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
+
+load_dotenv()
+
+sqlFlavor = "mysql"
+driver = "mysqlconnector"
+user = os.environ['DB_USER']
+password = os.environ['DB_PASSWORD']
+server = os.environ['DB_HOST']
+port = os.environ['DB_PORT']
+schema = os.environ['DB_SCHEMA']
+
+connection_string = "{}+{}://{}:{}@{}:{}/{}".format(sqlFlavor, driver, user, password, server, port, schema)
+engine = create_engine(connection_string, echo=True)
+
+with engine.connect() as conn:
+    df = pd.read_sql_query(text("select * from teams_import"), conn, )
+
