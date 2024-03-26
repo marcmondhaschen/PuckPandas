@@ -173,7 +173,8 @@ def nhlpandas_master_goalie_career_frame():
                                              'playoffs.points', 'playoffs.wins', 'playoffs.losses', 'playoffs.otLosses',
                                              'playoffs.shotsAgainst', 'playoffs.goalsAgainst',
                                              'playoffs.goalsAgainstAvg', 'playoffs.savePctg',
-                                             'playoffs.shutouts', 'playoffs.timeOnIce'])
+                                             'playoffs.shutouts', 'playoffs.timeOnIce',
+                                             'regularSeason.timeOnIceSeconds', 'playoffs.timeOnIceSeconds'])
     return goalie_career_df
 
 
@@ -188,7 +189,7 @@ def nhlpandas_master_goalie_season_frame():
     goalie_season_df = pd.DataFrame(columns=['playerId', 'gameTypeId', 'gamesPlayed', 'goalsAgainst', 'goalsAgainstAvg',
                                              'leagueAbbrev', 'losses', 'season', 'sequence', 'shutouts', 'ties',
                                              'timeOnIce', 'wins', 'teamName.default', 'savePctg', 'shotsAgainst',
-                                             'otLosses', 'assists', 'gamesStarted', 'goals', 'pim'])
+                                             'otLosses', 'assists', 'gamesStarted', 'goals', 'pim', 'timeOnIceSeconds'])
     return goalie_season_df
 
 
@@ -214,7 +215,8 @@ def nhlpandas_master_player_career_frame():
                                              'playoffs.shorthandedPoints', 'playoffs.gameWinningGoals',
                                              'playoffs.otGoals', 'playoffs.shots',
                                              'playoffs.shootingPctg', 'playoffs.faceoffWinningPctg',
-                                             'playoffs.avgToi', 'playoffs.shorthandedGoals'])
+                                             'playoffs.avgToi', 'playoffs.shorthandedGoals',
+                                             'regularSeason.timeOnIceSeconds', 'playoffs.timeOnIceSeconds'])
 
     return player_career_df
 
@@ -231,10 +233,30 @@ def nhlpandas_master_player_season_frame():
                                              'leagueAbbrev', 'pim', 'points', 'season', 'sequence', 'teamName.default',
                                              'gameWinningGoals', 'plusMinus', 'powerPlayGoals', 'shorthandedGoals',
                                              'shots', 'avgToi', 'faceoffWinningPctg', 'otGoals', 'powerPlayPoints',
-                                             'shootingPctg', 'shorthandedPoints'])
+                                             'shootingPctg', 'shorthandedPoints', 'timeOnIceSeconds'])
 
     return player_season_df
 
+
+def nhlpandas_transform_player_frame(player_bio_df):
+    return player_bio_df
+
+
+def nhlpandas_transform_player_award_frame(player_award_df):
+    return player_award_df
+
+
+def nhlpandas_transform_goalie_career_frame(career_totals_df):
+    return career_totals_df
+
+def nhlpandas_transform_goalie_season_frame(season_totals_df):
+    return season_totals_df
+
+def nhlpandas_transform_player_career_frame(career_totals_df):
+    return career_totals_df
+
+def nhlpandas_transform_player_season_frame(season_totals_df):
+    return season_totals_df
 
 def nhlpandas_load_player_frame(player_bio_df):
     """

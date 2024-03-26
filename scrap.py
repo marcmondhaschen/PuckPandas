@@ -83,24 +83,14 @@
 #
 # print(column_string)
 
-import os
 import pandas as pd
-from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from alchemy_db import nhlpandas_dba_login
+from sqlalchemy import text
 
-load_dotenv()
-
-sqlFlavor = "mysql"
-driver = "mysqlconnector"
-user = os.environ['DB_USER']
-password = os.environ['DB_PASSWORD']
-server = os.environ['DB_HOST']
-port = os.environ['DB_PORT']
-schema = os.environ['DB_SCHEMA']
-
-connection_string = "{}+{}://{}:{}@{}:{}/{}".format(sqlFlavor, driver, user, password, server, port, schema)
-engine = create_engine(connection_string, echo=True)
+engine = nhlpandas_dba_login()
 
 with engine.connect() as conn:
-    df = pd.read_sql_query(text("select * from teams_import"), conn, )
+    sql = "select * from teams_import"
+    df = pd.read_sql_query(text(sql), conn)
+    print(df)
 

@@ -130,6 +130,8 @@ CREATE TABLE `goalie_career_totals_import` (
   `playoffs.savePctg` decimal(10,8) DEFAULT '0.00000000',
   `playoffs.shutouts` int DEFAULT '0',
   `playoffs.timeOnIce` time DEFAULT '00:00:00',
+  `regularSeason.timeOnIceSeconds` int DEFAULT NULL,
+  `playoffs.timeOnIceSeconds` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `playerId_index` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -158,6 +160,7 @@ CREATE TABLE `goalie_season_import` (
   `gamesStarted` int DEFAULT NULL,
   `goals` int DEFAULT NULL,
   `pim` int DEFAULT NULL,
+  `timeOnIceSeconds` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `playerId_index` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -240,6 +243,8 @@ CREATE TABLE `player_career_totals_import` (
   `playoffs.faceoffWinningPctg` decimal(10,8) DEFAULT '0.00000000',
   `playoffs.avgToi` time DEFAULT '00:00:00',
   `playoffs.shorthandedGoals` int DEFAULT NULL,
+  `regularSeason.avgToiSeconds` int DEFAULT NULL,
+  `playoffs.avgToiSeconds` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `playerId_index` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
