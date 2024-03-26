@@ -93,4 +93,3 @@ with engine.connect() as conn:
     sql = "select * from teams_import"
     df = pd.read_sql_query(text(sql), conn)
     print(df)
-
