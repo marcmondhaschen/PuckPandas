@@ -247,15 +247,25 @@ def nhlpandas_transform_player_award_frame(player_award_df):
 
 
 def nhlpandas_transform_goalie_career_frame(career_totals_df):
+    career_totals_df['regularSeason.timeOnIceSeconds'] = \
+        career_totals_df['regularSeason.timeOnIce'].dt.total_seconds().astype(int)/60
+    career_totals_df['playoffs.timeOnIceSeconds'] = \
+        career_totals_df['playoffs.timeOnIce'].dt.total_seconds().astype(int)/60
     return career_totals_df
 
 def nhlpandas_transform_goalie_season_frame(season_totals_df):
+    season_totals_df['timeOnIceSeconds'] =  season_totals_df['timeOnIce'].dt.total_seconds().astype(int)/60
     return season_totals_df
 
 def nhlpandas_transform_player_career_frame(career_totals_df):
+    career_totals_df['regularSeason.avgToiSeconds'] = \
+        career_totals_df['regularSeason.avgToi'].dt.total_seconds().astype(int)/60
+    career_totals_df['playoffs.avgToiSeconds'] = \
+        career_totals_df['playoffs.avgToi'].dt.total_seconds().astype(int)/60
     return career_totals_df
 
 def nhlpandas_transform_player_season_frame(season_totals_df):
+    season_totals_df['avgToiSeconds'] = season_totals_df['avgToi'].dt.total_seconds().astype(int)/60
     return season_totals_df
 
 def nhlpandas_load_player_frame(player_bio_df):
