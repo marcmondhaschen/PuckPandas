@@ -85,11 +85,35 @@
 
 import pandas as pd
 from alchemy_db import nhlpandas_dba_login
-from sqlalchemy import text
+from sqlalchemy import insert, select, and_, or_
 
 engine = nhlpandas_dba_login()
 
 with engine.connect() as conn:
     sql = "select * from teams_import"
-    df = pd.read_sql_query(text(sql), conn)
-    print(df)
+    df = pd.read_sql(sql, conn)  # executes simple select statement
+
+    # insert statement with variables
+    stmt = insert("sql_tableName").values(first_name="spongeBob", last_name="squarePants")
+
+    # select statement with variables
+
+print(
+    select(Address.email_address).where(
+        and_(
+            or_(User.name == "squidward", User.name == "sandy"),
+            Address.user_id == User.id,
+        )
+    )
+)
+
+# SELECT address.email_address
+# FROM address, user_account
+# WHERE (user_account.name = :name_1 OR user_account.name = :name_2)
+# AND address.user_id = user_account.id
+
+df.to_sql('garbage1', conn, if_exists='fail', index=False)  # builds a new table from DataFrame
+df.to_sql('garbage1', conn, if_exists='replace', index=False)  # builds a new table or replaces it - test this option to make sure SQL schema remains intact
+df.to_sql('garbage1', conn, if_exists='append', index=False)  # builds a new table or inserts new rows
+
+print(df)

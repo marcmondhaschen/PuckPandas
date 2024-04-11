@@ -3,11 +3,9 @@ import pandas as pd
 from api_query import fetch_json_data
 from mysql_db import nhlpandas_db_login
 
-# TODO document functions on this page
+
 # TODO query here is kinda smelly. Reconsider underlying data structures. Maybe combine them or query after we've
 #  moved the supporting tables out of their 'import' state?
-
-
 def nhl_pandas_fetch_players_to_query():
     """
     Queries the local SQL database for a list of players to be queried from the NHL
