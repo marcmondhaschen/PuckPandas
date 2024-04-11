@@ -305,6 +305,33 @@ CREATE TABLE `rosters_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+create table `shiftcharts_import` (
+	`id` int NOT NULL,
+    `detailCode` int default NULL,
+    `duration` time DEFAULT NULL,
+    `endTime` time DEFAULT NULL,
+    `eventDescription` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `eventDetails` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `eventNumber` int default NULL,
+    `firstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `gameId` int default NULL,
+    `hexValue` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `lastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+	`period` int default NULL,
+    `playerId` int default NULL,
+    `shiftNumber` int default NULL,
+    `startTime` time DEFAULT NULL,
+    `teamAbbrev` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `teamId` int default NULL,
+    `teamName` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+    `typeCode` int default NULL,
+    primary key (`id`),
+    key `gameId_index` (`gameId`),
+    key `playerId_index` (`playerId`),
+    key `teamId_index` (`teamId`)
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 CREATE TABLE `team_seasons_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `triCode` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
