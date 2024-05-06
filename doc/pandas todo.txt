@@ -1,0 +1,90 @@
+2024-05-06 Pandas TODO
+	TOI data type conversion problem
+		identify fields in existing _import tables that will need support
+		google standard patterns to solve for this issue
+		commit required table changes
+
+	Repoll data
+
+	Build delta process for games scheduled but not played
+		identify tables that will need to be appended to
+		check if polling columns are adequate, add tables or columns where appropriate
+
+FOR TOMORROW OR LATER
+	find brody's missing goal
+
+	improve usage of json_normalize across all pages
+		play_by_play.py
+		players.py
+		rosters.py
+		schedules.py
+		teams.py
+
+	shift charts???
+		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
+
+	bios???
+		https://api.nhle.com/stats/rest/en/skater/bios?start=000&limit=100&cayenneExp=gameTypeId=2&seasonId%3E=19171918&seasonId%3C=20232024
+		https://api.nhle.com/stats/rest/en/goalie/bios?start=000&limit=100&cayenneExp=gameTypeId=2&seasonId%3E=19171918&seasonId%3C=20232024
+
+	re-poll everything
+
+	refactor existing collection processes
+		unify naming conventions
+			rationalize _import table names
+			name objects & functions accordingly
+		break complex logic into more functions
+		arrange broader metaphors (teams, games, players, etc) into objects
+			assign existing functions to objects
+			flesh out objects with missing or needed crud elements
+			seperate "create new table" and "update existing table" processes
+			start with games_import - updates for this one is probably most immediately useful
+			focus on what happens when playoff schedules emerge & update as playoffs go along
+
+	build normalized database layer
+
+	build reporting interfaces
+
+	Tableau - 5 example reports
+
+	PowerBI - 5 example reports
+
+	web blog
+
+
+
+********************************************************************************
+2024-03-25 Pandas TODO
+	* get a scrap.py running for SQLAlchemy
+		consider using their query framework? - big benefit is it allows others to adopt code without committing to mysql db
+	* populate code for TOI data type conversion
+
+2024-03-19 Pandas TODO
+	* build player tables
+		* bio/header
+		* career
+			* goalie
+			* player
+		* season
+			* goalie
+			* player
+		* awards
+		* check log
+	* build import functions for each of these tables
+	* wire import functions into the rest of players.py functions
+	* test completed players.py
+
+
+2024-03-20 Pandas TODO
+	* clean up last night's python code, clear out test lines and notes cruft
+	* clean up docs files
+	* update table creation file
+	* document python functions as written
+	* refactor sql tables with '_import' suffix
+
+
+2024-03-21 Pandas TODO
+	* start git repo
+		daily/hourly commit practice
+		publish to public?
+
