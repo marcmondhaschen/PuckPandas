@@ -2,9 +2,9 @@ import pandas as pd
 from api_query import fetch_json_data
 from mysql_db import nhlpandas_db_login
 
+
 # TODO write a function to update the `games` table for games that were scheduled into the future at the last polling,
 #  but have since happened
-
 def nhlpandas_fetch_schedules():
     """
     Queries the local MySQL database for a list of seasons played for each team and uses that list to query the NHL API
@@ -104,5 +104,3 @@ def nhlpandas_etl_schedules():
     nhlpandas_load_seasons_schedules(df)
 
     return True
-
-
