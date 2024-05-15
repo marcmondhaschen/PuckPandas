@@ -1,21 +1,12 @@
-2024-05-06 Pandas TODO
-	TOI data type conversion problem
-		identify fields in existing _import tables that will need support
-			goalie_career_totals_import
-				regularSeason.timeOnIce
-				playoffs.timeOnIce
-			goalie_season_import
-				timeOnIce
-		google standard patterns to solve for this issue
-			for MySQL table use DATETIME datatype where time starts at '1000-01-01 00:00:00'
-			in Pandas, we'll want to add time values to this start date ('1000-01-01 00:00:00') and then record the date
-		commit required table changes
-
-	Repoll data
-
+2024-05-14 Pandas TODO
 	Build delta process for games scheduled but not played
 		identify tables that will need to be appended to
+			game_play_by_play_import
+			game_rosters_import
+			games_import - update only
+			shiftcharts_import
 		check if polling columns are adequate, add tables or columns where appropriate
+
 
 FOR TOMORROW OR LATER
 	find brody's missing goal
@@ -61,6 +52,21 @@ FOR TOMORROW OR LATER
 
 
 ********************************************************************************
+2024-05-06 Pandas TODO
+	TOI data type conversion problem
+		identify fields in existing _import tables that will need support
+			goalie_career_totals_import
+				regularSeason.timeOnIce
+				playoffs.timeOnIce
+			goalie_season_import
+				timeOnIce
+		google standard patterns to solve for this issue
+			for MySQL table use DATETIME datatype where time starts at '1000-01-01 00:00:00'
+			in Pandas, we'll want to add time values to this start date ('1000-01-01 00:00:00') and then record the date
+		commit required table changes
+
+	Repoll data
+
 2024-03-25 Pandas TODO
 	* get a scrap.py running for SQLAlchemy
 		consider using their query framework? - big benefit is it allows others to adopt code without committing to mysql db

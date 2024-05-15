@@ -15,9 +15,12 @@ def nhl_pandas_fetch_players_to_query():
 
     Returns: player_id_df - a Pandas Dataframe containing playerIds
     """
+    # players_sql = "select distinct a.playerId from (select playerId from game_rosters_import union select playerId " \
+    #               "from rosters_import) as a where a.playerId not in (select playerId from player_import_log) " \
+    #               "order by playerId"
+
     players_sql = "select distinct a.playerId from (select playerId from game_rosters_import union select playerId " \
-                  "from rosters_import) as a where a.playerId not in (select playerId from player_import_log) " \
-                  "order by playerId"
+                  "from rosters_import) as a order by playerId"
 
     cursor, db = nhlpandas_db_login()
     player_id_df = pd.read_sql(players_sql, db)
@@ -477,7 +480,7 @@ def nhlpandas_load_player_season_frame(season_totals_df):
               "leagueAbbrev, pim, points, season, sequence, `teamName.default`, gameWinningGoals, plusMinus, " \
               "powerPlayGoals, shorthandedGoals, shots, faceoffWinningPctg, avgToi, otGoals, powerPlayPoints, " \
               "shootingPctg, shorthandedPoints) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-              "%s, %s, %s, %s, %s, %s)"
+              "%s, %s, %s, %s, %s, %s, %s)"
         val = ([row['playerId'], row['assists'], row['gameTypeId'], row['gamesPlayed'], row['goals'],
                 row['leagueAbbrev'], row['pim'], row['points'], row['season'], row['sequence'], row['teamName.default'],
                 row['gameWinningGoals'], row['plusMinus'], row['powerPlayGoals'], row['shorthandedGoals'], row['shots'],
