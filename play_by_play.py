@@ -12,7 +12,7 @@ def nhl_pandas_fetch_gameids_to_query():
 
     Returns: gameids_df - a Pandas DataFrame object containing a list of gameIds as described above
     """
-    gameids_sql = 'select distinct gameId from games_import where gameDate < date_sub(sysdate(), INTERVAL 2 DAY) ' \
+    gameids_sql = 'select distinct gameId from games_import where gameDate < date_sub(sysdate(), INTERVAL 1 DAY) ' \
                   'and (PBPCheckSuccess is null or PBPCheckSuccess = 0) order by gameDate desc, gameId'
     cursor, db = nhlpandas_db_login()
     gameids_df = pd.read_sql(gameids_sql, db)
