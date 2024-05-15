@@ -6,6 +6,7 @@ from mysql_db import nhlpandas_db_login
 
 # TODO query here is kinda smelly. Reconsider underlying data structures. Maybe combine them or query after we've
 #  moved the supporting tables out of their 'import' state?
+# TODO update to SQLAlchemy query
 def nhl_pandas_fetch_players_to_query():
     """
     Queries the local SQL database for a list of players to be queried from the NHL
@@ -15,8 +16,8 @@ def nhl_pandas_fetch_players_to_query():
     Returns: player_id_df - a Pandas Dataframe containing playerIds
     """
     players_sql = "select distinct a.playerId from (select playerId from game_rosters_import union select playerId " \
-                  "from rosters_import) as a where a.playerId not in (select playerId from player_import_log) order " \
-                  "by playerId"
+                  "from rosters_import) as a where a.playerId not in (select playerId from player_import_log) " \
+                  "order by playerId"
 
     cursor, db = nhlpandas_db_login()
     player_id_df = pd.read_sql(players_sql, db)
@@ -48,53 +49,60 @@ def nhl_pandas_fetch_players():
         json_data = fetch_json_data(url_string)
 
         if json_data != {}:
+            # player bio
             player_bio_df = pd.json_normalize(json_data)
             position = player_bio_df.at[0, 'position']
             master_bio_df = nhlpandas_master_player_frame()
             player_bio_df = pd.concat([master_bio_df, player_bio_df])
-            player_bio_df = player_bio_df.fillna('')
+            player_bio_df = nhlpandas_transform_player_frame(player_bio_df)
             player_bio_check = nhlpandas_load_player_frame(player_bio_df)
 
             if "careerTotals" in json_data:
+                # career totals
                 json_career_totals = json_data['careerTotals']
                 career_totals_df = pd.json_normalize(json_career_totals)
                 career_totals_df.insert(loc=0, column='playerId', value=player_id)
                 career_totals_df = career_totals_df.fillna('')
 
-                # goalies have their own set of stats tables
                 if position == "G":
+                    # goalie career totals
                     master_goalie_career_df = nhlpandas_master_goalie_career_frame()
                     career_totals_df = pd.concat([master_goalie_career_df, career_totals_df])
-                    career_totals_df = career_totals_df.fillna('')
+                    career_totals_df = nhlpandas_transform_goalie_career_frame(career_totals_df)
                     career_check = nhlpandas_load_goalie_career_frame(career_totals_df)
                 else:
+                    # skater career totals
                     master_player_career_df = nhlpandas_master_player_career_frame()
                     career_totals_df = pd.concat([master_player_career_df, career_totals_df])
-                    career_totals_df = career_totals_df.fillna('')
+                    career_totals_df = nhlpandas_transform_player_career_frame(career_totals_df)
                     career_check = nhlpandas_load_player_career_frame(career_totals_df)
             else:
                 career_check = True
 
             if "seasonTotals" in json_data:
+                # season totals
                 json_season_totals = json_data['seasonTotals']
                 season_totals_df = pd.json_normalize(json_season_totals)
                 season_totals_df.insert(loc=0, column='playerId', value=player_id)
+                season_totals_df = season_totals_df.fillna('')
 
-                # goalies have their own set of stats tables
                 if position == "G":
+                    # goalie season totals
                     master_goalie_season_df = nhlpandas_master_goalie_season_frame()
                     season_totals_df = pd.concat([master_goalie_season_df, season_totals_df])
-                    season_totals_df = season_totals_df.fillna('')
+                    season_totals_df = nhlpandas_transform_goalie_season_frame(season_totals_df)
                     season_check = nhlpandas_load_goalie_season_frame(season_totals_df)
                 else:
+                    # skater season totals
                     master_player_season_df = nhlpandas_master_player_season_frame()
                     season_totals_df = pd.concat([master_player_season_df, season_totals_df])
-                    season_totals_df = season_totals_df.fillna('')
+                    season_totals_df = nhlpandas_transform_player_season_frame(season_totals_df)
                     season_check = nhlpandas_load_player_season_frame(season_totals_df)
             else:
                 season_check = True
 
             if "awards" in json_data:
+                # awards
                 awards_df = pd.json_normalize(json_data['awards'],
                                               record_path=['seasons'],
                                               meta=[['trophy', 'default']])
@@ -102,13 +110,15 @@ def nhl_pandas_fetch_players():
 
                 master_award_df = nhlpandas_master_player_award_frame()
                 awards_df = pd.concat([master_award_df, awards_df])
-                awards_df = awards_df.fillna('')
+                awards_df = nhlpandas_transform_player_award_frame(awards_df)
                 awards_check = nhlpandas_load_player_award_frame(awards_df)
-            # awards array is absent where player has no NHL awards
+
             else:
+                # awards array is absent where player has no NHL awards
                 awards_check = True
 
         else:
+            # no records for this playerId
             player_bio_check = career_check = season_check = awards_check = True
 
         check_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
@@ -166,13 +176,15 @@ def nhlpandas_master_goalie_career_frame():
                                              'regularSeason.otLosses', 'regularSeason.shotsAgainst',
                                              'regularSeason.goalsAgainst', 'regularSeason.goalsAgainstAvg',
                                              'regularSeason.savePctg', 'regularSeason.shutouts',
-                                             'regularSeason.timeOnIce', 'playoffs.gamesPlayed', 'playoffs.goals',
+                                             'regularSeason.timeOnIce', 'regularSeason.timeOnIceMinutes',
+                                             'regularSeason.timeOnIceSeconds',
+                                             'playoffs.gamesPlayed', 'playoffs.goals',
                                              'playoffs.assists', 'playoffs.pim', 'playoffs.gamesStarted',
                                              'playoffs.points', 'playoffs.wins', 'playoffs.losses', 'playoffs.otLosses',
                                              'playoffs.shotsAgainst', 'playoffs.goalsAgainst',
                                              'playoffs.goalsAgainstAvg', 'playoffs.savePctg',
                                              'playoffs.shutouts', 'playoffs.timeOnIce',
-                                             'regularSeason.timeOnIceSeconds', 'playoffs.timeOnIceSeconds'])
+                                             'playoffs.timeOnIceMinutes', 'playoffs.timeOnIceSeconds'])
     return goalie_career_df
 
 
@@ -186,8 +198,9 @@ def nhlpandas_master_goalie_season_frame():
     """
     goalie_season_df = pd.DataFrame(columns=['playerId', 'gameTypeId', 'gamesPlayed', 'goalsAgainst', 'goalsAgainstAvg',
                                              'leagueAbbrev', 'losses', 'season', 'sequence', 'shutouts', 'ties',
-                                             'timeOnIce', 'wins', 'teamName.default', 'savePctg', 'shotsAgainst',
-                                             'otLosses', 'assists', 'gamesStarted', 'goals', 'pim', 'timeOnIceSeconds'])
+                                             'timeOnIce', 'timeOnIceMinutes', 'timeOnIceSeconds', 'wins',
+                                             'teamName.default', 'savePctg', 'shotsAgainst', 'otLosses', 'assists',
+                                             'gamesStarted', 'goals', 'pim'])
     return goalie_season_df
 
 
@@ -213,8 +226,7 @@ def nhlpandas_master_player_career_frame():
                                              'playoffs.shorthandedPoints', 'playoffs.gameWinningGoals',
                                              'playoffs.otGoals', 'playoffs.shots',
                                              'playoffs.shootingPctg', 'playoffs.faceoffWinningPctg',
-                                             'playoffs.avgToi', 'playoffs.shorthandedGoals',
-                                             'regularSeason.timeOnIceSeconds', 'playoffs.timeOnIceSeconds'])
+                                             'playoffs.avgToi', 'playoffs.shorthandedGoals'])
 
     return player_career_df
 
@@ -231,42 +243,59 @@ def nhlpandas_master_player_season_frame():
                                              'leagueAbbrev', 'pim', 'points', 'season', 'sequence', 'teamName.default',
                                              'gameWinningGoals', 'plusMinus', 'powerPlayGoals', 'shorthandedGoals',
                                              'shots', 'avgToi', 'faceoffWinningPctg', 'otGoals', 'powerPlayPoints',
-                                             'shootingPctg', 'shorthandedPoints', 'timeOnIceSeconds'])
+                                             'shootingPctg', 'shorthandedPoints'])
 
     return player_season_df
 
 
 def nhlpandas_transform_player_frame(player_bio_df):
+    player_bio_df = player_bio_df.fillna('')
     return player_bio_df
 
 
 def nhlpandas_transform_player_award_frame(player_award_df):
+    player_award_df = player_award_df.fillna('')
     return player_award_df
 
 
 def nhlpandas_transform_goalie_career_frame(career_totals_df):
-    career_totals_df['regularSeason.timeOnIceSeconds'] = \
-        career_totals_df['regularSeason.timeOnIce'].dt.total_seconds().astype(int)/60
-    career_totals_df['playoffs.timeOnIceSeconds'] = \
-        career_totals_df['playoffs.timeOnIce'].dt.total_seconds().astype(int)/60
+    career_totals_df = career_totals_df.fillna(0)
+    # Pandas has a hard time with large-minute time values, and MySQL can't store times of more than 839 hours
+    # we'll need to convert some columns' time values to integer seconds before storing them
+    if career_totals_df.loc[0, 'regularSeason.timeOnIce'] != 0:
+        career_totals_df[['regularSeason.timeOnIceMinutes', 'regularSeason.timeOnIceSeconds']] = \
+            career_totals_df['regularSeason.timeOnIce'].str.split(":", expand=True)
+        career_totals_df['regularSeason.timeOnIceSeconds'] = \
+            int(career_totals_df['regularSeason.timeOnIceMinutes'].iloc[0])*60 + \
+            int(career_totals_df['regularSeason.timeOnIceSeconds'].iloc[0])
+    if career_totals_df.loc[0, 'playoffs.timeOnIce'] != 0:
+        career_totals_df[['playoffs.timeOnIceMinutes', 'playoffs.timeOnIceSeconds']] = \
+            career_totals_df['playoffs.timeOnIce'].str.split(":", expand=True)
+        career_totals_df['playoffs.timeOnIceSeconds'] = \
+            int(career_totals_df['playoffs.timeOnIceMinutes'].iloc[0])*60 + \
+            int(career_totals_df['playoffs.timeOnIceSeconds'].iloc[0])
     return career_totals_df
 
 
 def nhlpandas_transform_goalie_season_frame(season_totals_df):
-    season_totals_df['timeOnIceSeconds'] = season_totals_df['timeOnIce'].dt.total_seconds().astype(int)/60
+    if not season_totals_df.empty:
+        season_totals_df = season_totals_df.fillna(0)
+        season_totals_df.loc[season_totals_df.timeOnIce == '', 'timeOnIce'] = '0:00'
+        season_totals_df.loc[season_totals_df.timeOnIce == 0, 'timeOnIce'] = '0:00'
+        season_totals_df[['timeOnIceMinutes', 'timeOnIceSeconds']] = \
+            season_totals_df['timeOnIce'].str.split(":", expand=True)
+        season_totals_df['timeOnIceSeconds'] = \
+            season_totals_df['timeOnIceMinutes'].astype(int)*60 + season_totals_df['timeOnIceSeconds'].astype(int)
     return season_totals_df
 
 
 def nhlpandas_transform_player_career_frame(career_totals_df):
-    career_totals_df['regularSeason.avgToiSeconds'] = \
-        career_totals_df['regularSeason.avgToi'].dt.total_seconds().astype(int)/60
-    career_totals_df['playoffs.avgToiSeconds'] = \
-        career_totals_df['playoffs.avgToi'].dt.total_seconds().astype(int)/60
+    career_totals_df = career_totals_df.fillna('')
     return career_totals_df
 
 
 def nhlpandas_transform_player_season_frame(season_totals_df):
-    season_totals_df['avgToiSeconds'] = season_totals_df['avgToi'].dt.total_seconds().astype(int)/60
+    season_totals_df = season_totals_df.fillna('')
     return season_totals_df
 
 
@@ -319,26 +348,30 @@ def nhlpandas_load_goalie_career_frame(career_totals_df):
     cursor, db = nhlpandas_db_login()
 
     for index, row in career_totals_df.iterrows():
-        sql = "insert into goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`," \
-              "`regularSeason.assists`, `regularSeason.pim`, `regularSeason.gamesStarted`, `regularSeason.points`, " \
-              "`regularSeason.wins`, `regularSeason.losses`, `regularSeason.otLosses`, `regularSeason.shotsAgainst`, " \
-              "`regularSeason.goalsAgainst`, `regularSeason.goalsAgainstAvg`, `regularSeason.savePctg`, " \
-              "`regularSeason.shutouts`, `regularSeason.timeOnIce`, `playoffs.gamesPlayed`, `playoffs.goals`, " \
-              "`playoffs.assists`, `playoffs.pim`, `playoffs.gamesStarted`, `playoffs.points`, `playoffs.wins`, " \
-              "`playoffs.losses`, `playoffs.otLosses`, `playoffs.shotsAgainst`, `playoffs.goalsAgainst`, " \
-              "`playoffs.goalsAgainstAvg`, `playoffs.savePctg`, `playoffs.shutouts`, `playoffs.timeOnIce`) values " \
-              "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-              "%s, %s, %s, %s, %s, %s)"
+        sql = "insert into goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
+              "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, `regularSeason.gamesStarted`, " \
+              "`regularSeason.points`, `regularSeason.wins`, `regularSeason.losses`, `regularSeason.otLosses`, " \
+              "`regularSeason.shotsAgainst`, `regularSeason.goalsAgainst`, `regularSeason.goalsAgainstAvg`, " \
+              "`regularSeason.savePctg`, `regularSeason.shutouts`, `regularSeason.timeOnIce`, " \
+              "`regularSeason.timeOnIceMinutes`, `regularSeason.timeOnIceSeconds`, " \
+              "`playoffs.gamesPlayed`, `playoffs.goals`, `playoffs.assists`, `playoffs.pim`, " \
+              "`playoffs.gamesStarted`, `playoffs.points`, `playoffs.wins`, `playoffs.losses`, " \
+              "`playoffs.otLosses`, `playoffs.shotsAgainst`, `playoffs.goalsAgainst`, `playoffs.goalsAgainstAvg`, " \
+              "`playoffs.savePctg`, `playoffs.shutouts`, `playoffs.timeOnIce`, `playoffs.timeOnIceMinutes`, " \
+              "`playoffs.timeOnIceSeconds`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         val = ([row['playerId'], row['regularSeason.gamesPlayed'], row['regularSeason.goals'],
                 row['regularSeason.assists'], row['regularSeason.pim'], row['regularSeason.gamesStarted'],
                 row['regularSeason.points'], row['regularSeason.wins'], row['regularSeason.losses'],
                 row['regularSeason.otLosses'], row['regularSeason.shotsAgainst'], row['regularSeason.goalsAgainst'],
                 row['regularSeason.goalsAgainstAvg'], row['regularSeason.savePctg'], row['regularSeason.shutouts'],
-                row['regularSeason.timeOnIce'], row['playoffs.gamesPlayed'], row['playoffs.goals'],
+                row['regularSeason.timeOnIce'], row['regularSeason.timeOnIceMinutes'],
+                row['regularSeason.timeOnIceSeconds'], row['playoffs.gamesPlayed'], row['playoffs.goals'],
                 row['playoffs.assists'], row['playoffs.pim'], row['playoffs.gamesStarted'], row['playoffs.points'],
                 row['playoffs.wins'], row['playoffs.losses'], row['playoffs.otLosses'], row['playoffs.shotsAgainst'],
                 row['playoffs.goalsAgainst'], row['playoffs.goalsAgainstAvg'], row['playoffs.savePctg'],
-                row['playoffs.shutouts'], row['playoffs.timeOnIce']])
+                row['playoffs.shutouts'], row['playoffs.timeOnIce'], row['playoffs.timeOnIceMinutes'],
+                row['playoffs.timeOnIceSeconds']])
     
         cursor.execute(sql, val)
 
@@ -361,14 +394,16 @@ def nhlpandas_load_goalie_season_frame(season_totals_df):
     cursor, db = nhlpandas_db_login()
 
     for index, row in season_totals_df.iterrows():
-        sql = "insert into goalie_season_import (playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, " \
-              "leagueAbbrev, losses, season, sequence, shutouts, ties, timeOnIce, wins, `teamName.default`, " \
-              "savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, pim) values (%s, %s, %s, %s, %s, %s, " \
-              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "insert into goalie_season_import (playerId, gameTypeId, gamesPlayed, goalsAgainst, " \
+              "goalsAgainstAvg, leagueAbbrev, losses, season, sequence, shutouts, ties, timeOnIce, " \
+              "timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, savePctg, shotsAgainst, otLosses, " \
+              "assists, gamesStarted, goals, pim) values " \
+              "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         val = ([row['playerId'], row['gameTypeId'], row['gamesPlayed'], row['goalsAgainst'], row['goalsAgainstAvg'],
                 row['leagueAbbrev'], row['losses'], row['season'], row['sequence'], row['shutouts'], row['ties'],
-                row['timeOnIce'], row['wins'], row['teamName.default'], row['savePctg'], row['shotsAgainst'],
-                row['otLosses'], row['assists'], row['gamesStarted'], row['goals'], row['pim']])
+                row['timeOnIce'], row['timeOnIceMinutes'], row['timeOnIceSeconds'], row['wins'],
+                row['teamName.default'], row['savePctg'], row['shotsAgainst'], row['otLosses'], row['assists'],
+                row['gamesStarted'], row['goals'], row['pim']])
 
         cursor.execute(sql, val)
 
@@ -438,13 +473,14 @@ def nhlpandas_load_player_season_frame(season_totals_df):
     cursor, db = nhlpandas_db_login()
 
     for index, row in season_totals_df.iterrows():
-        sql = "insert into player_season_import (playerId, assists, gameTypeId, gamesPlayed, goals, leagueAbbrev, " \
-              "pim, points, season, sequence, `teamName.default`, gameWinningGoals, plusMinus, powerPlayGoals, " \
-              "shots, faceoffWinningPctg, avgToi, otGoals, powerPlayPoints, shootingPctg, shorthandedPoints) values (" \
-              "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "insert into player_season_import (playerId, assists, gameTypeId, gamesPlayed, goals, " \
+              "leagueAbbrev, pim, points, season, sequence, `teamName.default`, gameWinningGoals, plusMinus, " \
+              "powerPlayGoals, shorthandedGoals, shots, faceoffWinningPctg, avgToi, otGoals, powerPlayPoints, " \
+              "shootingPctg, shorthandedPoints) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+              "%s, %s, %s, %s, %s, %s)"
         val = ([row['playerId'], row['assists'], row['gameTypeId'], row['gamesPlayed'], row['goals'],
                 row['leagueAbbrev'], row['pim'], row['points'], row['season'], row['sequence'], row['teamName.default'],
-                row['gameWinningGoals'], row['plusMinus'], row['powerPlayGoals'], row['shots'],
+                row['gameWinningGoals'], row['plusMinus'], row['powerPlayGoals'], row['shorthandedGoals'], row['shots'],
                 row['faceoffWinningPctg'], row['avgToi'], row['otGoals'], row['powerPlayPoints'], row['shootingPctg'],
                 row['shorthandedPoints']])
 

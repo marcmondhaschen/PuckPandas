@@ -1,7 +1,14 @@
 2024-05-06 Pandas TODO
 	TOI data type conversion problem
 		identify fields in existing _import tables that will need support
+			goalie_career_totals_import
+				regularSeason.timeOnIce
+				playoffs.timeOnIce
+			goalie_season_import
+				timeOnIce
 		google standard patterns to solve for this issue
+			for MySQL table use DATETIME datatype where time starts at '1000-01-01 00:00:00'
+			in Pandas, we'll want to add time values to this start date ('1000-01-01 00:00:00') and then record the date
 		commit required table changes
 
 	Repoll data
@@ -31,7 +38,7 @@ FOR TOMORROW OR LATER
 
 	refactor existing collection processes
 		unify naming conventions
-			rationalize _import table names
+			rationalize '_import' table names
 			name objects & functions accordingly
 		break complex logic into more functions
 		arrange broader metaphors (teams, games, players, etc) into objects
