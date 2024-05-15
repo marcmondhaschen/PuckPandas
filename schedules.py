@@ -17,8 +17,7 @@ def nhlpandas_fetch_schedules():
     """
     # query all the seasons played from the local db
 
-    # team_schedules_sql = 'select triCode, seasonId from team_seasons_import'
-    team_schedules_sql = 'select triCode, seasonId from team_seasons_import where seasonId = 20232024'
+    team_schedules_sql = 'select triCode, seasonId from team_seasons_import'
 
     cursor, db = nhlpandas_db_login()
     team_schedules_df = pd.read_sql(team_schedules_sql, db)
