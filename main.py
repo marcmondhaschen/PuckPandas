@@ -1,11 +1,11 @@
-from players import nhlpandas_etl_players
+from schedules import nhlpandas_etl_schedules
 
 
 # for now, main serves as a program script to test functions
 
 
 def main():
-    nhlpandas_etl_players()
+    nhlpandas_etl_schedules()
 
 
 main()

@@ -15,12 +15,9 @@ def nhl_pandas_fetch_players_to_query():
 
     Returns: player_id_df - a Pandas Dataframe containing playerIds
     """
-    # players_sql = "select distinct a.playerId from (select playerId from game_rosters_import union select playerId " \
-    #               "from rosters_import) as a where a.playerId not in (select playerId from player_import_log) " \
-    #               "order by playerId"
-
     players_sql = "select distinct a.playerId from (select playerId from game_rosters_import union select playerId " \
-                  "from rosters_import) as a order by playerId"
+                  "from rosters_import) as a where a.playerId not in (select playerId from " \
+                  "player_import_log order by playerId"
 
     cursor, db = nhlpandas_db_login()
     player_id_df = pd.read_sql(players_sql, db)

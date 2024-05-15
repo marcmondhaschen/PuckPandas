@@ -16,7 +16,10 @@ def nhlpandas_fetch_schedules():
     provided
     """
     # query all the seasons played from the local db
-    team_schedules_sql = 'select triCode, seasonId from team_seasons_import'
+
+    # team_schedules_sql = 'select triCode, seasonId from team_seasons_import'
+    team_schedules_sql = 'select triCode, seasonId from team_seasons_import where seasonId = 20232024'
+
     cursor, db = nhlpandas_db_login()
     team_schedules_df = pd.read_sql(team_schedules_sql, db)
 
@@ -49,6 +52,8 @@ def nhlpandas_transform_schedules(schedules_df):
 
     Returns: schedules_df - the transformed Pandas Dataframe object
     """
+    # we're pulling the schedule from each teams' schedule, so we need to remove duplicates
+    schedules_df = schedules_df.astype(str).drop_duplicates()
     # Change nan values to null for MySQL
     schedules_df = schedules_df.fillna('')
     return schedules_df
