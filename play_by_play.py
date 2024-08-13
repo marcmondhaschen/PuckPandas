@@ -42,21 +42,21 @@ def nhlpandas_fetch_game_details(gameids_df):
 
         json_data = fetch_json_data(query_url)
 
-        play_by_play_df = pd.json_normalize(json_data['plays'])
-        play_by_play_df['gameId'] = row['gameId']
-        pbp_master_df = pd.concat([pbp_master_df, play_by_play_df])
-        pbp_master_df = nhlpandas_transform_play_by_play(pbp_master_df)
+        if 'plays' in json_data:
+            play_by_play_df = pd.json_normalize(json_data, record_path=['plays'], meta=['id'])
+            pbp_master_df = pd.concat([pbp_master_df, play_by_play_df])
+            pbp_master_df = nhlpandas_transform_play_by_play(pbp_master_df)
 
-        game_roster_df = pd.json_normalize(json_data['rosterSpots'])
-        game_roster_df['gameId'] = row['gameId']
-        gr_master_df = pd.concat([gr_master_df, game_roster_df])
-        gr_master_df = nhlpandas_transform_game_rosters(gr_master_df)
+        if 'rosterSpots' in json_data:
+            game_roster_df = pd.json_normalize(json_data, record_path=['rosterSpots'], meta=['id'])
+            gr_master_df = pd.concat([gr_master_df, game_roster_df])
+            gr_master_df = nhlpandas_transform_game_rosters(gr_master_df)
 
         if nhlpandas_load_pbp_details(pbp_master_df):
             pbp_master_df = pbp_master_df.head(0)
-            if nhlpandas_load_roster_details(gr_master_df):
-                gr_master_df = gr_master_df.head(0)
-                nhlpandas_update_gameid_query_log(row['gameId'])
+        if nhlpandas_load_roster_details(gr_master_df):
+            gr_master_df = gr_master_df.head(0)
+        nhlpandas_update_gameid_query_log(row['gameId'])
 
     return True
 
@@ -129,7 +129,7 @@ def nhlpandas_load_pbp_details(pbp_df):
               "assist2PlayerTotal, awayScore, homeScore) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
               "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
               "%s, %s)"
-        val = (row['gameId'], row['eventId'], row['periodDescriptor.number'], row['periodDescriptor.periodType'],
+        val = (row['id'], row['eventId'], row['periodDescriptor.number'], row['periodDescriptor.periodType'],
                row['timeInPeriod'], row['timeRemaining'], row['situationCode'], row['typeCode'], row['typeDescKey'],
                row['sortOrder'], row['details.eventOwnerTeamId'], row['details.losingPlayerId'],
                row['details.winningPlayerId'], row['details.xCoord'], row['details.yCoord'], row['details.zoneCode'],
@@ -165,7 +165,7 @@ def nhlpandas_load_roster_details(gr_df):
     for index, row in gr_df.iterrows():
         sql = "insert into game_rosters_import (gameId, teamId, playerId, sweaterNumber, positionCode, " \
               "`firstName.default`,`lastName.default`) values (%s, %s, %s, %s, %s, %s, %s)"
-        val = (row['gameId'], row['teamId'], row['playerId'], row['sweaterNumber'], row['positionCode'],
+        val = (row['id'], row['teamId'], row['playerId'], row['sweaterNumber'], row['positionCode'],
                row['firstName.default'], row['lastName.default'])
         cursor.execute(sql, val)
 
@@ -186,7 +186,7 @@ def nhlpandas_master_pbp_frame():
     Returns: play_by_play_df - an empty Pandas Dataframe with columns consistent with a modern game's play-by-play
     """
 
-    play_by_play_df = pd.DataFrame(columns=['gameId', 'eventId', 'timeInPeriod', 'timeRemaining', 'situationCode',
+    play_by_play_df = pd.DataFrame(columns=['eventId', 'timeInPeriod', 'timeRemaining', 'situationCode',
                                             'homeTeamDefendingSide', 'typeCode', 'typeDescKey', 'sortOrder',
                                             'periodDescriptor.number', 'periodDescriptor.periodType',
                                             'details.eventOwnerTeamId', 'details.losingPlayerId',
@@ -200,7 +200,7 @@ def nhlpandas_master_pbp_frame():
                                             'details.assist2PlayerTotal', 'details.awayScore', 'details.homeScore',
                                             'details.blockingPlayerId', 'details.secondaryReason', 'details.typeCode',
                                             'details.descKey', 'details.duration', 'details.committedByPlayerId',
-                                            'details.drawnByPlayerId'])
+                                            'details.drawnByPlayerId', 'id'])
 
     return play_by_play_df
 
@@ -213,8 +213,8 @@ def nhlpandas_master_gr_frame():
 
     Returns: game_roster_df - an empty Pandas Dataframe with columns consistent with a modern game's rosters
     """
-    game_roster_df = pd.DataFrame(columns=['gameId', 'teamId', 'playerId', 'sweaterNumber', 'positionCode',
-                                           'headshot', 'firstName.default', 'lastName.default'])
+    game_roster_df = pd.DataFrame(columns=['teamId', 'playerId', 'sweaterNumber', 'positionCode',
+                                           'headshot', 'firstName.default', 'lastName.default', 'id'])
 
     return game_roster_df
 

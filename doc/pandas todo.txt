@@ -1,22 +1,14 @@
-2024-05-14 Pandas TODO
-	Build delta process for games scheduled but not played
-		identify tables that will need to be appended to
-			game_play_by_play_import
-			game_rosters_import
-			games_import - update only
-			shiftcharts_import
-		check if polling columns are adequate, add tables or columns where appropriate
-
-
-FOR TOMORROW OR LATER
-	find brody's missing goal
-
+2024-05-15 Pandas TODO
 	improve usage of json_normalize across all pages
-		play_by_play.py
+		* play_by_play.py
 		players.py
 		rosters.py
 		schedules.py
 		teams.py
+
+
+FOR TOMORROW OR LATER
+	find brody's missing goal
 
 	shift charts???
 		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
@@ -30,7 +22,7 @@ FOR TOMORROW OR LATER
 	refactor existing collection processes
 		unify naming conventions
 			rationalize '_import' table names
-			name objects & functions accordingly
+			name objects and functions accordingly
 		break complex logic into more functions
 		arrange broader metaphors (teams, games, players, etc) into objects
 			assign existing functions to objects
@@ -52,6 +44,16 @@ FOR TOMORROW OR LATER
 
 
 ********************************************************************************
+2024-05-14 Pandas TODO
+	Build delta process for games scheduled but not played
+		identify tables that will need to be appended to
+			game_play_by_play_import
+			game_rosters_import
+			games_import - update only
+			shiftcharts_import
+		check if polling columns are adequate, add tables or columns where appropriate
+
+
 2024-05-06 Pandas TODO
 	TOI data type conversion problem
 		identify fields in existing _import tables that will need support
