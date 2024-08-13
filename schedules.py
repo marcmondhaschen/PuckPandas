@@ -30,7 +30,7 @@ def nhlpandas_fetch_schedules():
         query_string = "{}{}/{}".format(base_url, row['triCode'], row['seasonId'])
         json_data = fetch_json_data(query_string)
 
-        team_schedule_df = pd.json_normalize(json_data['games'])
+        team_schedule_df = pd.json_normalize(json_data, record_path=['games'])
 
         schedules_df = pd.concat([schedules_df, team_schedule_df])
 
