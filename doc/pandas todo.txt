@@ -4,7 +4,7 @@
 		players.py
 		rosters.py
 		schedules.py
-		teams.py
+		* teams.py
 
 
 FOR TOMORROW OR LATER

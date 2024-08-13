@@ -13,7 +13,7 @@ def nhlpandas_fetch_nhl_teams():
     Returns: teams_df - a Pandas Dataframe object
     """
     data = fetch_json_data('https://api.nhle.com/stats/rest/en/team')
-    teams_df = pd.json_normalize(data['data'])
+    teams_df = pd.json_normalize(data, record_path=['data'])
 
     return teams_df
 
