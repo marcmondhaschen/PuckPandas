@@ -11,9 +11,11 @@ def nhl_pandas_fetch_rosters_to_query():
 
     Returns: rosters_df - a Pandas DataFrame containing a list of triCodes and the seasonIds as described above
     """
-    rosters_sql = 'select a.triCode, a.seasonId, count(b.playerId) as players from team_seasons_import as a left ' \
-                  'join rosters_import as b on a.triCode = b.triCode and a.seasonId = b.seasonId group by ' \
-                  'a.triCode, a.seasonId having players = 0'
+    rosters_sql = "select a.triCode, a.seasonId, 99 as players from team_seasons_import as a " \
+                  "where a.triCode = 'STL' and a.seasonId = 20182019"
+    # rosters_sql = 'select a.triCode, a.seasonId, count(b.playerId) as players from team_seasons_import as a left ' \
+    #               'join rosters_import as b on a.triCode = b.triCode and a.seasonId = b.seasonId group by ' \
+    #               'a.triCode, a.seasonId having players = 0'
     cursor, db = nhlpandas_db_login()
     rosters_df = pd.read_sql(rosters_sql, db)
 
@@ -39,18 +41,17 @@ def nhlpandas_fetch_team_roster_by_season():
 
         json_data = fetch_json_data(query_url)
 
-        forwards_data = json_data['forwards']
-        defensemen_data = json_data['defensemen']
-        goalies_data = json_data['goalies']
+        forwards_data = pd.json_normalize(json_data, record_path=['forwards'])
+        defensemen_data = pd.json_normalize(json_data, record_path=['defensemen'])
+        goalies_data = pd.json_normalize(json_data, record_path=['goalies'])
 
-        this_roster_df = pd.concat([pd.json_normalize(forwards_data), pd.json_normalize(defensemen_data),
-                                    pd.json_normalize(goalies_data)])
+        this_roster_df = pd.concat([forwards_data, defensemen_data, goalies_data])
         this_roster_df = this_roster_df[['id']]
         this_roster_df['triCode'] = row['triCode']
         this_roster_df['seasonId'] = row['seasonId']
 
-        this_roster_df = nhlpandas_transform_team_roster_by_season(this_roster_df)
-        nhlpandas_load_team_roster_by_season_import(this_roster_df)
+        # this_roster_df = nhlpandas_transform_team_roster_by_season(this_roster_df)
+        # nhlpandas_load_team_roster_by_season_import(this_roster_df)
 
     return True
 
