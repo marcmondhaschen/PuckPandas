@@ -17,7 +17,7 @@ def nhl_pandas_fetch_players_to_query():
     """
     players_sql = "select distinct a.playerId from (select playerId from game_rosters_import union select playerId " \
                   "from rosters_import) as a where a.playerId not in (select playerId from " \
-                  "player_import_log order by playerId"
+                  "player_import_log order by playerId)"
 
     cursor, db = nhlpandas_db_login()
     player_id_df = pd.read_sql(players_sql, db)
@@ -51,20 +51,19 @@ def nhl_pandas_fetch_players():
         if json_data != {}:
             # player bio
             player_bio_df = pd.json_normalize(json_data)
-            position = player_bio_df.at[0, 'position']
             master_bio_df = nhlpandas_master_player_frame()
             player_bio_df = pd.concat([master_bio_df, player_bio_df])
             player_bio_df = nhlpandas_transform_player_frame(player_bio_df)
             player_bio_check = nhlpandas_load_player_frame(player_bio_df)
 
-            if "careerTotals" in json_data:
+            position = player_bio_df.at[0, 'position']
+
+            if 'careerTotals' in json_data:
                 # career totals
-                json_career_totals = json_data['careerTotals']
-                career_totals_df = pd.json_normalize(json_career_totals)
-                career_totals_df.insert(loc=0, column='playerId', value=player_id)
+                career_totals_df = pd.json_normalize(json_data, record_path=['careerTotals'], meta=['playerId'])
                 career_totals_df = career_totals_df.fillna('')
 
-                if position == "G":
+                if position == 'G':
                     # goalie career totals
                     master_goalie_career_df = nhlpandas_master_goalie_career_frame()
                     career_totals_df = pd.concat([master_goalie_career_df, career_totals_df])
@@ -77,16 +76,14 @@ def nhl_pandas_fetch_players():
                     career_totals_df = nhlpandas_transform_player_career_frame(career_totals_df)
                     career_check = nhlpandas_load_player_career_frame(career_totals_df)
             else:
-                career_check = True
+                career_check = False
 
-            if "seasonTotals" in json_data:
+            if 'seasonTotals' in json_data:
                 # season totals
-                json_season_totals = json_data['seasonTotals']
-                season_totals_df = pd.json_normalize(json_season_totals)
-                season_totals_df.insert(loc=0, column='playerId', value=player_id)
+                season_totals_df = pd.json_normalize(json_data, record_path=['seasonTotals'], meta=['playerId'])
                 season_totals_df = season_totals_df.fillna('')
 
-                if position == "G":
+                if position == 'G':
                     # goalie season totals
                     master_goalie_season_df = nhlpandas_master_goalie_season_frame()
                     season_totals_df = pd.concat([master_goalie_season_df, season_totals_df])
@@ -99,9 +96,9 @@ def nhl_pandas_fetch_players():
                     season_totals_df = nhlpandas_transform_player_season_frame(season_totals_df)
                     season_check = nhlpandas_load_player_season_frame(season_totals_df)
             else:
-                season_check = True
+                season_check = False
 
-            if "awards" in json_data:
+            if 'awards' in json_data:
                 # awards
                 awards_df = pd.json_normalize(json_data['awards'],
                                               record_path=['seasons'],
