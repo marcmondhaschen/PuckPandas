@@ -1,15 +1,4 @@
-2024-05-15 Pandas TODO
-	improve usage of json_normalize across all pages
-		* play_by_play.py
-		players.py
-		rosters.py
-		* schedules.py
-		* teams.py
-
-
-FOR TOMORROW OR LATER
-	find brody's missing goal
-
+OPEN TODO
 	shift charts???
 		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
 
@@ -44,6 +33,16 @@ FOR TOMORROW OR LATER
 
 
 ********************************************************************************
+2024-05-15 Pandas TODO
+	find brody's missing goal
+
+	improve usage of json_normalize across all pages
+		* play_by_play.py
+		* players.py
+		* rosters.py
+		* schedules.py
+		* teams.py
+
 2024-05-14 Pandas TODO
 	Build delta process for games scheduled but not played
 		identify tables that will need to be appended to
