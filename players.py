@@ -112,11 +112,11 @@ def nhl_pandas_fetch_players():
 
             else:
                 # awards array is absent where player has no NHL awards
-                awards_check = True
+                awards_check = False
 
         else:
             # no records for this playerId
-            player_bio_check = career_check = season_check = awards_check = True
+            player_bio_check = career_check = season_check = awards_check = False
 
         check_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         check_log_df = pd.DataFrame(data=[[player_id, check_date, player_bio_check, career_check, season_check,
@@ -193,11 +193,12 @@ def nhlpandas_master_goalie_season_frame():
 
     Returns: goalie_season_df - an empty Pandas Dataframe with columns consistent with goalie season summary statistics
     """
-    goalie_season_df = pd.DataFrame(columns=['playerId', 'gameTypeId', 'gamesPlayed', 'goalsAgainst', 'goalsAgainstAvg',
-                                             'leagueAbbrev', 'losses', 'season', 'sequence', 'shutouts', 'ties',
-                                             'timeOnIce', 'timeOnIceMinutes', 'timeOnIceSeconds', 'wins',
-                                             'teamName.default', 'savePctg', 'shotsAgainst', 'otLosses', 'assists',
-                                             'gamesStarted', 'goals', 'pim'])
+    goalie_season_df = pd.DataFrame(columns=['playerId', 'assists', 'gameTypeId', 'gamesPlayed', 'gamesStarted',
+                                             'goals', 'goalsAgainst', 'goalsAgainstAvg', 'leagueAbbrev', 'losses',
+                                             'pim', 'season', 'sequence', 'shutouts', 'ties', 'timeOnIce',
+                                             'timeOnIceMinutes', 'timeOnIceSeconds', 'wins', 'teamName.default',
+                                             'savePctg', 'shotsAgainst', 'otLosses', 'assists', 'gamesStarted',
+                                             'goals', 'pim'])
     return goalie_season_df
 
 
