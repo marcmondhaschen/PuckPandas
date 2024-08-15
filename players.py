@@ -109,7 +109,6 @@ def nhl_pandas_fetch_players():
                 awards_df = pd.concat([master_award_df, awards_df])
                 awards_df = nhlpandas_transform_player_award_frame(awards_df)
                 awards_check = nhlpandas_load_player_award_frame(awards_df)
-
             else:
                 # awards array is absent where player has no NHL awards
                 awards_check = False
