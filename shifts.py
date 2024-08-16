@@ -12,7 +12,7 @@ def nhlpandas_fetch_shifts_to_query():
 
     Returns: game_id_df - a Pandas Dataframe containing gameIds
     """
-    games_sql = "select a.gameId, b.gameId from games_import as a left join shift_import_log as b " \
+    games_sql = "select a.gameId from games_import as a left join shift_import_log as b " \
                 "on a.gameId = b.gameId where b.gameId is null;"
 
     cursor, db = nhlpandas_db_login()
@@ -37,23 +37,24 @@ def nhlpandas_fetch_shifts():
 
     for index, row in game_id_df.iterrows():
         game_id = row['gameId']
+        shifts_load_check = False
 
         url_prefix = 'https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId='
         url_string = "{}{}".format(url_prefix, game_id)
         json_data = fetch_json_data(url_string)
 
-        if json_data != {}:
-            shifts_df = pd.json_normalize(json_data)
+        if len(json_data['data']) > 0:
+            shifts_df = pd.json_normalize(json_data, record_path=['data'])
             master_shifts_df = nhlpandas_master_shift_frame()
             shifts_df = pd.concat([shifts_df, master_shifts_df])
             shifts_df = nhlpandas_transform_shifts_frame(shifts_df)
             shifts_load_check = nhlpandas_load_shifts_frame(shifts_df)
 
-            log_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-            log_df = pd.DataFrame(data=[game_id, log_date, shifts_load_check],
-                                  columns=['gameId', 'logDate', 'checked'])
-            log_df = log_df.fillna('')
-            nhlpandas_update_shift_log(log_df)
+        log_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        log_df = pd.DataFrame(data=[[game_id, log_date, shifts_load_check]],
+                              columns=['gameId', 'logDate', 'checked'])
+        log_df = log_df.fillna('')
+        nhlpandas_update_shift_log(log_df)
 
     return True
 
@@ -96,8 +97,9 @@ def nhlpandas_load_shifts_frame(shifts_df):
 
     for index, row in shifts_df.iterrows():
         sql = 'insert into shifts_import (id, detailCode, duration, endTime, eventDescription, eventDetails, ' \
-              'firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, teamAbbrev, teamId, ' \
-              'teamName, typeCode) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+              'eventNumber, firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, ' \
+              'teamAbbrev, teamId, teamName, typeCode) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, ' \
+              '%s, %s, %s, %s, %s, %s, %s)'
         val = [row['id'], row['detailCode'], row['duration'], row['endTime'], row['eventDescription'],
                row['eventDetails'], row['eventNumber'], row['firstName'], row['gameId'], row['hexValue'],
                row['lastName'], row['period'], row['playerId'], row['shiftNumber'], row['startTime'], row['teamAbbrev'],

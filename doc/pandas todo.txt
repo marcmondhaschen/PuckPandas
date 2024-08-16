@@ -1,26 +1,28 @@
 OPEN TODO
-	shift charts???
-		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
-
-	bios???
-		https://api.nhle.com/stats/rest/en/skater/bios?start=000&limit=100&cayenneExp=gameTypeId=2&seasonId%3E=19171918&seasonId%3C=20232024
-		https://api.nhle.com/stats/rest/en/goalie/bios?start=000&limit=100&cayenneExp=gameTypeId=2&seasonId%3E=19171918&seasonId%3C=20232024
-
-	re-poll everything
-
 	refactor existing collection processes
 		unify naming conventions
+			repair all nhl_pandas_ and nhlpandas_ prefixes to nhlpd
 			rationalize '_import' table names
+			push '_import' tables into their own schema
 			name objects and functions accordingly
 		break complex logic into more functions
 		arrange broader metaphors (teams, games, players, etc) into objects
 			assign existing functions to objects
-			flesh out objects with missing or needed crud elements
+			flesh out objects with missing or needed CRUD elements
 			seperate "create new table" and "update existing table" processes
 			start with games_import - updates for this one is probably most immediately useful
 			focus on what happens when playoff schedules emerge & update as playoffs go along
 
+	re-poll everything
+
 	build normalized database layer
+		assign tables to a second database schema
+
+	capture game results summary info from play by play details
+		create new sql table to hold this data
+		create dataframe transform function
+		create master dataframe to catch this data
+		create load function to push this data into database
 
 	build reporting interfaces
 
@@ -31,9 +33,13 @@ OPEN TODO
 	web blog
 
 
-
 ********************************************************************************
-2024-05-15 Pandas TODO
+2024-08-15
+	shift charts
+		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
+
+
+2024-08-14 Pandas TODO
 	find brody's missing goal
 
 	improve usage of json_normalize across all pages
@@ -102,3 +108,10 @@ OPEN TODO
 		daily/hourly commit practice
 		publish to public?
 
+passed - already get this data in the players queryies - biggest advantage to bios is that you could poll many 100s
+	of players at a time
+	bios???
+		https://api.nhle.com/stats/rest/en/skater/bios?start=000&limit=100&cayenneExp=gameTypeId=2
+		&seasonId%3E=19171918&seasonId%3C=20232024
+		https://api.nhle.com/stats/rest/en/goalie/bios?start=000&limit=100&cayenneExp=gameTypeId=2
+		&seasonId%3E=19171918&seasonId%3C=20232024
