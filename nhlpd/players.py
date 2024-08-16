@@ -1,13 +1,13 @@
 from datetime import datetime
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import nhlpandas_db_login
+from mysql_db import db_login
 
 
 # TODO query here is kinda smelly. Reconsider underlying data structures. Maybe combine them or query after we've
 #  moved the supporting tables out of their 'import' state?
 # TODO update to SQLAlchemy query
-def nhl_pandas_fetch_players_to_query():
+def fetch_players_to_query():
     """
     Queries the local SQL database for a list of players to be queried from the NHL
 
@@ -19,7 +19,7 @@ def nhl_pandas_fetch_players_to_query():
                   "from rosters_import) as a where a.playerId not in (select playerId from " \
                   "player_import_log order by playerId)"
 
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
     player_id_df = pd.read_sql(players_sql, db)
 
     return player_id_df
@@ -27,7 +27,7 @@ def nhl_pandas_fetch_players_to_query():
 
 # TODO - add error check on return
 # TODO - break this function into many functions
-def nhl_pandas_fetch_players():
+def fetch_players():
     """
     Queries the NHL API for a player bio and game stats details
 
@@ -35,7 +35,7 @@ def nhl_pandas_fetch_players():
 
     Returns: True - returns True upon completion
     """
-    player_id_df = nhl_pandas_fetch_players_to_query()
+    player_id_df = fetch_players_to_query()
 
     if len(player_id_df) == 0:
         return False
@@ -51,10 +51,10 @@ def nhl_pandas_fetch_players():
         if json_data != {}:
             # player bio
             player_bio_df = pd.json_normalize(json_data)
-            master_bio_df = nhlpandas_master_player_frame()
+            master_bio_df = master_player_frame()
             player_bio_df = pd.concat([master_bio_df, player_bio_df])
-            player_bio_df = nhlpandas_transform_player_frame(player_bio_df)
-            player_bio_check = nhlpandas_load_player_frame(player_bio_df)
+            player_bio_df = transform_player_frame(player_bio_df)
+            player_bio_check = load_player_frame(player_bio_df)
 
             position = player_bio_df.at[0, 'position']
 
@@ -65,16 +65,16 @@ def nhl_pandas_fetch_players():
 
                 if position == 'G':
                     # goalie career totals
-                    master_goalie_career_df = nhlpandas_master_goalie_career_frame()
+                    master_goalie_career_df = master_goalie_career_frame()
                     career_totals_df = pd.concat([master_goalie_career_df, career_totals_df])
-                    career_totals_df = nhlpandas_transform_goalie_career_frame(career_totals_df)
-                    career_check = nhlpandas_load_goalie_career_frame(career_totals_df)
+                    career_totals_df = transform_goalie_career_frame(career_totals_df)
+                    career_check = load_goalie_career_frame(career_totals_df)
                 else:
                     # skater career totals
-                    master_player_career_df = nhlpandas_master_player_career_frame()
+                    master_player_career_df = master_player_career_frame()
                     career_totals_df = pd.concat([master_player_career_df, career_totals_df])
-                    career_totals_df = nhlpandas_transform_player_career_frame(career_totals_df)
-                    career_check = nhlpandas_load_player_career_frame(career_totals_df)
+                    career_totals_df = transform_player_career_frame(career_totals_df)
+                    career_check = load_player_career_frame(career_totals_df)
             else:
                 career_check = False
 
@@ -85,16 +85,16 @@ def nhl_pandas_fetch_players():
 
                 if position == 'G':
                     # goalie season totals
-                    master_goalie_season_df = nhlpandas_master_goalie_season_frame()
+                    master_goalie_season_df = master_goalie_season_frame()
                     season_totals_df = pd.concat([master_goalie_season_df, season_totals_df])
-                    season_totals_df = nhlpandas_transform_goalie_season_frame(season_totals_df)
-                    season_check = nhlpandas_load_goalie_season_frame(season_totals_df)
+                    season_totals_df = transform_goalie_season_frame(season_totals_df)
+                    season_check = load_goalie_season_frame(season_totals_df)
                 else:
                     # skater season totals
-                    master_player_season_df = nhlpandas_master_player_season_frame()
+                    master_player_season_df = master_player_season_frame()
                     season_totals_df = pd.concat([master_player_season_df, season_totals_df])
-                    season_totals_df = nhlpandas_transform_player_season_frame(season_totals_df)
-                    season_check = nhlpandas_load_player_season_frame(season_totals_df)
+                    season_totals_df = transform_player_season_frame(season_totals_df)
+                    season_check = load_player_season_frame(season_totals_df)
             else:
                 season_check = False
 
@@ -105,10 +105,10 @@ def nhl_pandas_fetch_players():
                                               meta=[['trophy', 'default']])
                 awards_df.insert(loc=0, column='playerId', value=player_id)
 
-                master_award_df = nhlpandas_master_player_award_frame()
+                master_award_df = master_player_award_frame()
                 awards_df = pd.concat([master_award_df, awards_df])
-                awards_df = nhlpandas_transform_player_award_frame(awards_df)
-                awards_check = nhlpandas_load_player_award_frame(awards_df)
+                awards_df = transform_player_award_frame(awards_df)
+                awards_check = load_player_award_frame(awards_df)
             else:
                 # awards array is absent where player has no NHL awards
                 awards_check = False
@@ -122,12 +122,12 @@ def nhl_pandas_fetch_players():
                                            awards_check]],
                                     columns=['playerId', 'logDate', 'playerBio', 'career', 'season', 'awards'])
         check_log_df = check_log_df.fillna('')
-        nhlpandas_update_player_log(check_log_df)
+        update_player_log(check_log_df)
 
     return True
 
 
-def nhlpandas_master_player_frame():
+def master_player_frame():
     """
     Manually builds an empty Pandas Dataframe with columns consistent with player bio information
 
@@ -145,7 +145,7 @@ def nhlpandas_master_player_frame():
     return player_bio_df
 
 
-def nhlpandas_master_player_award_frame():
+def master_player_award_frame():
     """
     Manually builds an empty Pandas Dataframe with columns consistent with trophy and awards info, by season
 
@@ -158,7 +158,7 @@ def nhlpandas_master_player_award_frame():
     return player_award_df
 
 
-def nhlpandas_master_goalie_career_frame():
+def master_goalie_career_frame():
     """
     Manually builds an empty Pandas Dataframe with columns consistent with goalie career summary statistics
 
@@ -184,7 +184,7 @@ def nhlpandas_master_goalie_career_frame():
     return goalie_career_df
 
 
-def nhlpandas_master_goalie_season_frame():
+def master_goalie_season_frame():
     """
     Manually builds an empty Pandas Dataframe with columns consistent with goalie season summary statistics
 
@@ -201,7 +201,7 @@ def nhlpandas_master_goalie_season_frame():
     return goalie_season_df
 
 
-def nhlpandas_master_player_career_frame():
+def master_player_career_frame():
     """
     Manually builds an empty Pandas Dataframe with columns consistent with player career summary statistics
 
@@ -228,7 +228,7 @@ def nhlpandas_master_player_career_frame():
     return player_career_df
 
 
-def nhlpandas_master_player_season_frame():
+def master_player_season_frame():
     """
     Manually builds an empty Pandas Dataframe with columns consistent with player season summary statistics
 
@@ -245,17 +245,17 @@ def nhlpandas_master_player_season_frame():
     return player_season_df
 
 
-def nhlpandas_transform_player_frame(player_bio_df):
+def transform_player_frame(player_bio_df):
     player_bio_df = player_bio_df.fillna('')
     return player_bio_df
 
 
-def nhlpandas_transform_player_award_frame(player_award_df):
+def transform_player_award_frame(player_award_df):
     player_award_df = player_award_df.fillna('')
     return player_award_df
 
 
-def nhlpandas_transform_goalie_career_frame(career_totals_df):
+def transform_goalie_career_frame(career_totals_df):
     career_totals_df = career_totals_df.fillna(0)
     # Pandas has a hard time with large-minute time values, and MySQL can't store times of more than 839 hours
     # we'll need to convert some columns' time values to integer seconds before storing them
@@ -274,7 +274,7 @@ def nhlpandas_transform_goalie_career_frame(career_totals_df):
     return career_totals_df
 
 
-def nhlpandas_transform_goalie_season_frame(season_totals_df):
+def transform_goalie_season_frame(season_totals_df):
     if not season_totals_df.empty:
         season_totals_df = season_totals_df.fillna(0)
         season_totals_df.loc[season_totals_df.timeOnIce == '', 'timeOnIce'] = '0:00'
@@ -286,17 +286,17 @@ def nhlpandas_transform_goalie_season_frame(season_totals_df):
     return season_totals_df
 
 
-def nhlpandas_transform_player_career_frame(career_totals_df):
+def transform_player_career_frame(career_totals_df):
     career_totals_df = career_totals_df.fillna('')
     return career_totals_df
 
 
-def nhlpandas_transform_player_season_frame(season_totals_df):
+def transform_player_season_frame(season_totals_df):
     season_totals_df = season_totals_df.fillna('')
     return season_totals_df
 
 
-def nhlpandas_load_player_frame(player_bio_df):
+def load_player_frame(player_bio_df):
     """
     Inserts player biography into the local SQL database
 
@@ -304,7 +304,7 @@ def nhlpandas_load_player_frame(player_bio_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in player_bio_df.iterrows():
         sql = "insert into player_bios_import (playerId, isActive, currentTeamId, currentTeamAbbrev, " \
@@ -334,7 +334,7 @@ def nhlpandas_load_player_frame(player_bio_df):
     return True
 
 
-def nhlpandas_load_goalie_career_frame(career_totals_df):
+def load_goalie_career_frame(career_totals_df):
     """
     Inserts a set of goalie's summarized career statistics into the local database
 
@@ -342,7 +342,7 @@ def nhlpandas_load_goalie_career_frame(career_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in career_totals_df.iterrows():
         sql = "insert into goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
@@ -380,7 +380,7 @@ def nhlpandas_load_goalie_career_frame(career_totals_df):
     return True
 
 
-def nhlpandas_load_goalie_season_frame(season_totals_df):
+def load_goalie_season_frame(season_totals_df):
     """
     Inserts a set of goalie stats summarized by season into the local database
 
@@ -388,7 +388,7 @@ def nhlpandas_load_goalie_season_frame(season_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in season_totals_df.iterrows():
         sql = "insert into goalie_season_import (playerId, gameTypeId, gamesPlayed, goalsAgainst, " \
@@ -412,7 +412,7 @@ def nhlpandas_load_goalie_season_frame(season_totals_df):
     return True
 
 
-def nhlpandas_load_player_career_frame(career_totals_df):
+def load_player_career_frame(career_totals_df):
     """
     Inserts player career summary statistics into the local database
 
@@ -420,7 +420,7 @@ def nhlpandas_load_player_career_frame(career_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in career_totals_df.iterrows():
         sql = "insert into player_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
@@ -459,7 +459,7 @@ def nhlpandas_load_player_career_frame(career_totals_df):
 
 
 # TODO - add error checking on return
-def nhlpandas_load_player_season_frame(season_totals_df):
+def load_player_season_frame(season_totals_df):
     """
     Inserts player statistics summarized by season into the local database
 
@@ -467,7 +467,7 @@ def nhlpandas_load_player_season_frame(season_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in season_totals_df.iterrows():
         sql = "insert into player_season_import (playerId, assists, gameTypeId, gamesPlayed, goals, " \
@@ -492,7 +492,7 @@ def nhlpandas_load_player_season_frame(season_totals_df):
 
 
 # TODO - add error checking on return
-def nhlpandas_load_player_award_frame(awards_df):
+def load_player_award_frame(awards_df):
     """
     Inserts trophy & award records into the player_award_import table
 
@@ -500,7 +500,7 @@ def nhlpandas_load_player_award_frame(awards_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in awards_df.iterrows():
         sql = 'insert into player_award_import (playerId, seasonId, `trophy.default`) values (%s, %s, %s)'
@@ -517,7 +517,7 @@ def nhlpandas_load_player_award_frame(awards_df):
 
 
 # TODO - add error checking on return
-def nhlpandas_update_player_log(check_log_df):
+def update_player_log(check_log_df):
     """
     Logs each player & player record set imported.
 
@@ -525,7 +525,7 @@ def nhlpandas_update_player_log(check_log_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in check_log_df.iterrows():
         sql = "insert into player_import_log (playerId, logDate, playerBio, career, season, awards) values (%s, %s, " \
@@ -543,7 +543,7 @@ def nhlpandas_update_player_log(check_log_df):
 
 
 # TODO - add error checking on return
-def nhlpandas_etl_players():
+def etl_players():
     """
     Queries the local database for a list of playerIds and uses that list to query the NHL API for biographical and
     statistical information related to that playerId. Stores data from those API responses to a number of local
@@ -553,5 +553,5 @@ def nhlpandas_etl_players():
 
     Returns: check_var - returns True upon completion
     """
-    check_var = nhl_pandas_fetch_players()
+    check_var = fetch_players()
     return check_var

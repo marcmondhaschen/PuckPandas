@@ -1,9 +1,9 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import nhlpandas_db_login
+from mysql_db import db_login
 
 
-def nhl_pandas_fetch_rosters_to_query():
+def fetch_rosters_to_query():
     """
     Queries the local MySQL database for a list of team triCodes and the seasonIds played so far for each team/triCode
 
@@ -16,13 +16,13 @@ def nhl_pandas_fetch_rosters_to_query():
     # rosters_sql = 'select a.triCode, a.seasonId, count(b.playerId) as players from team_seasons_import as a left ' \
     #               'join rosters_import as b on a.triCode = b.triCode and a.seasonId = b.seasonId group by ' \
     #               'a.triCode, a.seasonId having players = 0'
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
     rosters_df = pd.read_sql(rosters_sql, db)
 
     return rosters_df
 
 
-def nhlpandas_fetch_team_roster_by_season():
+def fetch_team_roster_by_season():
     """
     Queries the NHL API for team rosters for each triCode and seasonId provided
 
@@ -30,7 +30,7 @@ def nhlpandas_fetch_team_roster_by_season():
 
     Returns: roster_players_df - a Pandas Dataframe containing
     """
-    rosters_df = nhl_pandas_fetch_rosters_to_query()
+    rosters_df = fetch_rosters_to_query()
 
     if len(rosters_df) == 0:
         return False
@@ -50,13 +50,13 @@ def nhlpandas_fetch_team_roster_by_season():
         this_roster_df['triCode'] = row['triCode']
         this_roster_df['seasonId'] = row['seasonId']
 
-        # this_roster_df = nhlpandas_transform_team_roster_by_season(this_roster_df)
-        # nhlpandas_load_team_roster_by_season_import(this_roster_df)
+        # this_roster_df = transform_team_roster_by_season(this_roster_df)
+        # load_team_roster_by_season_import(this_roster_df)
 
     return True
 
 
-def nhlpandas_transform_team_roster_by_season(roster_players_df):
+def transform_team_roster_by_season(roster_players_df):
     """
     Transforms the Pandas dataframe to ready it for import into the local MySQL database
 
@@ -69,7 +69,7 @@ def nhlpandas_transform_team_roster_by_season(roster_players_df):
     return roster_players_df
 
 
-def nhlpandas_load_team_roster_by_season_import(this_roster_df):
+def load_team_roster_by_season_import(this_roster_df):
     """
     Imports the transformed rosters DataFrame into the local MySQL database
 
@@ -77,7 +77,7 @@ def nhlpandas_load_team_roster_by_season_import(this_roster_df):
 
     Returns: this_roster_df - the Pandas Dataframe with rosters by season to be imported
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in this_roster_df.iterrows():
         sql = "insert into rosters_import (`triCode`, `seasonId`, `playerId`) values (%s,  %s, %s)"
@@ -90,7 +90,7 @@ def nhlpandas_load_team_roster_by_season_import(this_roster_df):
     return True
 
 
-def nhlpandas_etl_team_roster_by_season():
+def etl_team_roster_by_season():
     """
     Queries a list of teams and seasons that each team played from the local database, uses this list to query a
     roster for each team & season, transforms the NHL's JSON response into a Pandas Dataframe, and imports that
@@ -100,6 +100,6 @@ def nhlpandas_etl_team_roster_by_season():
 
     Returns: check_var - returns True upon completion
     """
-    check_var = nhlpandas_fetch_team_roster_by_season()
+    check_var = fetch_team_roster_by_season()
 
     return check_var

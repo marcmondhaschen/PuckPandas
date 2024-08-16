@@ -1,11 +1,11 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import nhlpandas_db_login
+from mysql_db import db_login
 
 
 # TODO write a function to update the `games` table for games that were scheduled into the future at the last polling,
 #  but have since happened
-def nhlpandas_fetch_schedules():
+def fetch_schedules():
     """
     Queries the local MySQL database for a list of seasons played for each team and uses that list to query the NHL API
     for a list of games played for each
@@ -19,7 +19,7 @@ def nhlpandas_fetch_schedules():
 
     team_schedules_sql = 'select triCode, seasonId from team_seasons_import'
 
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
     team_schedules_df = pd.read_sql(team_schedules_sql, db)
 
     # query schedules played for each team and season from NHL
@@ -43,7 +43,7 @@ def nhlpandas_fetch_schedules():
 
 
 # format the seasons dataframe
-def nhlpandas_transform_schedules(schedules_df):
+def transform_schedules(schedules_df):
     """
     Transforms the Pandas dataframe to ready it for import into the local MySQL database
 
@@ -59,7 +59,7 @@ def nhlpandas_transform_schedules(schedules_df):
 
 
 # TODO error checking on return
-def nhlpandas_load_seasons_schedules(schedules_df):
+def load_seasons_schedules(schedules_df):
     """
     Imports the transformed schedules DataFrame into the local MySQL database
 
@@ -67,7 +67,7 @@ def nhlpandas_load_seasons_schedules(schedules_df):
 
     Returns: True - Returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in schedules_df.iterrows():
         sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, " \
@@ -90,7 +90,7 @@ def nhlpandas_load_seasons_schedules(schedules_df):
 
 
 # TODO error checking on return
-def nhlpandas_etl_schedules():
+def etl_schedules():
     """
     Queries a list of games played for each team and season from the NHL API, transforms the NHL's JSON response into
     a Pandas Dataframe, and imports that DataFrame into a local MySQL table
@@ -99,8 +99,8 @@ def nhlpandas_etl_schedules():
 
     Returns: True - Returns True upon completion
     """
-    df = nhlpandas_fetch_schedules()
-    df = nhlpandas_transform_schedules(df)
-    nhlpandas_load_seasons_schedules(df)
+    df = fetch_schedules()
+    df = transform_schedules(df)
+    load_seasons_schedules(df)
 
     return True

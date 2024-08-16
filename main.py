@@ -1,11 +1,9 @@
-from shifts import nhlpandas_etl_shifts
+import nhlpd
 
 
 # for now, main serves as a program script to test functions
-
-
 def main():
-    nhlpandas_etl_shifts()
+    nhlpd.etl_shifts()
 
 
 main()

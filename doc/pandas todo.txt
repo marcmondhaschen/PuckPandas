@@ -1,10 +1,5 @@
 OPEN TODO
-	refactor existing collection processes
-		unify naming conventions
-			repair all nhl_pandas_ and nhlpandas_ prefixes to nhlpd
-			rationalize '_import' table names
-			push '_import' tables into their own schema
-			name objects and functions accordingly
+	refactor existing collection & import processes
 		break complex logic into more functions
 		arrange broader metaphors (teams, games, players, etc) into objects
 			assign existing functions to objects
@@ -34,10 +29,23 @@ OPEN TODO
 
 
 ********************************************************************************
+2024-08-16
+	refactor existing collection & import processes
+		unify naming conventions
+			remove all nhl_pandas_ and nhlpandas_ prefixes and import "as nhlpd."
+			* rationalize '_import' table names
+			push '_import' tables into their own schema
+			name objects and functions accordingly
+		make object files into a single (easily imported) library
+			* build an lib folder for the collection object files
+			* build an __init__.py
+			* import object files to this __init__ file
+			* move main.py and scrap.py out of this folder
+
 2024-08-15
 	shift charts
 		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
-
+	store to shifts_import table
 
 2024-08-14 Pandas TODO
 	find brody's missing goal

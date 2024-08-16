@@ -1,10 +1,10 @@
 from datetime import datetime
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import nhlpandas_db_login
+from mysql_db import db_login
 
 
-def nhlpandas_fetch_shifts_to_query():
+def fetch_shifts_to_query():
     """
     Queries the local SQL database for a list of games to have their shifts queried from the NHL
 
@@ -15,13 +15,13 @@ def nhlpandas_fetch_shifts_to_query():
     games_sql = "select a.gameId from games_import as a left join shift_import_log as b " \
                 "on a.gameId = b.gameId where b.gameId is null;"
 
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
     game_id_df = pd.read_sql(games_sql, db)
 
     return game_id_df
 
 
-def nhlpandas_fetch_shifts():
+def fetch_shifts():
     """
     Queries the NHL API for shift details by player for each game
 
@@ -30,7 +30,7 @@ def nhlpandas_fetch_shifts():
     Returns:
     """
 
-    game_id_df = nhlpandas_fetch_shifts_to_query()
+    game_id_df = fetch_shifts_to_query()
 
     if len(game_id_df) == 0:
         return False
@@ -45,21 +45,21 @@ def nhlpandas_fetch_shifts():
 
         if len(json_data['data']) > 0:
             shifts_df = pd.json_normalize(json_data, record_path=['data'])
-            master_shifts_df = nhlpandas_master_shift_frame()
+            master_shifts_df = master_shift_frame()
             shifts_df = pd.concat([shifts_df, master_shifts_df])
-            shifts_df = nhlpandas_transform_shifts_frame(shifts_df)
-            shifts_load_check = nhlpandas_load_shifts_frame(shifts_df)
+            shifts_df = transform_shifts_frame(shifts_df)
+            shifts_load_check = load_shifts_frame(shifts_df)
 
         log_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
         log_df = pd.DataFrame(data=[[game_id, log_date, shifts_load_check]],
                               columns=['gameId', 'logDate', 'checked'])
         log_df = log_df.fillna('')
-        nhlpandas_update_shift_log(log_df)
+        update_shift_log(log_df)
 
     return True
 
 
-def nhlpandas_master_shift_frame():
+def master_shift_frame():
     """ Manually builds an empty Pandas Dataframe with columns consistent with shift statistics
 
     Parameters: none
@@ -73,7 +73,7 @@ def nhlpandas_master_shift_frame():
     return shifts_df
 
 
-def nhlpandas_transform_shifts_frame(shifts_df):
+def transform_shifts_frame(shifts_df):
     """
     Transforms shifts import data so that it's ready to import into the database
 
@@ -85,7 +85,7 @@ def nhlpandas_transform_shifts_frame(shifts_df):
     return shifts_df
 
 
-def nhlpandas_load_shifts_frame(shifts_df):
+def load_shifts_frame(shifts_df):
     """
     Inserts shift records into the shifts_import table
 
@@ -93,7 +93,7 @@ def nhlpandas_load_shifts_frame(shifts_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in shifts_df.iterrows():
         sql = 'insert into shifts_import (id, detailCode, duration, endTime, eventDescription, eventDetails, ' \
@@ -115,7 +115,7 @@ def nhlpandas_load_shifts_frame(shifts_df):
     return True
 
 
-def nhlpandas_update_shift_log(log_df):
+def update_shift_log(log_df):
     """
     Logs when each game's shifts are recorded.
 
@@ -123,7 +123,7 @@ def nhlpandas_update_shift_log(log_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in log_df.iterrows():
         sql = "insert into shift_import_log (gameId, logDate, checked) values (%s, %s, %s)"
@@ -139,7 +139,7 @@ def nhlpandas_update_shift_log(log_df):
     return True
 
 
-def nhlpandas_etl_shifts():
+def etl_shifts():
     """
     Queries the local database for a list of games with no shift data, queries that data from the NHL, and loads it
     to the local database
@@ -148,5 +148,5 @@ def nhlpandas_etl_shifts():
 
     Returns: checkvar - a bool to verify that function has run
     """
-    check_var = nhlpandas_fetch_shifts()
+    check_var = fetch_shifts()
     return check_var

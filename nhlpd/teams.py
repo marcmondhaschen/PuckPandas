@@ -1,9 +1,9 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import nhlpandas_db_login
+from mysql_db import db_login
 
 
-def nhlpandas_fetch_nhl_teams():
+def fetch_nhl_teams():
     """
     Requests a list of past & present NHL teams from the NHLE API. Receives the NHL's reply in JSON and returns a
     Pandas DataFrame object with the same info.
@@ -18,7 +18,7 @@ def nhlpandas_fetch_nhl_teams():
     return teams_df
 
 
-def nhlpandas_transform_nhl_teams(teams_df):
+def transform_nhl_teams(teams_df):
     """
     Transforms the Pandas dataframe to ready it for import into the local MySQL database
 
@@ -36,7 +36,7 @@ def nhlpandas_transform_nhl_teams(teams_df):
 
 
 # TODO error checking on return
-def nhlpandas_load_nhl_teams_import(teams_df):
+def load_nhl_teams_import(teams_df):
     """
     Imports the transformed NHL teams dataframe into the local MySQL database
 
@@ -44,7 +44,7 @@ def nhlpandas_load_nhl_teams_import(teams_df):
 
     Returns: True - Returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in teams_df.iterrows():
         sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) values (%s, %s, %s, %s, %s)"
@@ -59,7 +59,7 @@ def nhlpandas_load_nhl_teams_import(teams_df):
 
 
 # TODO error checking on return
-def nhlpandas_etl_nhl_teams():
+def etl_nhl_teams():
     """
     Queries a list of NHL teams from the NHL API, transforms the JSON response into a Pandas DataFrame,
     and imports that DataFrame to a local MySQL table
@@ -68,8 +68,8 @@ def nhlpandas_etl_nhl_teams():
 
     Returns: True - Returns True upon completion
     """
-    df = nhlpandas_fetch_nhl_teams()
-    df = nhlpandas_transform_nhl_teams(df)
-    nhlpandas_load_nhl_teams_import(df)
+    df = fetch_nhl_teams()
+    df = transform_nhl_teams(df)
+    load_nhl_teams_import(df)
 
     return True

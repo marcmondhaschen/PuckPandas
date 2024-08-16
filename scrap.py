@@ -36,7 +36,7 @@
 # show result
 # print(df)
 
-# def nhlpandas_fetch_seasons():
+# def fetch_seasons():
 #     # data = fetch_json_data('https://statsapi.web.nhl.com/api/v1/seasons')
 #     json_data = fetch_json_data('https://api.nhle.com/stats/rest/en/season?')
 #
@@ -48,7 +48,7 @@
 #     return seasons_df
 #
 #
-# test_df = nhlpandas_fetch_seasons()
+# test_df = fetch_seasons()
 
 
 # json_data = fetch_json_data('https://api-web.nhle.com/v1/player/8478402/landing')
@@ -86,8 +86,9 @@
 import pandas as pd
 from alchemy_db import nhlpandas_dba_login
 from sqlalchemy import insert, select, and_, or_
+import nhlpd as nhlpd
 
-engine = nhlpandas_dba_login()
+engine = nhlpd.nhlpandas_dba_login()
 
 with engine.connect() as conn:
     sql = "select * from teams_import"

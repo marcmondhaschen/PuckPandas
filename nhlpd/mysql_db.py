@@ -3,7 +3,7 @@ import mysql.connector
 from dotenv import load_dotenv
 
 
-def nhlpandas_db_login():
+def db_login():
     """
     Uses dotenv library and local .env credentials to provide database access
 

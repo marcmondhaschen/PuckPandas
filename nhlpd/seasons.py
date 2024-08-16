@@ -1,9 +1,9 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import nhlpandas_db_login
+from mysql_db import db_login
 
 
-def nhlpandas_fetch_seasons():
+def fetch_seasons():
     """
     Queries the local MySQL database for a list of NHL teams and uses that list to query the NHL API for a list of
     seasons played for each NHL team
@@ -15,7 +15,7 @@ def nhlpandas_fetch_seasons():
     """
     # query all the team codes from the local db
     teams_sql = 'select triCode from teams'
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
     teams_df = pd.read_sql(teams_sql, db)
 
     # query seasons played for each team code from NHL
@@ -41,7 +41,7 @@ def nhlpandas_fetch_seasons():
     return team_seasons_df
 
 
-def nhlpandas_transform_seasons(team_seasons_df: pd.DataFrame):
+def transform_seasons(team_seasons_df: pd.DataFrame):
     """
     Transforms the Pandas dataframe to ready it for import into the local MySQL database
 
@@ -59,7 +59,7 @@ def nhlpandas_transform_seasons(team_seasons_df: pd.DataFrame):
 
 
 # TODO error checking on return
-def nhlpandas_load_seasons_import(team_seasons_df: pd.DataFrame):
+def load_seasons_import(team_seasons_df: pd.DataFrame):
     """
     Imports the transformed NHL seasons played for each team into the local MySQL database
 
@@ -67,7 +67,7 @@ def nhlpandas_load_seasons_import(team_seasons_df: pd.DataFrame):
 
     Returns: True - Returns True upon completion
     """
-    cursor, db = nhlpandas_db_login()
+    cursor, db = db_login()
 
     for index, row in team_seasons_df.iterrows():
         sql = "insert into team_seasons (triCode, seasonId) values (%s, %s)"
@@ -83,7 +83,7 @@ def nhlpandas_load_seasons_import(team_seasons_df: pd.DataFrame):
 
 
 # TODO error checking on return
-def nhlpandas_etl_seasons():
+def etl_seasons():
     """
     Queries a list of seasons played for each NHL team from the NHL API, transforms the JSON responses into a
     Pandas DataFrame, and imports that DataFrame to a local MySQL table
@@ -92,7 +92,7 @@ def nhlpandas_etl_seasons():
 
     Returns: True - Returns True upon completion
     """
-    df = nhlpandas_fetch_seasons()
-    df = nhlpandas_transform_seasons(df)
-    nhlpandas_load_seasons_import(df)
+    df = fetch_seasons()
+    df = transform_seasons(df)
+    load_seasons_import(df)
     return True
