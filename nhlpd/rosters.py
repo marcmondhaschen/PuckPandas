@@ -1,6 +1,6 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 def fetch_rosters_to_query():
@@ -16,7 +16,7 @@ def fetch_rosters_to_query():
     # rosters_sql = 'select a.triCode, a.seasonId, count(b.playerId) as players from team_seasons_import as a left ' \
     #               'join rosters_import as b on a.triCode = b.triCode and a.seasonId = b.seasonId group by ' \
     #               'a.triCode, a.seasonId having players = 0'
-    cursor, db = db_login()
+    cursor, db = db_import_login()
     rosters_df = pd.read_sql(rosters_sql, db)
 
     return rosters_df
@@ -77,7 +77,7 @@ def load_team_roster_by_season_import(this_roster_df):
 
     Returns: this_roster_df - the Pandas Dataframe with rosters by season to be imported
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in this_roster_df.iterrows():
         sql = "insert into rosters_import (`triCode`, `seasonId`, `playerId`) values (%s,  %s, %s)"

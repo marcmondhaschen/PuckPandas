@@ -1,7 +1,7 @@
 from datetime import datetime
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 # TODO query here is kinda smelly. Reconsider underlying data structures. Maybe combine them or query after we've
@@ -19,7 +19,7 @@ def fetch_players_to_query():
                   "from rosters_import) as a where a.playerId not in (select playerId from " \
                   "player_import_log order by playerId)"
 
-    cursor, db = db_login()
+    cursor, db = db_import_login()
     player_id_df = pd.read_sql(players_sql, db)
 
     return player_id_df
@@ -304,7 +304,7 @@ def load_player_frame(player_bio_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in player_bio_df.iterrows():
         sql = "insert into player_bios_import (playerId, isActive, currentTeamId, currentTeamAbbrev, " \
@@ -342,7 +342,7 @@ def load_goalie_career_frame(career_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in career_totals_df.iterrows():
         sql = "insert into goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
@@ -388,7 +388,7 @@ def load_goalie_season_frame(season_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in season_totals_df.iterrows():
         sql = "insert into goalie_season_import (playerId, gameTypeId, gamesPlayed, goalsAgainst, " \
@@ -420,7 +420,7 @@ def load_player_career_frame(career_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in career_totals_df.iterrows():
         sql = "insert into player_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
@@ -467,7 +467,7 @@ def load_player_season_frame(season_totals_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in season_totals_df.iterrows():
         sql = "insert into player_season_import (playerId, assists, gameTypeId, gamesPlayed, goals, " \
@@ -500,7 +500,7 @@ def load_player_award_frame(awards_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in awards_df.iterrows():
         sql = 'insert into player_award_import (playerId, seasonId, `trophy.default`) values (%s, %s, %s)'
@@ -525,7 +525,7 @@ def update_player_log(check_log_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in check_log_df.iterrows():
         sql = "insert into player_import_log (playerId, logDate, playerBio, career, season, awards) values (%s, %s, " \

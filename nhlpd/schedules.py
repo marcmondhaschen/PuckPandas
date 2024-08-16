@@ -1,6 +1,6 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 # TODO write a function to update the `games` table for games that were scheduled into the future at the last polling,
@@ -19,7 +19,7 @@ def fetch_schedules():
 
     team_schedules_sql = 'select triCode, seasonId from team_seasons_import'
 
-    cursor, db = db_login()
+    cursor, db = db_import_login()
     team_schedules_df = pd.read_sql(team_schedules_sql, db)
 
     # query schedules played for each team and season from NHL
@@ -67,7 +67,7 @@ def load_seasons_schedules(schedules_df):
 
     Returns: True - Returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in schedules_df.iterrows():
         sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, " \

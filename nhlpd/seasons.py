@@ -1,6 +1,6 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 def fetch_seasons():
@@ -15,7 +15,7 @@ def fetch_seasons():
     """
     # query all the team codes from the local db
     teams_sql = 'select triCode from teams'
-    cursor, db = db_login()
+    cursor, db = db_import_login()
     teams_df = pd.read_sql(teams_sql, db)
 
     # query seasons played for each team code from NHL
@@ -67,7 +67,7 @@ def load_seasons_import(team_seasons_df: pd.DataFrame):
 
     Returns: True - Returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in team_seasons_df.iterrows():
         sql = "insert into team_seasons (triCode, seasonId) values (%s, %s)"

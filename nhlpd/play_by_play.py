@@ -1,6 +1,6 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 def fetch_gameids_to_query():
@@ -14,7 +14,7 @@ def fetch_gameids_to_query():
     """
     gameids_sql = 'select distinct gameId from games_import where gameDate < date_sub(sysdate(), INTERVAL 2 DAY) ' \
                   'and (PBPCheckSuccess is null or PBPCheckSuccess = 0) order by gameDate desc, gameId'
-    cursor, db = db_login()
+    cursor, db = db_import_login()
     gameids_df = pd.read_sql(gameids_sql, db)
 
     return gameids_df
@@ -71,7 +71,7 @@ def update_gameid_query_log(gameid):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     sql = "update games_import set PBPCheckSuccess = True, datePBPChecked = CURRENT_DATE where gameId = %s"
     var = [int(gameid)]
@@ -117,7 +117,7 @@ def load_pbp_details(pbp_df):
     Returns: True - returns True upon completion
     """
 
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in pbp_df.iterrows():
         sql = "insert into game_play_by_play_import (gameId, eventId, period, periodType, timeInPeriod, " \
@@ -160,7 +160,7 @@ def load_roster_details(gr_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in gr_df.iterrows():
         sql = "insert into game_rosters_import (gameId, teamId, playerId, sweaterNumber, positionCode, " \

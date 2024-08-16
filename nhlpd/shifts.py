@@ -1,7 +1,7 @@
 from datetime import datetime
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 def fetch_shifts_to_query():
@@ -15,7 +15,7 @@ def fetch_shifts_to_query():
     games_sql = "select a.gameId from games_import as a left join shift_import_log as b " \
                 "on a.gameId = b.gameId where b.gameId is null;"
 
-    cursor, db = db_login()
+    cursor, db = db_import_login()
     game_id_df = pd.read_sql(games_sql, db)
 
     return game_id_df
@@ -93,7 +93,7 @@ def load_shifts_frame(shifts_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in shifts_df.iterrows():
         sql = 'insert into shifts_import (id, detailCode, duration, endTime, eventDescription, eventDetails, ' \
@@ -123,7 +123,7 @@ def update_shift_log(log_df):
 
     Returns: True - returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in log_df.iterrows():
         sql = "insert into shift_import_log (gameId, logDate, checked) values (%s, %s, %s)"

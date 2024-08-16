@@ -1,6 +1,6 @@
 import pandas as pd
 from api_query import fetch_json_data
-from mysql_db import db_login
+from mysql_db import db_import_login
 
 
 def fetch_nhl_teams():
@@ -44,7 +44,7 @@ def load_nhl_teams_import(teams_df):
 
     Returns: True - Returns True upon completion
     """
-    cursor, db = db_login()
+    cursor, db = db_import_login()
 
     for index, row in teams_df.iterrows():
         sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) values (%s, %s, %s, %s, %s)"
