@@ -11,13 +11,6 @@ class TeamsImport:
 
     @staticmethod
     def updateDB(self):
-        """
-        Imports the teams dataframe contents into the local MySQL database
-
-        Parameters: none
-
-        Returns: True - Returns True upon completion
-        """
         if len(self.teams_df) > 0:
             cursor, db = db_import_login()
 
@@ -34,7 +27,6 @@ class TeamsImport:
 
     @staticmethod
     def clearDB():
-
         cursor, db = db_import_login()
 
         sql = "truncate table teams_import"
@@ -46,15 +38,6 @@ class TeamsImport:
         return True
 
     def queryDB(self):
-        """
-        Requests a list of NHL teams currently loaded in the local database. Updates the Teams object's teams_df with
-        the database's reply.
-
-        Parameters:
-
-        Returns:
-        """
-
         teams_sql = "select teamId, franchiseId, fullName, leagueId, triCode from teams_import"
 
         cursor, db = db_import_login()
@@ -64,15 +47,6 @@ class TeamsImport:
         return True
 
     def queryNHL(self):
-        """
-        Requests a list of past & present NHL teams from the NHL API. Updates the Teams object's teams_df with
-        the NHL's reply.
-
-        Parameters:
-
-        Returns:
-        """
-
         json_data = fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         api_teams_df = pd.json_normalize(json_data, record_path=['data'])
         api_teams_df = api_teams_df.fillna('')
