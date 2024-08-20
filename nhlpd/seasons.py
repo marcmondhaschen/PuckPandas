@@ -72,7 +72,7 @@ class SeasonsImport:
             seasons_df.rename(columns={0: "seasonId"}, inplace=True)
             seasons_df['triCode'] = row['triCode']
 
-            self.seasons_df = pd.concat([self.seasons_df, seasons_df])
+            team_seasons_df = pd.concat([team_seasons_df, seasons_df])
 
         self.seasons_df = team_seasons_df
 
