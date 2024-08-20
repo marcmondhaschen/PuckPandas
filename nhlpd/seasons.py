@@ -45,6 +45,10 @@ class SeasonsImport:
         seasons_df = pd.read_sql(seasons_sql, db)
         self.seasons_df = seasons_df.fillna('')
 
+        db.commit()
+        cursor.close()
+        db.close()
+
         return True
 
     def queryNHL(self):
@@ -52,6 +56,10 @@ class SeasonsImport:
 
         teams = TeamsImport()
         teams.queryDB()
+
+        db.commit()
+        cursor.close()
+        db.close()
 
         team_seasons_df = pd.DataFrame()
 
@@ -68,10 +76,7 @@ class SeasonsImport:
 
         self.seasons_df = team_seasons_df
 
-        # tidy up the cursors
-        db.commit()
-        cursor.close()
-        db.close()
+        return True
 
     def queryNHLupdateDB(self):
         self.queryNHL()
