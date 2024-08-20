@@ -1,7 +1,7 @@
 from datetime import datetime
 import pandas as pd
-from api_query import fetch_json_data
-from mysql_db import db_import_login
+from .api_query import fetch_json_data
+from .mysql_db import db_import_login
 
 
 def fetch_shifts_to_query():

@@ -1,6 +1,6 @@
 import pandas as pd
-from api_query import fetch_json_data
-from mysql_db import db_import_login
+from .api_query import fetch_json_data
+from .mysql_db import db_import_login
 
 
 # TODO write a function to update the `games` table for games that were scheduled into the future at the last polling,
