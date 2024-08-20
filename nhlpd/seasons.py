@@ -51,11 +51,11 @@ class SeasonsImport:
         cursor, db = db_import_login()
 
         teams = TeamsImport()
-        teams = teams.queryDB()
-        teams_df = teams.teams_df
+        teams.queryDB()
+
         team_seasons_df = pd.DataFrame()
 
-        for index, row in teams_df.iterrows():
+        for index, row in teams.teams_df.iterrows():
             base_url = 'https://api-web.nhle.com/v1/roster-season/'
             query_string = "{}{}".format(base_url, row['triCode'])
             json_data = fetch_json_data(query_string)
