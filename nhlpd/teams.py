@@ -41,8 +41,8 @@ class TeamsImport:
         teams_sql = "select teamId, franchiseId, fullName, leagueId, triCode from teams_import"
 
         cursor, db = db_import_login()
-        db_teams_df = pd.read_sql(teams_sql, db)
-        self.teams_df = db_teams_df.fillna('')
+        teams_df = pd.read_sql(teams_sql, db)
+        self.teams_df = teams_df.fillna('')
 
         db.commit()
         cursor.close()
