@@ -44,6 +44,10 @@ class TeamsImport:
         db_teams_df = pd.read_sql(teams_sql, db)
         self.teams_df = db_teams_df.fillna('')
 
+        db.commit()
+        cursor.close()
+        db.close()
+
         return True
 
     def queryNHL(self):
