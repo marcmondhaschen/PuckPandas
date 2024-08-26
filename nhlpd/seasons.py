@@ -52,14 +52,8 @@ class SeasonsImport:
         return True
 
     def queryNHL(self):
-        cursor, db = db_import_login()
-
         teams = TeamsImport()
         teams.queryDB()
-
-        db.commit()
-        cursor.close()
-        db.close()
 
         team_seasons_df = pd.DataFrame()
 
