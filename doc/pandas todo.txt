@@ -1,23 +1,65 @@
 OPEN TODO
-	refactor existing collection & import processes
-		break complex logic into more functions
-		arrange broader metaphors (teams, games, players, etc) into objects
-			assign existing functions to objects
-			flesh out objects with missing or needed CRUD elements
-			seperate "create new table" and "update existing table" processes
-			start with games_import - updates for this one is probably most immediately useful
-			focus on what happens when playoff schedules emerge & update as playoffs go along
+	add table to log when each import table is updated
+		columns = table_name, date_updated, update_successful
+
+	add an ImportTableLog.py file
+		add ImportTableLog object to control table above
+		add table to log when each gameId is checked for its play by play, results, shifts, and roster details
+		add table to log when each playerId is checked for their season and career summaries
+
+	add a Games.Py
+		this object should control (or replace?) code from Shifts.Py, Play_by_Play.Py,
+
+	Play_by_Play.Py
+		add single gameId overrides (updateDB, queryDB, queryNHL)
+		add __init__ override to create a new object using one of the overrides above
+		add logging
+
+	Players.Py
+		begin transition from function to object code
+
+	Rosters.Py
+		add single triCode overrides (updateDB, queryDB, queryNHL)
+		add __init__ override to create a new object using one of the overrides above
+		add logging
+
+	Schedules.Py
+		add single season & single team overrides (updateDB, queryDB, query)
+		add __init__ override to create a new object using one of the overrides above
+		add logging
+
+	Seasons.Py
+		add single triCode overrides (updateDB, queryDB, queryNHL)
+		add __init__ override to create a new object using one of the overrides above
+		add logging
+
+	Shifts.Py
+		add single gameId overrides (updateDB, queryDB, queryNHL)
+		add __init__ override to create a new object using one of the overrides above
+		add logging
+
+	Teams.Py
+		add single triCode overrides (updateDB, queryDB, queryNHL)
+		add __init__ override to create a new object using one of the overrides above
+		add logging
+
+	build an UpdateImports object
+		use this object to control all the other objects in order to poll appropriately
+		scheduled updates for each database table
 
 	re-poll everything
 
 	build normalized database layer
-		assign tables to a second database schema
+		assign import tables to an import database schema
+		build import schema agent, seperate from normalized schema agent and access
 
-	capture game results summary info from play by play details
+	capture tv broadcasts & game results summary info from play by play details
 		create new sql table to hold this data
 		create dataframe transform function
 		create master dataframe to catch this data
 		create load function to push this data into database
+
+	integrate schedules & play by play objects
 
 	build reporting interfaces
 
@@ -29,6 +71,16 @@ OPEN TODO
 
 
 ********************************************************************************
+2024-08-21
+	refactor existing collection & import processes
+		break complex logic into more functions
+		arrange broader metaphors (teams, games, players, etc) into objects
+			assign existing functions to objects
+			flesh out objects with missing or needed CRUD elements
+			seperate "create new table" and "update existing table" processes
+			start with games_import - updates for this one is probably most immediately useful
+			focus on what happens when playoff schedules emerge & update as playoffs go along
+
 2024-08-16
 	refactor existing collection & import processes
 		unify naming conventions
