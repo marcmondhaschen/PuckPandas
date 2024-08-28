@@ -1,6 +1,6 @@
 # import table create statements
 
-CREATE TABLE `game_play_by_play_import` (
+CREATE TABLE `nhl_pandas_import`.`game_play_by_play_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,
   `eventId` int NOT NULL,
@@ -45,28 +45,11 @@ CREATE TABLE `game_play_by_play_import` (
   PRIMARY KEY (`id`),
   KEY `gameId_index` (`gameId`),
   KEY `eventId` (`eventId`),
-  KEY `typeCode` (`typeCode`),
   KEY `typeCode_index` (`typeCode`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `game_rosters_import` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `gameId` int NOT NULL,
-  `teamId` int NOT NULL,
-  `playerId` int NOT NULL,
-  `sweaterNumber` int DEFAULT NULL,
-  `positionCode` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `firstName.default` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `lastName.default` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `gameId_index` (`gameId`),
-  KEY `teamId_index` (`teamId`),
-  KEY `playerId_index` (`playerId`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-CREATE TABLE `games_import` (
+CREATE TABLE `nhl_pandas_import`.`games_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,
   `seasonId` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -97,7 +80,23 @@ CREATE TABLE `games_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `goalie_career_totals_import` (
+CREATE TABLE `nhl_pandas_import`.`games_import_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `gameId` int NOT NULL,
+  `lastDateUpdated` datetime DEFAULT NULL,
+  `gameFound` tinyint DEFAULT NULL,
+  `tvBroadcastsFound` tinyint DEFAULT NULL,
+  `playsFound` tinyint DEFAULT NULL,
+  `rosterSpotsFound` tinyint DEFAULT NULL,
+  `summaryFound` tinyint DEFAULT NULL,
+  `shiftsFound` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `gameId` (`gameId`)
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `nhl_pandas_import`.`goalie_career_totals_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `regularSeason.gamesPlayed` int DEFAULT '0',
@@ -115,6 +114,8 @@ CREATE TABLE `goalie_career_totals_import` (
   `regularSeason.savePctg` decimal(10,8) DEFAULT '0.00000000',
   `regularSeason.shutouts` int DEFAULT '0',
   `regularSeason.timeOnIce` time DEFAULT '00:00:00',
+  `regularSeason.timeOnIceMinutes` int DEFAULT '0',
+  `regularSeason.timeOnIceSeconds` int DEFAULT NULL,
   `playoffs.gamesPlayed` int DEFAULT '0',
   `playoffs.goals` int DEFAULT '0',
   `playoffs.assists` int DEFAULT '0',
@@ -130,14 +131,14 @@ CREATE TABLE `goalie_career_totals_import` (
   `playoffs.savePctg` decimal(10,8) DEFAULT '0.00000000',
   `playoffs.shutouts` int DEFAULT '0',
   `playoffs.timeOnIce` time DEFAULT '00:00:00',
-  `regularSeason.timeOnIceSeconds` int DEFAULT NULL,
+  `playoffs.timeOnIceMinutes` int DEFAULT '0',
   `playoffs.timeOnIceSeconds` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `playerId_index` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `goalie_season_import` (
+CREATE TABLE `nhl_pandas_import`.`goalie_season_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `gameTypeId` int DEFAULT NULL,
@@ -151,6 +152,8 @@ CREATE TABLE `goalie_season_import` (
   `shutouts` int DEFAULT NULL,
   `ties` int DEFAULT NULL,
   `timeOnIce` time DEFAULT '00:00:00',
+  `timeOnIceMinutes` int DEFAULT '0',
+  `timeOnIceSeconds` int DEFAULT NULL,
   `wins` int DEFAULT NULL,
   `teamName.default` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `savePctg` decimal(10,8) DEFAULT '0.00000000',
@@ -160,13 +163,12 @@ CREATE TABLE `goalie_season_import` (
   `gamesStarted` int DEFAULT NULL,
   `goals` int DEFAULT NULL,
   `pim` int DEFAULT NULL,
-  `timeOnIceSeconds` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `playerId_index` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `player_award_import` (
+CREATE TABLE `nhl_pandas_import`.`player_award_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `seasonId` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -176,7 +178,7 @@ CREATE TABLE `player_award_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `player_bios_import` (
+CREATE TABLE `nhl_pandas_import`.`player_bios_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `isActive` tinyint DEFAULT NULL,
@@ -198,7 +200,7 @@ CREATE TABLE `player_bios_import` (
   `birthCity.default` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `birthStateProvince.default` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `draftDetails.year` int DEFAULT NULL,
-  `draftDetails.teamAbbrev` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `draftDetails.teamAbbrev` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `draftDetails.round` int DEFAULT NULL,
   `draftDetails.pickInRound` int DEFAULT NULL,
   `draftDetails.overallPick` int DEFAULT NULL,
@@ -208,7 +210,7 @@ CREATE TABLE `player_bios_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `player_career_totals_import` (
+CREATE TABLE `nhl_pandas_import`.`player_career_totals_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `regularSeason.gamesPlayed` int DEFAULT NULL,
@@ -243,57 +245,25 @@ CREATE TABLE `player_career_totals_import` (
   `playoffs.faceoffWinningPctg` decimal(10,8) DEFAULT '0.00000000',
   `playoffs.avgToi` time DEFAULT '00:00:00',
   `playoffs.shorthandedGoals` int DEFAULT NULL,
-  `regularSeason.avgToiSeconds` int DEFAULT NULL,
-  `playoffs.avgToiSeconds` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `playerId_index` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `player_import_log` (
+CREATE TABLE `nhl_pandas_import`.`player_import_log` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
-  `logDate` datetime DEFAULT NULL,
-  `playerBio` tinyint DEFAULT NULL,
-  `career` tinyint DEFAULT NULL,
-  `season` tinyint DEFAULT NULL,
-  `awards` tinyint DEFAULT NULL,
+  `lastDateUpdated` datetime DEFAULT NULL,
+  `careerTotalsFound` tinyint DEFAULT NULL,
+  `seasonTotalsFound` tinyint DEFAULT NULL,
+  `awardsFound` tinyint DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `playerId_index` (`playerId`)
+  UNIQUE KEY `id` (`id`),
+  KEY `playerId` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `player_season_import` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `playerId` int NOT NULL,
-  `assists` int DEFAULT '0',
-  `gameTypeId` int DEFAULT '0',
-  `gamesPlayed` int DEFAULT '0',
-  `goals` int DEFAULT '0',
-  `leagueAbbrev` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `pim` int DEFAULT '0',
-  `points` int DEFAULT '0',
-  `season` int DEFAULT NULL,
-  `sequence` int DEFAULT NULL,
-  `teamName.default` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `gameWinningGoals` int DEFAULT '0',
-  `plusMinus` int DEFAULT '0',
-  `powerPlayGoals` int DEFAULT '0',
-  `shorthandedGoals` int DEFAULT '0',
-  `shots` int DEFAULT '0',
-  `faceoffWinningPctg` decimal(9,8) DEFAULT '0.00000000',
-  `avgToi` time DEFAULT '00:00:00',
-  `otGoals` int DEFAULT '0',
-  `powerPlayPoints` int DEFAULT '0',
-  `shootingPctg` decimal(9,8) DEFAULT '0.00000000',
-  `shorthandedPoints` int DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `playerId_index` (`playerId`),
-  KEY `seasonId_index` (`season`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-CREATE TABLE `rosters_import` (
+CREATE TABLE `nhl_pandas_import`.`rosters_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `triCode` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `seasonId` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -305,34 +275,45 @@ CREATE TABLE `rosters_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-create table `shiftcharts_import` (
-	`id` int NOT NULL,
-    `detailCode` int default NULL,
-    `duration` time DEFAULT NULL,
-    `endTime` time DEFAULT NULL,
-    `eventDescription` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `eventDetails` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `eventNumber` int default NULL,
-    `firstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `gameId` int default NULL,
-    `hexValue` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `lastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-	`period` int default NULL,
-    `playerId` int default NULL,
-    `shiftNumber` int default NULL,
-    `startTime` time DEFAULT NULL,
-    `teamAbbrev` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `teamId` int default NULL,
-    `teamName` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-    `typeCode` int default NULL,
-    primary key (`id`),
-    key `gameId_index` (`gameId`),
-    key `playerId_index` (`playerId`),
-    key `teamId_index` (`teamId`)
+CREATE TABLE `nhl_pandas_import`.`shift_import_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `gameId` int NOT NULL,
+  `logDate` datetime DEFAULT NULL,
+  `checked` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `gameId_index` (`gameId`),
+  KEY `logDate_index` (`logDate`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `team_seasons_import` (
+CREATE TABLE `nhl_pandas_import`.`shifts_import` (
+  `id` int NOT NULL,
+  `detailCode` int DEFAULT NULL,
+  `duration` time DEFAULT NULL,
+  `endTime` time DEFAULT NULL,
+  `eventDescription` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `eventDetails` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `eventNumber` int DEFAULT NULL,
+  `firstName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gameId` int DEFAULT NULL,
+  `hexValue` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lastName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `period` int DEFAULT NULL,
+  `playerId` int DEFAULT NULL,
+  `shiftNumber` int DEFAULT NULL,
+  `startTime` time DEFAULT NULL,
+  `teamAbbrev` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `teamId` int DEFAULT NULL,
+  `teamName` varchar(25) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `typeCode` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `gameId_index` (`gameId`),
+  KEY `playerId_index` (`playerId`),
+  KEY `teamId_index` (`teamId`)
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `nhl_pandas_import`.`team_seasons_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `triCode` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `seasonId` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -342,7 +323,7 @@ CREATE TABLE `team_seasons_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `teams_import` (
+CREATE TABLE `nhl_pandas_import`.`teams_import` (
   `teamId` int NOT NULL,
   `franchiseId` int NOT NULL,
   `fullName` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -352,4 +333,3 @@ CREATE TABLE `teams_import` (
   KEY `franchiseId_index` (`franchiseId`),
   KEY `triCode_index` (`triCode`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
