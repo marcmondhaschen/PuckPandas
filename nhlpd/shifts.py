@@ -4,6 +4,7 @@ from .api_query import fetch_json_data
 from .mysql_db import db_import_login
 from .schedules import SchedulesImport
 
+""" shift details first appear in the NHL's API set in the 20102011 season """
 
 class ShiftsImport:
     shifts_df = pd.DataFrame(columns=['id', 'detailCode', 'duration', 'endTime', 'eventDescription', 'eventDetails',
