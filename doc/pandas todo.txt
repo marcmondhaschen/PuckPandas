@@ -1,14 +1,18 @@
 OPEN TODO
-	add table to log when each import table is updated
-		columns = table_name, date_updated, update_successful
+	add a ImportTableUpdateLog.py file
+		* add ImportTableUpdateLog object to control table of same name
+		* add table_update_log table to log when each import table is updated
 
-	add an ImportTableLog.py file
-		add ImportTableLog object to control table above
-		add table to log when each gameId is checked for its play by play, results, shifts, and roster details
-		add table to log when each playerId is checked for their season and career summaries
+	add a GamesImportLog.Py file
+		write a GamesImportLog object to control table of same name
+		* add table to log when each gameId is checked for its play by play, results, shifts, and roster details
 
-	add a Games.Py
-		this object should control (or replace?) code from Shifts.Py, Play_by_Play.Py,
+	add a PlayerImportLog.Py file
+		write a PlayerImportLog object to control table of same name
+		* add table to log when each playerId is checked for their season, career, and award summaries
+
+	add a Games.Py file
+		this object should control (or replace?) code from Shifts.Py, Play_by_Play.Py, and Schedules.Py
 
 	Play_by_Play.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
@@ -27,6 +31,9 @@ OPEN TODO
 		add single season & single team overrides (updateDB, queryDB, query)
 		add __init__ override to create a new object using one of the overrides above
 		add logging
+		capture tv broadcasts & game results summary info from play by play details
+		create new sql table to hold broadcast data
+		create new sql table to hold
 
 	Seasons.Py
 		add single triCode overrides (updateDB, queryDB, queryNHL)
@@ -43,29 +50,24 @@ OPEN TODO
 		add __init__ override to create a new object using one of the overrides above
 		add logging
 
-	build an UpdateImports object
-		use this object to control all the other objects in order to poll appropriately
+	add an UpdateImports object
+		use this object to control all the other objects in order to poll the NHL for updates when appropriate
 		scheduled updates for each database table
 
-	re-poll everything
+	re-poll everything from the NHL
 
-	build normalized database layer
-		assign import tables to an import database schema
-		build import schema agent, seperate from normalized schema agent and access
+	build normalized database schema from the imported data
+		* assign import tables to an import database schema
+		* build import schema agent, seperate from normalized schema agent and access
+		reduce each import table to normalized components
+			build tables to store these normalized components
+			write objects to contain and control these normalized components
 
-	capture tv broadcasts & game results summary info from play by play details
-		create new sql table to hold this data
-		create dataframe transform function
-		create master dataframe to catch this data
-		create load function to push this data into database
+	DRP - backup code & database plan
 
-	integrate schedules & play by play objects
-
-	build reporting interfaces
-
-	Tableau - 5 example reports
-
-	PowerBI - 5 example reports
+	build visualization interfaces
+		Tableau - 5 example reports
+		PowerBI - 5 example reports
 
 	web blog
 
