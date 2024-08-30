@@ -1,54 +1,42 @@
 OPEN TODO
-	add a ImportTableUpdateLog.py file
-		* add ImportTableUpdateLog object to control table of same name
-		* add table_update_log table to log when each import table is updated
-
-	add a GamesImportLog.Py file
-		write a GamesImportLog object to control table of same name
-		* add table to log when each gameId is checked for its play by play, results, shifts, and roster details
-
-	add a PlayerImportLog.Py file
-		write a PlayerImportLog object to control table of same name
-		* add table to log when each playerId is checked for their season, career, and award summaries
-
-	add a Games.Py file
-		this object should control (or replace?) code from Shifts.Py, Play_by_Play.Py, and Schedules.Py
-
-	Play_by_Play.Py
-		add single gameId overrides (updateDB, queryDB, queryNHL)
+	Teams.Py
+		add single triCode overrides (updateDB, queryDB, queryNHL)
 		add __init__ override to create a new object using one of the overrides above
-		add logging
-
-	Players.Py
-		begin transition from function to object code
+		* add logging
 
 	Rosters.Py
 		add single triCode overrides (updateDB, queryDB, queryNHL)
 		add __init__ override to create a new object using one of the overrides above
-		add logging
+		* add logging
 
 	Schedules.Py
 		add single season & single team overrides (updateDB, queryDB, query)
 		add __init__ override to create a new object using one of the overrides above
-		add logging
+		* add logging
 		capture tv broadcasts & game results summary info from play by play details
 		create new sql table to hold broadcast data
-		create new sql table to hold
+		create new sql table to hold game results summary
 
-	Seasons.Py
-		add single triCode overrides (updateDB, queryDB, queryNHL)
-		add __init__ override to create a new object using one of the overrides above
-		add logging
+	add a Games.Py file
+		this object should control (or replace?) code from Shifts.Py, Play_by_Play.Py, and Schedules.Py
 
 	Shifts.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
 		add __init__ override to create a new object using one of the overrides above
 		add logging
 
-	Teams.Py
-		add single triCode overrides (updateDB, queryDB, queryNHL)
+	Play_by_Play.Py
+		add single gameId overrides (updateDB, queryDB, queryNHL)
 		add __init__ override to create a new object using one of the overrides above
 		add logging
+
+	Seasons.Py
+		add single triCode overrides (updateDB, queryDB, queryNHL)
+		add __init__ override to create a new object using one of the overrides above
+		* add logging
+
+	Players.Py
+		begin transition from function to object code
 
 	add an UpdateImports object
 		use this object to control all the other objects in order to poll the NHL for updates when appropriate
@@ -61,7 +49,7 @@ OPEN TODO
 		* build import schema agent, seperate from normalized schema agent and access
 		reduce each import table to normalized components
 			build tables to store these normalized components
-			write objects to contain and control these normalized components
+			write objects to update and control these normalized components
 
 	DRP - backup code & database plan
 
@@ -73,6 +61,19 @@ OPEN TODO
 
 
 ********************************************************************************
+2024-08-30
+	add a ImportTableUpdateLog.py file
+		* add ImportTableUpdateLog object to control table of same name
+		* add table_update_log table to log when each import table is updated
+
+	add a GamesImportLog.Py file
+		* write a GamesImportLog object to control table of same name
+		* add table to log when each gameId is checked for its play by play, results, shifts, and roster details
+
+	add a PlayerImportLog.Py file
+		* write a PlayerImportLog object to control table of same name
+		* add table to log when each playerId is checked for their season, career, and award summaries
+
 2024-08-21
 	refactor existing collection & import processes
 		break complex logic into more functions
