@@ -3,20 +3,20 @@ from .mysql_db import db_import_login
 
 
 class ImportTableUpdateLog:
-    table_update_log = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
+    update_details = pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])
 
-    def __init__(self, table_update_log=pd.DataFrame()):
-        self.table_update_log = pd.concat([self.table_update_log, table_update_log])
+    def __init__(self, update_details=pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])):
+        self.update_details = update_details
 
     @staticmethod
     def updateDB(self):
-        if (len(self.table_update_log) > 0) and ('tableName' in self.table_update_log):
+        if (len(self.update_details) > 0) and ('tableName' in self.update_details):
             cursor, db = db_import_login()
 
-            for index, row in self.table_update_log.iterrows():
-                sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
-                val = (row['tableName'], row['lastDateUpdated'], row['updateFound'])
-                cursor.execute(sql, val)
+            sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
+            val = (self.update_details['tableName'], self.update_details['lastDateUpdated'],
+                   self.update_details['updateFound'])
+            cursor.execute(sql, val)
 
             db.commit()
             cursor.close()
@@ -33,8 +33,8 @@ class ImportTableUpdateLog:
         suffix2_sql = " group by tableName, updateFound"
         update_log_sql = "{}{}{}{}{}".format(prefix_sql, table_name, suffix_sql, update_found, suffix2_sql)
 
-        self.table_update_log = pd.read_sql(update_log_sql, db)
-        self.table_update_log.fillna('', inplace=True)
+        self.update_details = pd.read_sql(update_log_sql, db)
+        self.update_details.fillna('', inplace=True)
 
         db.commit()
         cursor.close()
