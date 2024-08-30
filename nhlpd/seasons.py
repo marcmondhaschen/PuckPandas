@@ -24,6 +24,13 @@ class SeasonsImport:
             cursor.close()
             db.close()
 
+        update_details = pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])
+        update_details['tableName'] = "team_seasons_import"
+        update_details['lastDateUpdated'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        update_details['updateFound'] = 1
+        log_object = ImportTableUpdateLog(update_details)
+        log_object.updateDB(log_object)
+
         return True
 
     @staticmethod

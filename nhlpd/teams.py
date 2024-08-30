@@ -1,6 +1,8 @@
+from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
+from .import_table_update_log import ImportTableUpdateLog
 
 
 class TeamsImport:
@@ -11,18 +13,25 @@ class TeamsImport:
 
     @staticmethod
     def updateDB(self):
-        if len(self.teams_df) > 0:
-            cursor, db = db_import_login()
+        cursor, db = db_import_login()
 
+        if len(self.teams_df) > 0:
             for index, row in self.teams_df.iterrows():
                 sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) " \
                       "values (%s, %s, %s, %s, %s)"
                 val = (row['id'], row['franchiseId'], row['fullName'], row['leagueId'], row['triCode'])
                 cursor.execute(sql, val)
 
-            db.commit()
-            cursor.close()
-            db.close()
+        update_details = pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])
+        update_details['tableName'] = "teams_import"
+        update_details['lastDateUpdated'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        update_details['updateFound'] = 1
+        log_object = ImportTableUpdateLog(update_details)
+        log_object.updateDB(log_object)
+
+        db.commit()
+        cursor.close()
+        db.close()
         return True
 
     @staticmethod
