@@ -254,6 +254,7 @@ CREATE TABLE `nhl_pandas_import`.`player_import_log` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `lastDateUpdated` datetime DEFAULT NULL,
+  `playerFound` tinyint DEFAULT NULL,
   `careerTotalsFound` tinyint DEFAULT NULL,
   `seasonTotalsFound` tinyint DEFAULT NULL,
   `awardsFound` tinyint DEFAULT NULL,
