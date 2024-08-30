@@ -1,8 +1,10 @@
+from datetime import datetime
 import pandas as pd
 import time
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
 from .seasons import SeasonsImport
+from .import_table_update_log import ImportTableUpdateLog
 
 
 class SchedulesImport:
@@ -37,11 +39,7 @@ class SchedulesImport:
             cursor.close()
             db.close()
 
-        update_details = pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])
-        update_details['tableName'] = "games_import"
-        update_details['lastDateUpdated'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        update_details['updateFound'] = 1
-        log_object = ImportTableUpdateLog(update_details)
+        log_object = ImportTableUpdateLog("games_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
         log_object.updateDB(log_object)
 
         return True

@@ -22,11 +22,7 @@ class TeamsImport:
                 val = (row['id'], row['franchiseId'], row['fullName'], row['leagueId'], row['triCode'])
                 cursor.execute(sql, val)
 
-        update_details = pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])
-        update_details['tableName'] = "teams_import"
-        update_details['lastDateUpdated'] = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-        update_details['updateFound'] = 1
-        log_object = ImportTableUpdateLog(update_details)
+        log_object = ImportTableUpdateLog("teams_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
         log_object.updateDB(log_object)
 
         db.commit()
