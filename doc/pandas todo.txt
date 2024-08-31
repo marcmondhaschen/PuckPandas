@@ -1,39 +1,24 @@
 OPEN TODO
-	Teams.Py
-		add single triCode overrides (updateDB, queryDB, queryNHL)
-		add __init__ override to create a new object using one of the overrides above
+	Games.Py was Schedules.Py
 		* add logging
+		* rename this as the Games.Py file
+		* remove stubbed logging columns and supporting code
+		* add single season & single team overrides (updateDB, queryDB, query)
+		add code for GamesImportLog
 
-	Rosters.Py
-		add single triCode overrides (updateDB, queryDB, queryNHL)
-		add __init__ override to create a new object using one of the overrides above
-		* add logging
-
-	Schedules.Py
-		add single season & single team overrides (updateDB, queryDB, query)
-		add __init__ override to create a new object using one of the overrides above
-		* add logging
-		capture tv broadcasts & game results summary info from play by play details
+	Play_by_Play.Py
+		rename this file GameCenter.Py
 		create new sql table to hold broadcast data
 		create new sql table to hold game results summary
-
-	add a Games.Py file
-		this object should control (or replace?) code from Shifts.Py, Play_by_Play.Py, and Schedules.Py
+		capture tv broadcasts & game results summary info from play by play details
+		add single gameId overrides (updateDB, queryDB, queryNHL)
+		add logging
+		this object should control (or replace?) code from Shifts.Py
+		add code for GamesImportLog
 
 	Shifts.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
-		add __init__ override to create a new object using one of the overrides above
 		add logging
-
-	Play_by_Play.Py
-		add single gameId overrides (updateDB, queryDB, queryNHL)
-		add __init__ override to create a new object using one of the overrides above
-		add logging
-
-	Seasons.Py
-		add single triCode overrides (updateDB, queryDB, queryNHL)
-		add __init__ override to create a new object using one of the overrides above
-		* add logging
 
 	Players.Py
 		begin transition from function to object code
@@ -43,6 +28,10 @@ OPEN TODO
 		scheduled updates for each database table
 
 	re-poll everything from the NHL
+
+	implement SQL abstraction SQLAlchemy
+
+
 
 	build normalized database schema from the imported data
 		* assign import tables to an import database schema
@@ -59,12 +48,23 @@ OPEN TODO
 
 	web blog
 
-
 ********************************************************************************
 2024-08-30
+	Rosters.Py
+		* add single triCode overrides (updateDB, queryDB, queryNHL)
+		* add logging
+
+	Seasons.Py
+		* add single triCode overrides (updateDB, queryDB, queryNHL)
+		* add logging
+
 	add a ImportTableUpdateLog.py file
 		* add ImportTableUpdateLog object to control table of same name
 		* add table_update_log table to log when each import table is updated
+
+	Teams.Py
+		* add single triCode overrides (updateDB, queryDB, queryNHL)
+		* add logging
 
 	add a GamesImportLog.Py file
 		* write a GamesImportLog object to control table of same name
