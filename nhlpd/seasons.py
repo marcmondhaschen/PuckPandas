@@ -18,7 +18,7 @@ class SeasonsImport:
             cursor, db = db_import_login()
 
             if tri_code != '':
-                self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
+                self.seasons_df = self.seasons_df[self.seasons_df['triCode'] == tri_code]
 
             for index, row in self.seasons_df.iterrows():
                 sql = "insert into team_seasons_import (triCode, seasonId) values (%s, %s)"
@@ -42,6 +42,7 @@ class SeasonsImport:
             sql = "truncate table team_seasons_import"
         else:
             sql = "delete from team_seasons_import where triCode = " + tri_code
+
         cursor.execute(sql)
 
         db.commit()
