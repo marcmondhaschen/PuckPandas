@@ -13,9 +13,15 @@ class RostersImport:
         self.rosters_df = pd.concat([self.rosters_df, rosters_df])
 
     @staticmethod
-    def updateDB(self):
+    def updateDB(self, tri_code='', season_id=''):
         if len(self.rosters_df) > 0:
             cursor, db = db_import_login()
+
+            if tri_code != '':
+                self.rosters_df = self.rosters_df[self.rosters_df['triCode'] == tri_code]
+
+            if season_id != '':
+                self.rosters_df = self.rosters_df[self.rosters_df['seasonId'] == season_id]
 
             for index, row in self.rosters_df.iterrows():
                 if 'id' in row:
@@ -34,27 +40,49 @@ class RostersImport:
         return True
 
     @staticmethod
-    def clearDB():
+    def clearDB(tri_code='', season_id=''):
         cursor, db = db_import_login()
 
-        sql = "truncate table rosters_import"
+        if tri_code == '' and season_id == '':
+            sql = "truncate table rosters_import"
+        else:
+            sql_prefix = "delete from rosters_import where playerId != 0 "
+            sql_middle = ""
+            sql_suffix = ""
+            if tri_code != '':
+                sql_middle = "and triCode = " + tri_code + " "
+            if season_id != '':
+                sql_suffix = "and seasonId = " + season_id + " "
+            sql = "{}{}{}".format(sql_prefix, sql_middle, sql_suffix)
+
         cursor.execute(sql)
 
         db.commit()
         cursor.close()
         db.close()
+
         return True
 
-    def queryDB(self):
-        rosters_sql = "select triCode, seasonId, playerId from rosters_import"
+    def queryDB(self, tri_code='', season_id=''):
+        sql_prefix = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 "
+        sql_middle = ""
+        sql_suffix = ""
+
+        if tri_code != '':
+            sql_middle = "and  triCode = " + tri_code + " "
+
+        if season_id != '':
+            sql_suffix = "and seasonId = " + season_id + " "
+
+        sql = "{}{}{}".format(sql_prefix, sql_middle, sql_suffix)
 
         cursor, db = db_import_login()
-        rosters_df = pd.read_sql(rosters_sql, db)
+        rosters_df = pd.read_sql(sql, db)
         self.rosters_df = rosters_df.fillna('')
 
         return True
 
-    def queryNHL(self):
+    def queryNHL(self, tri_code='', season_id=''):
         cursor, db = db_import_login()
 
         seasons = SeasonsImport()
@@ -85,10 +113,16 @@ class RostersImport:
 
         self.rosters_df = rosters_df
 
+        if tri_code != '':
+            self.rosters_df = self.rosters_df[self.rosters_df['triCode'] == tri_code]
+
+        if season_id != '':
+            self.rosters_df = self.rosters_df[self.rosters_df['seasonId'] == season_id]
+
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB(self)
+    def queryNHLupdateDB(self, tri_code='', season_id=''):
+        self.queryNHL(tri_code, season_id)
+        self.clearDB(tri_code, season_id)
+        self.updateDB(self, tri_code, season_id)
         return True
