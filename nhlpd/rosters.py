@@ -86,6 +86,12 @@ class RostersImport:
         seasons = SeasonsImport()
         seasons.queryDB()
 
+        if tri_code != '':
+            seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['triCode'] == tri_code]
+
+        if season_id != '':
+            seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['seasonId'] == season_id]
+
         rosters_df = pd.DataFrame()
 
         for index, row in seasons.seasons_df.iterrows():
@@ -97,21 +103,15 @@ class RostersImport:
             forwards_data = pd.json_normalize(json_data, record_path=['forwards'])
             defensemen_data = pd.json_normalize(json_data, record_path=['defensemen'])
             goalies_data = pd.json_normalize(json_data, record_path=['goalies'])
-
             this_roster_df = pd.concat([forwards_data, defensemen_data, goalies_data])
-            # this_roster_df = this_roster_df[['id']]
+
             this_roster_df['triCode'] = row['triCode']
             this_roster_df['seasonId'] = row['seasonId']
             this_roster_df.fillna('', inplace=True)
+
             rosters_df = pd.concat([rosters_df, this_roster_df])
 
         self.rosters_df = rosters_df
-
-        if tri_code != '':
-            self.rosters_df = self.rosters_df[self.rosters_df['triCode'] == tri_code]
-
-        if season_id != '':
-            self.rosters_df = self.rosters_df[self.rosters_df['seasonId'] == season_id]
 
         return True
 
