@@ -83,14 +83,8 @@ class RostersImport:
         return True
 
     def queryNHL(self, tri_code='', season_id=''):
-        cursor, db = db_import_login()
-
         seasons = SeasonsImport()
         seasons.queryDB()
-
-        db.commit()
-        cursor.close()
-        db.close()
 
         rosters_df = pd.DataFrame()
 
