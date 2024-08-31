@@ -3,7 +3,7 @@ from .mysql_db import *
 from .play_by_play import *
 from .players import *
 from .rosters import *
-from .schedules import *
+from .games import *
 from .seasons import *
 from .shifts import *
 from .teams import *
