@@ -56,26 +56,6 @@ def fetch_game_details(gameids_df):
             pbp_master_df = pbp_master_df.head(0)
         if load_roster_details(gr_master_df):
             gr_master_df = gr_master_df.head(0)
-        update_gameid_query_log(row['gameId'])
-
-    return True
-
-
-# TODO add error checking on return
-def update_gameid_query_log(gameid):
-    """
-    Updates the `games` table to note that the game details (play by play and game rosters) have successfully queried
-    and imported
-
-    Parameters: gameId - the specific NHL gameId to be updated
-
-    Returns: True - returns True upon completion
-    """
-    cursor, db = db_import_login()
-
-    sql = "update games_import set PBPCheckSuccess = True, datePBPChecked = CURRENT_DATE where gameId = %s"
-    var = [int(gameid)]
-    cursor.execute(sql, var)
 
     return True
 
