@@ -2,9 +2,11 @@ from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
-from .schedules import SchedulesImport
+from .games import SchedulesImport
+from .games_import_log import GamesImportLog
 
 """ shift details first appear in the NHL's API set in the 20102011 season """
+
 
 class ShiftsImport:
     shifts_df = pd.DataFrame(columns=['id', 'detailCode', 'duration', 'endTime', 'eventDescription', 'eventDetails',
@@ -35,6 +37,8 @@ class ShiftsImport:
         db.commit()
         cursor.close()
         db.close()
+
+        log = GamesImportLog()
 
         return True
 
@@ -112,27 +116,3 @@ class ShiftsImport:
         self.updateDB(self)
 
         return True
-
-
-def update_shift_log(log_df):
-    """
-    Logs when each game's shifts are recorded.
-
-    Parameters: log_df - a DataFrame with a set of gameIds and their boolean checked/unchecked status
-
-    Returns: True - returns True upon completion
-    """
-    cursor, db = db_import_login()
-
-    for index, row in log_df.iterrows():
-        sql = "insert into shift_import_log (gameId, logDate, checked) values (%s, %s, %s)"
-        val = [row['gameId'], row['logDate'], row['checked']]
-
-        cursor.execute(sql, val)
-
-    # tidy up the cursors
-    db.commit()
-    cursor.close()
-    db.close()
-
-    return True
