@@ -40,7 +40,9 @@ class TeamsImport:
         if tri_code == '':
             sql = "truncate table teams_import"
         else:
-            sql = "delete from teams_import where triCode = " + tri_code
+            sql = "delete from teams_import where triCode = '" + tri_code + "'"
+
+        print(sql)
 
         cursor.execute(sql)
 
