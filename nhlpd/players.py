@@ -2,6 +2,7 @@ from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
+from .player_import_log import PlayerImportLog
 
 
 # TODO query here is kinda smelly. Reconsider underlying data structures. Maybe combine them or query after we've
