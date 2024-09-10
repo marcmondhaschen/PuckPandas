@@ -83,38 +83,62 @@
 #
 # print(column_string)
 
-import pandas as pd
-from alchemy_db import nhlpandas_dba_login
-from sqlalchemy import insert, select, and_, or_
-import nhlpd as nhlpd
-
-engine = nhlpd.nhlpandas_dba_login()
-
-with engine.connect() as conn:
-    sql = "select * from teams_import"
-    df = pd.read_sql(sql, conn)  # executes simple select statement
-
-    # insert statement with variables
-    stmt = insert("sql_tableName").values(first_name="spongeBob", last_name="squarePants")
-
-    # select statement with variables
-
-print(
-    select(Address.email_address).where(
-        and_(
-            or_(User.name == "squidward", User.name == "sandy"),
-            Address.user_id == User.id,
-        )
-    )
-)
+# import pandas as pd
+# from alchemy_db import nhlpandas_dba_login
+# from sqlalchemy import insert, select, and_, or_
+# import nhlpd as nhlpd
+#
+# engine = nhlpandas_dba_login()
+#
+# with engine.connect() as conn:
+#     select(teams_import.triCode).where(teams_import.)
+#     sql = "select * from teams_import"
+#     df = pd.read_sql(sql, conn)  # executes simple select statement
+#
+#     # insert statement with variables
+#     stmt = insert("sql_tableName").values(first_name="spongeBob", last_name="squarePants")
+#
+#     # select statement with variables
+#
+# print(
+#     select(Address.email_address).where(
+#         and_(
+#             or_(User.name == "squidward", User.name == "sandy"),
+#             Address.user_id == User.id,
+#         )
+#     )
+# )
 
 # SELECT address.email_address
 # FROM address, user_account
 # WHERE (user_account.name = :name_1 OR user_account.name = :name_2)
 # AND address.user_id = user_account.id
+#
+# df.to_sql('garbage1', conn, if_exists='fail', index=False)  # builds a new table from DataFrame
+# df.to_sql('garbage1', conn, if_exists='replace', index=False)
+# builds a new table or replaces it - test this option to make sure SQL schema remains intact
+# df.to_sql('garbage1', conn, if_exists='append', index=False)  # builds a new table or inserts new rows
+#
+# print(df)
 
-df.to_sql('garbage1', conn, if_exists='fail', index=False)  # builds a new table from DataFrame
-df.to_sql('garbage1', conn, if_exists='replace', index=False)  # builds a new table or replaces it - test this option to make sure SQL schema remains intact
-df.to_sql('garbage1', conn, if_exists='append', index=False)  # builds a new table or inserts new rows
 
+from alchemy_db import dba_import_login
+from sqlalchemy import MetaData, Table
+from sqlalchemy.orm import Session
+import pandas as pd
+
+engine = dba_import_login()
+
+df = pd.read_sql("select * from teams_import", engine)
 print(df)
+
+metadata = MetaData()
+metadata.reflect(bind=engine)
+my_table = Table('teams_import', metadata, autoload=True)
+
+query = my_table.select()
+print(query)
+my_session = Session(engine)
+my_session.execute(query)
+
+print(my_table)
