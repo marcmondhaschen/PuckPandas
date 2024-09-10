@@ -7,7 +7,7 @@ class GamesImportLog:
     update_details = pd.Series(index=['gameId', 'lastDateUpdated', 'gameFound', 'tvBroadcastsFound', 'playsFound',
                                       'rosterSpotsFound', 'summaryFound', 'shiftsFound'])
 
-    def __init__(self, game_id="", last_date_updated="", game_found='', tv_broadcasts_found='', plays_found='',
+    def __init__(self, game_id, last_date_updated, game_found='', tv_broadcasts_found='', plays_found='',
                  roster_spots_found='', summary_found='', shifts_found=''):
         self.update_details['gameId'] = game_id
         self.update_details['lastDateUpdated'] = last_date_updated
@@ -66,6 +66,8 @@ class GamesImportLog:
             db.commit()
             cursor.close()
             db.close()
+
+        return True
 
     @staticmethod
     def queryDB(game_id=''):
