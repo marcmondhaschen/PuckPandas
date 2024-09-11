@@ -55,7 +55,7 @@ class SeasonsImport:
         sql_suffix = ""
 
         if tri_code != '':
-            sql_suffix = "where triCode = " + tri_code
+            sql_suffix = " where triCode = " + tri_code
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
