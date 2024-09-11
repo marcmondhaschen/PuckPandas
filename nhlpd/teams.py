@@ -42,8 +42,6 @@ class TeamsImport:
         else:
             sql = "delete from teams_import where triCode = '" + tri_code + "'"
 
-        print(sql)
-
         cursor.execute(sql)
 
         db.commit()
