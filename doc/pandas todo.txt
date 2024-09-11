@@ -1,13 +1,6 @@
 OPEN TODO
-	Games.Py was Schedules.Py
-		* add logging
-		* rename this as the Games.Py file
-		* remove stubbed logging columns and supporting code
-		* add single season & single team overrides (updateDB, queryDB, query)
-		add code for GamesImportLog
-
 	Play_by_Play.Py
-		rename this file GameCenter.Py
+		rename this file Game_Center.Py
 		create new sql table to hold broadcast data
 		create new sql table to hold game results summary
 		capture tv broadcasts & game results summary info from play by play details
@@ -29,10 +22,6 @@ OPEN TODO
 
 	re-poll everything from the NHL
 
-	implement SQL abstraction SQLAlchemy
-
-
-
 	build normalized database schema from the imported data
 		* assign import tables to an import database schema
 		* build import schema agent, seperate from normalized schema agent and access
@@ -48,7 +37,30 @@ OPEN TODO
 
 	web blog
 
+	implement SQL abstraction via SQLAlchemy ORM
+
 ********************************************************************************
+2024-09-10
+	Games.Py was Schedules.Py
+		* add logging
+		* rename this as the Games.Py file
+		* remove stubbed logging columns and supporting code
+		* add single season & single team overrides (updateDB, queryDB, query)
+		* add code for GamesImportLog
+		* queue up test db connections & test data
+		* test new update function (including games_import_log functions)
+
+2024-09-09
+	PlayerImportLog.Py
+		* rename existing update method to insert
+		* add update method
+		* test
+
+	GamesImportLog.Py
+		* rename existing update method to insert
+		* add update method
+		* test
+
 2024-08-30
 	Rosters.Py
 		* add single triCode overrides (updateDB, queryDB, queryNHL)
