@@ -1,17 +1,10 @@
+from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
 from .games import GamesImport
 from .games_import_log import GamesImportLog
 
-
-class GameCenterImport:
-    playByPlay = PlayByPlayImport()
-    tvBroadcasts = TvBroadcasts()
-    gameResults = GameResults()
-    gameRoster = GameRoster()
-
-    def __init__(self):
 
 class PlayByPlayImport:
     play_by_play_df = pd.DataFrame(columns=['eventId', 'timeInPeriod', 'timeRemaining', 'situationCode',
@@ -30,21 +23,174 @@ class PlayByPlayImport:
                                             'details.descKey', 'details.duration', 'details.committedByPlayerId',
                                             'details.drawnByPlayerId', 'id'])
 
+    def __init__(self, play_by_play_df=pd.DataFrame()):
+        self.play_by_play_df = pd.concat([self.play_by_play_df, play_by_play_df])
+
+    @staticmethod
+    def updateDB(self, game_id):
+        log = GamesImportLog(game_id, datetime.today().strftime('%Y-%m-%d %H:%M:%S'), plays_found=1)
+        log.insertDB(log)
+        return True
+
+    @staticmethod
+    def clearDB(game_id=''):
+        cursor, db = db_import_login()
+
+        if game_id == '':
+            sql = "truncate table teams_import"
+        else:
+            sql = "delete from teams_import where triCode = '" + tri_code + "'"
+
+        print(sql)
+
+        cursor.execute(sql)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return True
+
+    def queryDB(self):
+        return True
+
+    def queryNHL(self, game_id):
+        return True
+
+    def queryNHLupdateDB(self, game_id):
+        self.queryNHL(game_id)
+        self.clearDB(game_id)
+        self.updateDB(self, game_id)
+
+        return True
+
+
 class TvBroadcasts:
+    tv_broadcasts_df = pd.DataFrame()
+
+    def __init__(self, tv_broadcasts_df=pd.DataFrame()):
+        self.tv_broadcasts_df = pd.concat([self.tv_broadcasts_df, tv_broadcasts_df])
+
+    @staticmethod
+    def updateDB(self, game_id):
+        log = GamesImportLog(game_id, datetime.today().strftime('%Y-%m-%d %H:%M:%S'), tv_broadcasts_found=1)
+        log.insertDB(log)
+        return True
+
+    @staticmethod
+    def clearDB(game_id):
+        return True
+
+    def queryDB(self):
+        return True
+
+    def queryNHL(self, game_id):
+        return True
+
+    def queryNHLupdateDB(self, game_id):
+        self.queryNHL(game_id)
+        self.clearDB(game_id)
+        self.updateDB(self, game_id)
+
+        return True
+
 
 class GameResults:
+    game_results_df = pd.DataFrame()
+
+    def __init__(self, game_results_df=pd.DataFrame()):
+        self.game_results_df = pd.concat([self.game_results_df, game_results_df])
+
+    @staticmethod
+    def updateDB(self, game_id):
+        log = GamesImportLog(game_id, datetime.today().strftime('%Y-%m-%d %H:%M:%S'), summary_found=1)
+        log.insertDB(log)
+        return True
+
+    @staticmethod
+    def clearDB(game_id):
+        return True
+
+    def queryDB(self):
+        return True
+
+    def queryNHL(self, game_id):
+        return True
+
+    def queryNHLupdateDB(self, game_id):
+        self.queryNHL(game_id)
+        self.clearDB(game_id)
+        self.updateDB(self, game_id)
+
+        return True
+
 
 class GameRoster:
-
-
-
-
-
-
-    tv_broadcasts_df = pd.DataFrame()
-    game_results_df = pd.DataFrame()
     game_roster_df = pd.DataFrame(columns=['teamId', 'playerId', 'sweaterNumber', 'positionCode',
                                            'headshot', 'firstName.default', 'lastName.default', 'id'])
+
+    def __init__(self, game_roster_df=pd.DataFrame()):
+        self.game_roster_df = pd.concat([self.game_roster_df, game_roster_df])
+
+    @staticmethod
+    def updateDB(self, game_id):
+        log = GamesImportLog(game_id, datetime.today().strftime('%Y-%m-%d %H:%M:%S'), roster_spots_found=1)
+        log.insertDB(log)
+        return True
+
+    @staticmethod
+    def clearDB(game_id):
+        return True
+
+    def queryDB(self):
+        return True
+
+    def queryNHL(self, game_id):
+        return True
+
+    def queryNHLupdateDB(self, game_id):
+        self.queryNHL(game_id)
+        self.clearDB(game_id)
+        self.updateDB(self, game_id)
+
+        return True
+
+
+class GameCenterImport:
+    games = GamesImport()
+    playByPlay = PlayByPlayImport()
+    tvBroadcasts = TvBroadcasts()
+    gameResults = GameResults()
+    gameRoster = GameRoster()
+
+    def __init__(self, games=GamesImport(), play_by_play=PlayByPlayImport(), tv_broadcasts=TvBroadcasts(),
+                 game_results=GameResults(), game_roster=GameRoster()):
+        self.games = games
+        self.playByPlay = play_by_play
+        self.tvBroadcasts = tv_broadcasts
+        self.gameResults = game_results
+        self.gameRoster = game_roster
+
+    @staticmethod
+    def updateDB(self, game_id=''):
+        return True
+
+    @staticmethod
+    def clearDB(self, game_id=''):
+        return True
+
+    def queryDB(self):
+        return True
+
+    def queryNHL(self, game_id=''):
+        return True
+
+    def queryNHLupdateDB(self, game_id):
+        self.queryNHL(game_id)
+        self.clearDB(game_id)
+        self.updateDB(self, game_id)
+
+        return True
 
 
 def fetch_gameids_to_query():
@@ -53,8 +199,6 @@ def fetch_gameids_to_query():
     cursor, db = db_import_login()
     gameids_df = pd.read_sql(gameids_sql, db)
 
-
-# TODO add error checking on return
 def fetch_game_details(gameids_df):
     if len(gameids_df) == 0:
         return False
@@ -86,23 +230,9 @@ def fetch_game_details(gameids_df):
 
     return True
 
-
-def transform_play_by_play(pbp_df):
-    pbp_df = pbp_df.fillna('')
-    pbp_df = pbp_df.reset_index(drop=True)
-    return pbp_df
-
-
-def transform_game_rosters(gr_df):
-    gr_df = gr_df.fillna('')
-    gr_df = gr_df.reset_index(drop=True)
-    return gr_df
-
-
-# TODO add error checking on return
 def load_pbp_details(pbp_df):
    for index, row in pbp_df.iterrows():
-        sql = "insert into game_play_by_play_import (gameId, eventId, period, periodType, timeInPeriod, " \
+        sql = "insert into play_by_play_import (gameId, eventId, period, periodType, timeInPeriod, " \
               "timeRemaining, situationCode, typeCode, typeDescKey, sortOrder, eventOwnerTeamId, losingPlayerId,  " \
               "winningPlayerId, xCoord, yCoord, zoneCode, reason, hittingPlayerId, hitteePlayerId, shotType, " \
               "shootingPlayerId, goalieInNetId, awaySOG, homeSOG, playerId, blockingPlayerId, secondaryReason, " \
@@ -124,8 +254,6 @@ def load_pbp_details(pbp_df):
                row['details.assist1PlayerTotal'], row['details.assist2PlayerId'], row['details.assist2PlayerTotal'],
                row['details.awayScore'], row['details.homeScore'])
 
-
-# TODO add error checking on return
 def load_roster_details(gr_df):
     for index, row in gr_df.iterrows():
         sql = "insert into game_rosters_import (gameId, teamId, playerId, sweaterNumber, positionCode, " \
