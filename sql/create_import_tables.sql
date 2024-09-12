@@ -1,4 +1,18 @@
-# import table create statements
+--import table create statements
+
+CREATE TABLE `nhl_pandas_import`.`game_summary_import` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `gameId` int NOT NULL,
+  `broadcastId` int NOT NULL,
+  `market` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `countryCode` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `network` varchar(5) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sequenceNumber` int DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `gameId` (`gameId`),
+  KEY `broadcastId` (`broadcastId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `nhl_pandas_import`.`games_import` (
@@ -214,6 +228,32 @@ CREATE TABLE `nhl_pandas_import`.`player_import_log` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+create table `nhl_pandas_import`.`player_season_import` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `playerId` int NOT NULL,
+  `assists` int DEFAULT NULL,
+  `gameTypeId` int DEFAULT NULL,
+  `gamesPlayed` int DEFAULT NULL,
+  `goals` int DEFAULT NULL,
+  `leagueAbbrev` varchar(12) DEFAULT NULL,
+  `pim` int DEFAULT '0',
+  `points` int DEFAULT NULL,
+  `season` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `sequence` int DEFAULT NULL,
+  `teamName.default` varchar(50) DEFAULT NULL,
+  `gameWinningGoals` int DEFAULT NULL,
+  `plusMinus` int DEFAULT NULL,
+  `powerPlayGoals` int DEFAULT NULL,
+  `shorthandedGoals` int DEFAULT NULL,
+  `shots` int DEFAULT NULL,
+  `faceoffWinningPctg` decimal(10,8) DEFAULT '0.00000000',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `playerId` (`playerId`),
+  KEY `gameTypeId` (`gameTypeId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 CREATE TABLE `nhl_pandas_import`.`play_by_play_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,
@@ -261,6 +301,23 @@ CREATE TABLE `nhl_pandas_import`.`play_by_play_import` (
   KEY `eventId` (`eventId`),
   KEY `typeCode_index` (`typeCode`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+create table `nhl_pandas_import`.`roster_spots_import` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `gameId` int NOT NULL,
+  `teamId` int NOT NULL,
+  `playerId` int NOT NULL,
+  `sweaterNumber` int DEFAULT NULL,
+  `positionCode` varchar(5) DEFAULT NULL,
+  `firstName` varchar(75) DEFAULT NULL,
+  `lastName` varchar(75) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `gameId` (`gameId`),
+  KEY `teamId` (`teamId`),
+  KEY `playerId` (`playerId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `nhl_pandas_import`.`rosters_import` (
@@ -312,6 +369,16 @@ CREATE TABLE `nhl_pandas_import`.`shifts_import` (
   KEY `teamId_index` (`teamId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+CREATE TABLE `nhl_pandas_import`.`table_update_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `tableName` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lastDateUpdated` datetime DEFAULT NULL,
+  `updateFound` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `tableName` (`tableName`)
+) ENGINE=MyISAM AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `nhl_pandas_import`.`team_seasons_import` (
   `id` int NOT NULL AUTO_INCREMENT,
