@@ -1,12 +1,16 @@
 OPEN TODO
-	Play_by_Play.Py
-		rename this file Game_Center.Py
-		create new sql table to hold broadcast data
-		create new sql table to hold game results summary
-		capture tv broadcasts & game results summary info from play by play details
+	Game_Center.Py
+	    use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
+	    * was Play_by_Play.Py
+		* rename this file Game_Center.Py
+		* create new sql table to hold broadcast data
+		* recreate the sql table to record game roster spots
+		* create new sql table to hold game results summary
+		*     i think this json divides up into 9 subtables :(
+		*     make 9 subtables (it was eight)
+		capture tv broadcasts, rosters, and game results summary info from play by play details
 		add single gameId overrides (updateDB, queryDB, queryNHL)
 		add logging
-		this object should control (or replace?) code from Shifts.Py
 		add code for GamesImportLog
 
 	Shifts.Py
@@ -20,11 +24,15 @@ OPEN TODO
 		use this object to control all the other objects in order to poll the NHL for updates when appropriate
 		scheduled updates for each database table
 
+---- you're allowed to refactor after this line :) ----
+
+    swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
+
 	re-poll everything from the NHL
 
 	build normalized database schema from the imported data
 		* assign import tables to an import database schema
-		* build import schema agent, seperate from normalized schema agent and access
+		* build import schema agent, separate from normalized schema agent and access
 		reduce each import table to normalized components
 			build tables to store these normalized components
 			write objects to update and control these normalized components
@@ -38,6 +46,13 @@ OPEN TODO
 	web blog
 
 	implement SQL abstraction via SQLAlchemy ORM
+	    (or other alternatives? isn't there a VRM or something, too?)
+	    consider writing the db initialization (table and index creation, mostly)
+	    using automap_base() on a connection, we can end up with a Base object full of Table objects
+	    try to find a pattern that swaps between pandas DataFrame objects and sqlalchemy Table objects
+	        this may mean that i can sometimes skip pandas on my way to the database
+	        this may mean i don't need to use pandas to build the controller that converts import tables to
+	        normalized tables
 
 ********************************************************************************
 2024-09-10
@@ -92,7 +107,7 @@ OPEN TODO
 		arrange broader metaphors (teams, games, players, etc) into objects
 			assign existing functions to objects
 			flesh out objects with missing or needed CRUD elements
-			seperate "create new table" and "update existing table" processes
+			separate "create new table" and "update existing table" processes
 			start with games_import - updates for this one is probably most immediately useful
 			focus on what happens when playoff schedules emerge & update as playoffs go along
 
@@ -130,7 +145,7 @@ OPEN TODO
 			game_play_by_play_import
 			game_rosters_import
 			games_import - update only
-			shiftcharts_import
+			shift_charts_import
 		check if polling columns are adequate, add tables or columns where appropriate
 
 
@@ -147,7 +162,7 @@ OPEN TODO
 			in Pandas, we'll want to add time values to this start date ('1000-01-01 00:00:00') and then record the date
 		commit required table changes
 
-	Repoll data
+	Re-poll data
 
 2024-03-25 Pandas TODO
 	* get a scrap.py running for SQLAlchemy
@@ -183,7 +198,7 @@ OPEN TODO
 		daily/hourly commit practice
 		publish to public?
 
-passed - already get this data in the players queryies - biggest advantage to bios is that you could poll many 100s
+passed - already get this data in the players queries - biggest advantage to bios is that you could poll many 100s
 	of players at a time
 	bios???
 		https://api.nhle.com/stats/rest/en/skater/bios?start=000&limit=100&cayenneExp=gameTypeId=2
