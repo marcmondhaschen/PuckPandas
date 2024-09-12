@@ -1,13 +1,6 @@
-OPEN TODO
+OPEN ITEMS
 	Game_Center.Py
-	    use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
-	    * was Play_by_Play.Py
-		* rename this file Game_Center.Py
-		* create new sql table to hold broadcast data
-		* recreate the sql table to record game roster spots
-		* create new sql table to hold game results summary
-		*     i think this json divides up into 9 subtables :(
-		*     make 9 subtables (it was eight)
+	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
 		capture tv broadcasts, rosters, and game results summary info from play by play details
 		add single gameId overrides (updateDB, queryDB, queryNHL)
 		add logging
@@ -16,6 +9,7 @@ OPEN TODO
 	Shifts.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
 		add logging
+		add code for GamesImportLog
 
 	Players.Py
 		begin transition from function to object code
@@ -55,6 +49,17 @@ OPEN TODO
 	        normalized tables
 
 ********************************************************************************
+2024-09-11
+	Game_Center.Py
+	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
+	    * was Play_by_Play.Py
+		* rename this file Game_Center.Py
+		* create new sql table to hold broadcast data
+		* recreate the sql table to record game roster spots
+		* create new sql table to hold game results summary
+		*     i think this json divides up into 9 subtables :(
+		*     make 9 subtables (it was eight)
+
 2024-09-10
 	Games.Py was Schedules.Py
 		* add logging
@@ -129,7 +134,7 @@ OPEN TODO
 		https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId%3E=2023021082%20and%20gameId%3C=2023021094
 	store to shifts_import table
 
-2024-08-14 Pandas TODO
+2024-08-14
 	find brody's missing goal
 
 	improve usage of json_normalize across all pages
@@ -139,7 +144,7 @@ OPEN TODO
 		* schedules.py
 		* teams.py
 
-2024-05-14 Pandas TODO
+2024-05-14
 	Build delta process for games scheduled but not played
 		identify tables that will need to be appended to
 			game_play_by_play_import
@@ -148,8 +153,7 @@ OPEN TODO
 			shift_charts_import
 		check if polling columns are adequate, add tables or columns where appropriate
 
-
-2024-05-06 Pandas TODO
+2024-05-06
 	TOI data type conversion problem
 		identify fields in existing _import tables that will need support
 			goalie_career_totals_import
@@ -164,12 +168,24 @@ OPEN TODO
 
 	Re-poll data
 
-2024-03-25 Pandas TODO
+2024-03-25
 	* get a scrap.py running for SQLAlchemy
 		consider using their query framework? - big benefit is it allows others to adopt code without committing to mysql db
 	* populate code for TOI data type conversion
 
-2024-03-19 Pandas TODO
+2024-03-21
+	* start git repo
+		daily/hourly commit practice
+		publish to public?
+
+2024-03-20
+	* clean up last night's python code, clear out test lines and notes cruft
+	* clean up docs files
+	* update table creation file
+	* document python functions as written
+	* refactor sql tables with '_import' suffix
+
+2024-03-19
 	* build player tables
 		* bio/header
 		* career
@@ -184,24 +200,3 @@ OPEN TODO
 	* wire import functions into the rest of players.py functions
 	* test completed players.py
 
-
-2024-03-20 Pandas TODO
-	* clean up last night's python code, clear out test lines and notes cruft
-	* clean up docs files
-	* update table creation file
-	* document python functions as written
-	* refactor sql tables with '_import' suffix
-
-
-2024-03-21 Pandas TODO
-	* start git repo
-		daily/hourly commit practice
-		publish to public?
-
-passed - already get this data in the players queries - biggest advantage to bios is that you could poll many 100s
-	of players at a time
-	bios???
-		https://api.nhle.com/stats/rest/en/skater/bios?start=000&limit=100&cayenneExp=gameTypeId=2
-		&seasonId%3E=19171918&seasonId%3C=20232024
-		https://api.nhle.com/stats/rest/en/goalie/bios?start=000&limit=100&cayenneExp=gameTypeId=2
-		&seasonId%3E=19171918&seasonId%3C=20232024
