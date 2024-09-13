@@ -116,7 +116,7 @@ CREATE TABLE `nhl_pandas_import`.`games_import` (
 
 CREATE TABLE `nhl_pandas_import`.`games_import_log` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `gameId` int NOT NULL,
+  `gameId` int UNIQUE NOT NULL,
   `lastDateUpdated` datetime DEFAULT NULL,
   `gameFound` tinyint DEFAULT NULL,
   `tvBroadcastsFound` tinyint DEFAULT NULL,
@@ -311,7 +311,7 @@ CREATE TABLE `nhl_pandas_import`.`player_career_totals_import` (
 
 CREATE TABLE `nhl_pandas_import`.`player_import_log` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `playerId` int NOT NULL,
+  `playerId` int UNIQUE NOT NULL,
   `lastDateUpdated` datetime DEFAULT NULL,
   `playerFound` tinyint DEFAULT NULL,
   `careerTotalsFound` tinyint DEFAULT NULL,

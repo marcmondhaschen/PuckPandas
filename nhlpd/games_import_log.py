@@ -7,7 +7,7 @@ class GamesImportLog:
     update_details = pd.Series(index=['gameId', 'lastDateUpdated', 'gameFound', 'tvBroadcastsFound', 'playsFound',
                                       'rosterSpotsFound', 'summaryFound', 'shiftsFound'])
 
-    def __init__(self, game_id, last_date_updated, game_found='', tv_broadcasts_found='', plays_found='',
+    def __init__(self, game_id='', last_date_updated='', game_found='', tv_broadcasts_found='', plays_found='',
                  roster_spots_found='', summary_found='', shifts_found=''):
         self.update_details['gameId'] = game_id
         self.update_details['lastDateUpdated'] = last_date_updated
@@ -20,9 +20,14 @@ class GamesImportLog:
 
     @staticmethod
     def insertDB(self):
+        if self.queryDB(self.update_details['gameId']) != '':
+            self.updateDB(self)
+
+            return True
+
         cursor, db = db_import_login()
 
-        if (len(self.update_details) > 0) and ('gameId' in self.update_details):
+        if self.update_details['gameId'] != '':
             sql = "insert into games_import_log (gameId, lastDateUpdated, gameFound, tvBroadcastsFound, playsFound, " \
                   "rosterSpotsFound, summaryFound, shiftsFound) values (%s, %s, %s, %s, %s, %s, %s, %s)"
             val = (self.update_details['gameId'], self.update_details['lastDateUpdated'],
@@ -70,20 +75,21 @@ class GamesImportLog:
         return True
 
     @staticmethod
-    def queryDB(game_id=''):
+    def queryDB(game_id):
+        last_update = ''
+
         cursor, db = db_import_login()
 
-        prefix_sql = "select gameId, max(lastDateUpdated) as lastDateUpdated, " \
-                     "gameFound from games_import_log where gameId = '"
-        suffix_sql = "' group by gameId, updateFound"
+        prefix_sql = "select gameId, max(lastDateUpdated) as lastDateUpdated from games_import_log where gameId = "
+        suffix_sql = " group by gameId"
         update_log_sql = "{}{}{}".format(prefix_sql, game_id, suffix_sql)
         update_df = pd.read_sql(update_log_sql, db)
-
-        last_update = update_df.iloc[0]
-        last_update = last_update.squeeze(axis=0)
 
         db.commit()
         cursor.close()
         db.close()
+
+        if len(update_df.index) != 0:
+            last_update = update_df['lastDateUpdated'].iloc[0]
 
         return last_update

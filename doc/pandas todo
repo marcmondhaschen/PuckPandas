@@ -1,15 +1,17 @@
 OPEN ITEMS
+
 	Game_Center.Py
+	    start by creating a GameImportLog object, update it from the DB, and then poll it for open work
 	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
 		capture tv broadcasts, rosters, and game results summary info from play by play details
-		add single gameId overrides (updateDB, queryDB, queryNHL)
-		add logging
-		add code for GamesImportLog
+		add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
+		add ImportTableUpdate logging
+		add GamesImportLog logging
 
 	Shifts.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
-		add logging
-		add code for GamesImportLog
+		add ImportTableUpdate logging
+		add GamesImportLog logging
 
 	Players.Py
 		begin transition from function to object code
@@ -49,6 +51,23 @@ OPEN ITEMS
 	        normalized tables
 
 ********************************************************************************
+2024-09-13
+	GamesImportLog.Py
+		* ensure only unique gameIds are inserted, all other actions convert to update
+        *    throw a non-existent game_id at games_import_log.queryDB(game_id=[]) and see what happens
+        *    what we want is a "no match" response that can be consistently read
+        *        on "no match", insert should work as normal
+        *        on "yes match", insert should invoke updateDB as an override
+		* test
+
+	PlayerImportLog.Py
+		* ensure only unique gameIds are inserted, all other actions convert to update
+        *    throw a non-existent player_id at player_import_log.queryDB(player_id=[]) and see what happens
+        *    what we want is a "no match" response that can be consistently read
+        *        on "no match", insert should work as normal
+        *        on "yes match", insert should invoke updateDB as an override
+		* test
+
 2024-09-11
 	Game_Center.Py
 	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
