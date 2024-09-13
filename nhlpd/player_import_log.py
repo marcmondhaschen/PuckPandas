@@ -7,6 +7,8 @@ class PlayerImportLog:
     update_details = pd.Series(index=['playerId', 'lastDateUpdated', 'playerFound', 'careerTotalsFound',
                                       'seasonTotalsFound', 'awardsFound'])
 
+    open_work_df = pd.DataFrame(columns=['playerId', 'lastDateUpdated'])
+
     def __init__(self, player_id='', last_date_updated='', player_found='', career_totals_found='',
                  season_totals_found='', awards_found=''):
         self.update_details['playerId'] = player_id
@@ -86,3 +88,15 @@ class PlayerImportLog:
             last_update = update_df['lastDateUpdated'].iloc[0]
 
         return last_update
+
+    def playerOpenWork(self):
+        cursor, db = db_import_login()
+        sql = "select playerId, lastDateUpdated from player_import_log where (playerBioFound is NULL or " \
+              "playerBioFound = 0)"
+        self.open_work_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return True

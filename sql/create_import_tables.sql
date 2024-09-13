@@ -116,9 +116,10 @@ CREATE TABLE `nhl_pandas_import`.`games_import` (
 
 CREATE TABLE `nhl_pandas_import`.`games_import_log` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `gameId` int UNIQUE NOT NULL,
+  `gameId` int NOT NULL,
   `lastDateUpdated` datetime DEFAULT NULL,
   `gameFound` tinyint DEFAULT NULL,
+  `gameCenterFound` tinyint DEFAULT NULL,
   `tvBroadcastsFound` tinyint DEFAULT NULL,
   `playsFound` tinyint DEFAULT NULL,
   `rosterSpotsFound` tinyint DEFAULT NULL,
@@ -126,7 +127,7 @@ CREATE TABLE `nhl_pandas_import`.`games_import_log` (
   `shiftsFound` tinyint DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `gameId` (`gameId`)
+  UNIQUE KEY `gameId_UNIQUE` (`gameId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
@@ -311,15 +312,16 @@ CREATE TABLE `nhl_pandas_import`.`player_career_totals_import` (
 
 CREATE TABLE `nhl_pandas_import`.`player_import_log` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `playerId` int UNIQUE NOT NULL,
+  `playerId` int NOT NULL,
   `lastDateUpdated` datetime DEFAULT NULL,
   `playerFound` tinyint DEFAULT NULL,
+  `playerBioFound` tinyint DEFAULT NULL,
   `careerTotalsFound` tinyint DEFAULT NULL,
   `seasonTotalsFound` tinyint DEFAULT NULL,
   `awardsFound` tinyint DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
-  KEY `playerId` (`playerId`)
+  UNIQUE KEY `playerId_UNIQUE` (`playerId`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 

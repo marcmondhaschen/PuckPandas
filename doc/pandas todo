@@ -1,5 +1,4 @@
 OPEN ITEMS
-
 	Game_Center.Py
 	    start by creating a GameImportLog object, update it from the DB, and then poll it for open work
 	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
@@ -12,6 +11,9 @@ OPEN ITEMS
 		add single gameId overrides (updateDB, queryDB, queryNHL)
 		add ImportTableUpdate logging
 		add GamesImportLog logging
+
+    Rosters.Py
+        update logging for PlayersImportLog changes
 
 	Players.Py
 		begin transition from function to object code

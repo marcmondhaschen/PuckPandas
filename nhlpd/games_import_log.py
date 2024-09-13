@@ -7,6 +7,8 @@ class GamesImportLog:
     update_details = pd.Series(index=['gameId', 'lastDateUpdated', 'gameFound', 'tvBroadcastsFound', 'playsFound',
                                       'rosterSpotsFound', 'summaryFound', 'shiftsFound'])
 
+    open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
+
     def __init__(self, game_id='', last_date_updated='', game_found='', tv_broadcasts_found='', plays_found='',
                  roster_spots_found='', summary_found='', shifts_found=''):
         self.update_details['gameId'] = game_id
@@ -93,3 +95,15 @@ class GamesImportLog:
             last_update = update_df['lastDateUpdated'].iloc[0]
 
         return last_update
+
+    def updateOpenWork(self):
+        cursor, db = db_import_login()
+        sql = "select gameId, lastDateUpdated from games_import_log where (gameCenterFound is NULL or " \
+              "gameCenterFound = 0)"
+        self.open_work_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return True
