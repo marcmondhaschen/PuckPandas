@@ -2,7 +2,7 @@ from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
-from .games import SchedulesImport
+from .games import GamesImport
 from .games_import_log import GamesImportLog
 
 """ shift details first appear in the NHL's API set in the 20102011 season """
@@ -17,7 +17,6 @@ class ShiftsImport:
     def __init__(self, shifts_df=pd.DataFrame()):
         self.shifts_df = pd.concat([self.shifts_df, shifts_df])
 
-    @staticmethod
     def updateDB(self):
         cursor, db = db_import_login()
 
@@ -30,15 +29,16 @@ class ShiftsImport:
                    row['eventDetails'], row['eventNumber'], row['firstName'], row['gameId'], row['hexValue'],
                    row['lastName'], row['period'], row['playerId'], row['shiftNumber'], row['startTime'],
                    row['teamAbbrev'], row['teamId'], row['teamName'], row['typeCode']]
-
             cursor.execute(sql, val)
+
+            log = GamesImportLog(game_id=row['id'], last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
+                                 shifts_found=1)
+            log.updateDB(log)
 
         # tidy up the cursors
         db.commit()
         cursor.close()
         db.close()
-
-        log = GamesImportLog()
 
         return True
 
@@ -80,14 +80,15 @@ class ShiftsImport:
 
         return True
 
+    @staticmethod
     def queryNHL(self, gameid=''):
-        schedules = SchedulesImport()
+        schedules = GamesImport()
         schedules.queryDB()
 
-        if len(schedules.schedules_df) == 0:
+        if len(schedules.games_df) == 0:
             return False
 
-        for index, row in schedules.schedules_df.iterrows():
+        for index, row in schedules.games_df.iterrows():
             game_id = row['gameId']
             shifts_load_check = False
 
@@ -97,22 +98,16 @@ class ShiftsImport:
 
             if len(json_data['data']) > 0:
                 shifts_df = pd.json_normalize(json_data, record_path=['data'])
-                master_shifts_df = master_shift_frame()
-                shifts_df = pd.concat([shifts_df, master_shifts_df])
-                shifts_df = transform_shifts_frame(shifts_df)
-                shifts_load_check = load_shifts_frame(shifts_df)
+                shifts_df.fillna('', inplace=True)
 
-            log_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-            log_df = pd.DataFrame(data=[[game_id, log_date, shifts_load_check]],
-                                  columns=['gameId', 'logDate', 'checked'])
-            log_df = log_df.fillna('')
-            # update_shift_log(log_df)
+                self.shifts_df = pd.concat([self.shifts_df, shifts_df])
+                shifts_load_check = load_shifts_frame(shifts_df)
 
         return True
 
     def queryNHLupdateDB(self):
         self.queryNHL()
         self.clearDB()
-        self.updateDB(self)
+        self.updateDB()
 
         return True

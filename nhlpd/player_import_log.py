@@ -18,10 +18,9 @@ class PlayerImportLog:
         self.update_details['seasonTotalsFound'] = season_totals_found
         self.update_details['awardsFound'] = awards_found
 
-    @staticmethod
     def insertDB(self):
         if self.queryDB(self.update_details['playerId']) != '':
-            self.updateDB(self)
+            self.updateDB()
 
             return True
 
@@ -41,7 +40,6 @@ class PlayerImportLog:
 
         return True
 
-    @staticmethod
     def updateDB(self):
         if (len(self.update_details) > 0) and ('playerId' in self.update_details):
             cursor, db = db_import_login()

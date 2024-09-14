@@ -11,13 +11,14 @@ class GamesImportLog:
 
     open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
 
-    def __init__(self, game_id='', last_date_updated='', game_found='', tv_broadcasts_found='', plays_found='',
-                 roster_spots_found='', team_game_stats_found='', season_series_found='',
+    def __init__(self, game_id='', last_date_updated='', game_found='', game_center_found='', tv_broadcasts_found='',
+                 plays_found='', roster_spots_found='', team_game_stats_found='', season_series_found='',
                  linescore_by_period_found='', referees_found='', linesmen_found='', scratches_found='',
                  shifts_found=''):
         self.update_details['gameId'] = game_id
         self.update_details['lastDateUpdated'] = last_date_updated
         self.update_details['gameFound'] = game_found
+        self.update_details['gameCenterFound'] = game_center_found
         self.update_details['tvBroadcastsFound'] = tv_broadcasts_found
         self.update_details['playsFound'] = plays_found
         self.update_details['rosterSpotsFound'] = roster_spots_found
@@ -29,10 +30,9 @@ class GamesImportLog:
         self.update_details['scratchesFound'] = scratches_found
         self.update_details['shiftsFound'] = shifts_found
 
-    @staticmethod
     def insertDB(self):
         if self.queryDB(self.update_details['gameId']) != '':
-            self.updateDB(self)
+            self.updateDB()
 
             return True
 
@@ -58,7 +58,6 @@ class GamesImportLog:
 
         return True
 
-    @staticmethod
     def updateDB(self):
         if (len(self.update_details) > 0) and ('gameId' in self.update_details):
             cursor, db = db_import_login()

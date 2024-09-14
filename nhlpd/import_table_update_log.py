@@ -10,7 +10,6 @@ class ImportTableUpdateLog:
         self.update_details['lastDateUpdated'] = last_date_updated
         self.update_details['updateFound'] = update_found
 
-    @staticmethod
     def updateDB(self):
         if (len(self.update_details) > 0) and ('tableName' in self.update_details):
             cursor, db = db_import_login()

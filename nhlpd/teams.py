@@ -11,7 +11,6 @@ class TeamsImport:
     def __init__(self, teams_df=pd.DataFrame()):
         self.teams_df = pd.concat([self.teams_df, teams_df])
 
-    @staticmethod
     def updateDB(self, tri_code=''):
         cursor, db = db_import_login()
 
@@ -84,6 +83,6 @@ class TeamsImport:
     def queryNHLupdateDB(self, tri_code=''):
         self.queryNHL(tri_code)
         self.clearDB(tri_code)
-        self.updateDB(self, tri_code)
+        self.updateDB(tri_code)
 
         return True

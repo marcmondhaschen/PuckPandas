@@ -18,7 +18,6 @@ class GamesImport:
     def __init__(self, games_df=pd.DataFrame()):
         self.games_df = pd.concat([self.games_df, games_df])
 
-    @staticmethod
     def updateDB(self, tri_code='', season_id=''):
         teams = TeamsImport()
         teams.queryDB()
@@ -151,6 +150,6 @@ class GamesImport:
     def queryNHLupdateDB(self, tri_code='', season_id=''):
         self.queryNHL(tri_code, season_id)
         self.clearDB(tri_code, season_id)
-        self.updateDB(self, tri_code, season_id)
+        self.updateDB(tri_code, season_id)
 
         return True

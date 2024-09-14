@@ -12,7 +12,6 @@ class RostersImport:
     def __init__(self, rosters_df=pd.DataFrame()):
         self.rosters_df = pd.concat([self.rosters_df, rosters_df])
 
-    @staticmethod
     def updateDB(self, tri_code='', season_id=''):
         if len(self.rosters_df) > 0:
             cursor, db = db_import_login()
@@ -118,5 +117,5 @@ class RostersImport:
     def queryNHLupdateDB(self, tri_code='', season_id=''):
         self.queryNHL(tri_code, season_id)
         self.clearDB(tri_code, season_id)
-        self.updateDB(self, tri_code, season_id)
+        self.updateDB(tri_code, season_id)
         return True

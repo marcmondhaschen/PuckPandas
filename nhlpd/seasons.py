@@ -12,7 +12,6 @@ class SeasonsImport:
     def __init__(self, seasons_df=pd.DataFrame()):
         self.seasons_df = pd.concat([self.seasons_df, seasons_df])
 
-    @staticmethod
     def updateDB(self, tri_code=''):
         if len(self.seasons_df) > 0:
             cursor, db = db_import_login()
@@ -96,6 +95,6 @@ class SeasonsImport:
     def queryNHLupdateDB(self, tri_code=''):
         self.queryNHL(tri_code)
         self.clearDB(tri_code)
-        self.updateDB(self, tri_code)
+        self.updateDB(tri_code)
 
         return True
