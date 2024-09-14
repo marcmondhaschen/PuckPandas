@@ -25,7 +25,6 @@ def db_import_login():
     return cursor, db
 
 
-
 def db_test_login():
     """
     Uses dotenv library and local .env credentials to provide database access to the test schema
