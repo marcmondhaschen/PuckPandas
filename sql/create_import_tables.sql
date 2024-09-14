@@ -422,6 +422,7 @@ create table `nhl_pandas_import`.`roster_spots_import` (
   `playerId` int NOT NULL,
   `sweaterNumber` int DEFAULT NULL,
   `positionCode` varchar(5) DEFAULT NULL,
+  `headshot` varchar(100) DEFAULT NULL,
   `firstName` varchar(75) DEFAULT NULL,
   `lastName` varchar(75) DEFAULT NULL,
   PRIMARY KEY (`id`),
