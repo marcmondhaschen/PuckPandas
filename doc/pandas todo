@@ -1,8 +1,9 @@
 OPEN ITEMS
 	Game_Center.Py
-	    start by creating a GameImportLog object, update it from the DB, and then poll it for open work
+	    * start by creating a GameImportLog object, update it from the DB, and then poll it for open work
 	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
-		capture tv broadcasts, rosters, and game results summary info from play by play details
+	    break into EVEN MORE OBJECTS!! one to control each db table
+		capture play by play, tv broadcasts, rosters, and game results summary info from game center details
 		add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
 		add ImportTableUpdate logging
 		add GamesImportLog logging
@@ -20,7 +21,8 @@ OPEN ITEMS
 
 	add an UpdateImports object
 		use this object to control all the other objects in order to poll the NHL for updates when appropriate
-		scheduled updates for each database table
+		    use the api_query_order_md file to
+		schedule CRON updates for each database table
 
 ---- you're allowed to refactor after this line :) ----
 
@@ -54,6 +56,10 @@ OPEN ITEMS
 
 ********************************************************************************
 2024-09-13
+	GamesImportLog.Py
+	    * update table to include newly introduced objects
+	    * update create_import_tables file
+
 	GamesImportLog.Py
 		* ensure only unique gameIds are inserted, all other actions convert to update
         *    throw a non-existent game_id at games_import_log.queryDB(game_id=[]) and see what happens
