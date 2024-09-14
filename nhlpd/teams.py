@@ -18,19 +18,20 @@ class TeamsImport:
         if tri_code != '':
             self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
 
-        if len(self.teams_df) > 0:
+        if len(self.teams_df.index) > 0:
             for index, row in self.teams_df.iterrows():
                 sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) " \
                       "values (%s, %s, %s, %s, %s) "
                 val = (row['id'], row['franchiseId'], row['fullName'], row['leagueId'], row['triCode'])
                 cursor.execute(sql, val)
 
-        log_object = ImportTableUpdateLog("teams_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log_object.updateDB(log_object)
-
         db.commit()
         cursor.close()
         db.close()
+
+        log_object = ImportTableUpdateLog("teams_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
+        log_object.updateDB(log_object)
+
         return True
 
     @staticmethod
