@@ -48,14 +48,14 @@ class GamesImport:
                 cursor.execute(sql, val)
 
                 log = GamesImportLog(row['id'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'), game_found=1)
-                log.insertDB(log)
+                log.insertDB()
 
             db.commit()
             cursor.close()
             db.close()
 
         log_object = ImportTableUpdateLog("games_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log_object.updateDB(log_object)
+        log_object.updateDB()
 
         return True
 

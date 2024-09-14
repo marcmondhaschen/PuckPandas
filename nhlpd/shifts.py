@@ -33,7 +33,7 @@ class ShiftsImport:
 
             log = GamesImportLog(game_id=row['id'], last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
                                  shifts_found=1)
-            log.updateDB(log)
+            log.updateDB()
 
         # tidy up the cursors
         db.commit()
@@ -80,17 +80,18 @@ class ShiftsImport:
 
         return True
 
-    @staticmethod
-    def queryNHL(self, gameid=''):
+    def queryNHL(self, game_id=''):
         schedules = GamesImport()
         schedules.queryDB()
+
+        if game_id != '':
+            self.shifts_df = self.shifts_df[self.shifts_df['id'] == game_id]
 
         if len(schedules.games_df) == 0:
             return False
 
         for index, row in schedules.games_df.iterrows():
             game_id = row['gameId']
-            shifts_load_check = False
 
             url_prefix = 'https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId='
             url_string = "{}{}".format(url_prefix, game_id)
@@ -101,7 +102,7 @@ class ShiftsImport:
                 shifts_df.fillna('', inplace=True)
 
                 self.shifts_df = pd.concat([self.shifts_df, shifts_df])
-                shifts_load_check = load_shifts_frame(shifts_df)
+                load_shifts_frame(shifts_df)
 
         return True
 

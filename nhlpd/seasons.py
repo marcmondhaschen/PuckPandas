@@ -29,7 +29,7 @@ class SeasonsImport:
             db.close()
 
         log_object = ImportTableUpdateLog("team_seasons_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log_object.updateDB(log_object)
+        log_object.updateDB()
 
         return True
 
