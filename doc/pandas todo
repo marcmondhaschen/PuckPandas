@@ -2,11 +2,12 @@ OPEN ITEMS
 	Game_Center.Py
 	    * start by creating a GameImportLog object, update it from the DB, and then poll it for open work
 	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
-	    break into EVEN MORE OBJECTS!! one to control each db table
-		capture play by play, tv broadcasts, rosters, and game results summary info from game center details
-		add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
-		add ImportTableUpdate logging
-		add GamesImportLog logging
+	    * break into EVEN MORE OBJECTS!! one to control each db table
+		* capture play by play, tv broadcasts, rosters, and game results summary info from game center details
+		* add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
+		* add ImportTableUpdate logging
+		* add GamesImportLog logging
+        test
 
 	Shifts.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
