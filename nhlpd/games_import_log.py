@@ -8,8 +8,8 @@ class GamesImportLog:
                                       'playsFound', 'rosterSpotsFound', 'teamGameStatsFound', 'seasonSeriesFound',
                                       'linescoreByPeriodFound', 'refereesFound', 'linesmenFound', 'scratchesFound',
                                       'shiftsFound'])
-
-    open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
+    game_center_open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
+    shifts_open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
 
     def __init__(self, game_id='', last_date_updated='', game_found='', game_center_found='', tv_broadcasts_found='',
                  plays_found='', roster_spots_found='', team_game_stats_found='', season_series_found='',
@@ -121,11 +121,23 @@ class GamesImportLog:
 
         return last_update
 
-    def updateOpenWork(self):
+    def gameCenterOpenWork(self):
         cursor, db = db_import_login()
         sql = "select gameId, lastDateUpdated from games_import_log where (gameCenterFound is NULL or " \
               "gameCenterFound = 0)"
-        self.open_work_df = pd.read_sql(sql, db)
+        self.game_center_open_work_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return True
+
+    def shiftsOpenWork(self):
+        cursor, db = db_import_login()
+        sql = "select gameId, lastDateUpdated from games_import_log where (shiftsFound is NULL or " \
+              "shiftsFound = 0)"
+        self.shifts_open_work_df = pd.read_sql(sql, db)
 
         db.commit()
         cursor.close()
