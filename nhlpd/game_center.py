@@ -650,7 +650,7 @@ class RosterSpotsImport:
 
 
 class PlaysImport:
-    plays_df = pd.DataFrame(columns=['eventId', 'timeInPeriod', 'timeRemaining', 'situationCode',
+    plays_df = pd.DataFrame(columns=['gameId', 'eventId', 'timeInPeriod', 'timeRemaining', 'situationCode',
                                      'homeTeamDefendingSide', 'typeCode', 'typeDescKey', 'sortOrder',
                                      'periodDescriptor.number', 'periodDescriptor.periodType',
                                      'details.eventOwnerTeamId', 'details.losingPlayerId', 'details.winningPlayerId',
@@ -663,7 +663,7 @@ class PlaysImport:
                                      'details.assist2PlayerTotal', 'details.awayScore', 'details.homeScore',
                                      'details.blockingPlayerId', 'details.secondaryReason', 'details.typeCode',
                                      'details.descKey', 'details.duration', 'details.committedByPlayerId',
-                                     'details.drawnByPlayerId', 'id'])
+                                     'details.drawnByPlayerId'])
     json = {}
 
     def __init__(self, plays_df=pd.DataFrame(), json=None):
@@ -690,7 +690,7 @@ class PlaysImport:
                       "assist1PlayerTotal, assist2PlayerId, assist2PlayerTotal, awayScore, homeScore) values " \
                       "(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
                       "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                val = (row['id'], row['eventId'], row['periodDescriptor.number'], row['periodDescriptor.periodType'],
+                val = (row['gameId'], row['eventId'], row['periodDescriptor.number'], row['periodDescriptor.periodType'],
                        row['timeInPeriod'], row['timeRemaining'], row['situationCode'], row['typeCode'],
                        row['typeDescKey'], row['sortOrder'], row['details.eventOwnerTeamId'],
                        row['details.losingPlayerId'], row['details.winningPlayerId'], row['details.xCoord'],
@@ -706,7 +706,7 @@ class PlaysImport:
                        row['details.homeScore'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(game_id=row['id'],
+                log = GamesImportLog(game_id=row['gameId'],
                                      last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'), plays_found=1)
                 log.updateDB()
 
@@ -762,11 +762,11 @@ class PlaysImport:
         return True
 
     def queryNHL(self, game_id=''):
-        plays_df = pd.json_normalize(self.json, meta=['id'], record_path=['plays'])
+        plays_df = pd.json_normalize(self.json)
         plays_df.fillna('', inplace=True)
 
         if game_id != '':
-            plays_df = plays_df[plays_df['game_id'] == game_id]
+            plays_df.insert(0, 'gameId', game_id)
 
         self.plays_df = pd.concat([self.plays_df, plays_df])
 
@@ -858,11 +858,12 @@ class TvBroadcastsImport:
         return True
 
     def queryNHL(self, game_id=''):
-        tv_broadcasts_df = pd.json_normalize(self.json, meta=['id'], record_path=['tvBroadcasts'])
+        tv_broadcasts_df = pd.json_normalize(self.json)
         tv_broadcasts_df.fillna('', inplace=True)
+        tv_broadcasts_df.rename(columns={"id": "broadcastId"}, inplace=True)
 
         if game_id != '':
-            tv_broadcasts_df = tv_broadcasts_df[tv_broadcasts_df['gameId'] == game_id]
+            tv_broadcasts_df.insert(0, 'gameId', game_id)
 
         self.tv_broadcasts_df = pd.concat([self.tv_broadcasts_df, tv_broadcasts_df])
 
@@ -911,6 +912,8 @@ class GameCenterImport:
     referees = RefereesImport()
     linesmen = LinesmenImport()
     scratches = ScratchesImport()
+    games_import_log = GamesImportLog()
+
     open_work_df = pd.DataFrame()
 
     def __init__(self, game_center_df=pd.DataFrame(), json=None, tv_broadcasts=TvBroadcastsImport(),
@@ -924,7 +927,7 @@ class GameCenterImport:
             self.json = json
 
         self.tv_broadcasts = tv_broadcasts
-        self.plays = plays
+        self.play_by_play = plays
         self.roster_spots = roster_spots
         self.team_game_stats = team_game_stats
         self.season_series = season_series
@@ -934,77 +937,82 @@ class GameCenterImport:
         self.scratches = scratches
 
         self.games_import_log = GamesImportLog()
-        self.open_work_df = self.open_work_df.updateOpenWork(self.games_import_log)
+        self.games_import_log.gameCenterOpenWork()
+        self.open_work_df = self.games_import_log.game_center_open_work_df
 
-    def updateDB(self, game_id=''):
+    def updateDB(self, game_id):
         if game_id != '':
             self.game_center_df = self.game_center_df[self.game_center_df['gameId'] == game_id]
 
         if len(self.game_center_df.index) > 0:
             cursor, db = db_import_login()
-
-            for index, row in self.game_center_df.iterrows():
-                sql = "insert into game_center_import (gameId, season, gameType, limitedScoring, gameDate, " \
-                      "`venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, " \
-                      "gameState, gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
-                      "`periodDescriptor.maxRegulationPeriods`, `awayTeam.id`, `awayTeam.name.default`, " \
-                      "`awayTeam.abbrev`, `awayTeam.score`, `awayTeam.sog`, `awayTeam.logo`, " \
-                      "`awayTeam.placename.default`, `awayTeam.placenameWithPreposition.default`, `homeTeam.id`, " \
-                      "`homeTeam.name.default`, `homeTeam.abbrev`, `homeTeam.score`, `homeTeam.sog`, " \
-                      "`homeTeam.logo`, `homeTeam.placename.default`, `homeTeam.placenameWithPreposition.default`, " \
-                      "shootoutInuse, otInUse, `clock.timeRemaining`, `clock.secondsRemaining`, `clock.running`, " \
-                      "`clock.inIntermission`, displayPeriod, `gameOutcome.lastPeriodType`, " \
-                      "`gameVideo.threeMinRecap`, regPeriods, `summary.awayTeamWins`, `summary.homeTeamWins`, " \
-                      "`summary.neededToWin`, `summary.linescore.totals.away`, `summary.linescore.totals.home`, " \
-                      "`summary.gameReports.gameSummary`, `summary.gameReports.eventSummary`, " \
-                      "`summary.gameReports.playByPlay`, `summary.gameReports.faceoffSummary`, " \
-                      "`summary.gameReports.faceoffComparison`, `summary.gameReports.rosters`, " \
-                      "`summary.gameReports.shotSummary`, `summary.gameReports.shiftChart`, " \
-                      "`summary.gameReports.toiAway`, `summary.gameReports.toiHome`, " \
-                      "`summary.awayTeam.gameInfo.headCoach.default`, `summary.homeTeam.gameInfo.headCoach.default`) " \
-                      "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                val = (row['gameId'], row['season'], row['gameType'], row['limitedScoring'], row['gameDate'],
-                       row['venue.default'], row['venueLocation.default'], row['startTimeUTC'],
-                       row['easternUTCOffset'], row['venueUTCOffset'], row['gameState'], row['gameScheduleState'],
-                       row['periodDescriptor.number'], row['periodDescriptor.periodType'],
-                       row['periodDescriptor.maxRegulationPeriods'], row['awayTeam.id'],
-                       row['awayTeam.name.default'], row['awayTeam.abbrev'], row['awayTeam.score'],
-                       row['awayTeam.sog'], row['awayTeam.logo'], row['awayTeam.placename.default'],
-                       row['awayTeam.placenameWithPreposition.default'], row['homeTeam.id'],
-                       row['homeTeam.name.default'], row['homeTeam.abbrev'], row['homeTeam.score'],
-                       row['homeTeam.sog'], row['homeTeam.logo'], row['homeTeam.placename.default'],
-                       row['homeTeam.placenameWithPreposition.default'], row['shootoutInuse'], row['otInUse'],
-                       row['clock.timeRemaining'], row['clock.secondsRemaining'], row['clock.running'],
-                       row['clock.inIntermission'], row['displayPeriod'], row['gameOutcome.lastPeriodType'],
-                       row['gameVideo.threeMinRecap'], row['regPeriods'], row['summary.awayTeamWins'],
-                       row['summary.homeTeamWins'], row['summary.neededToWin'], row['summary.linescore.totals.away'],
-                       row['summary.linescore.totals.home'], row['summary.gameReports.gameSummary'],
-                       row['summary.gameReports.eventSummary'], row['summary.gameReports.playByPlay'],
-                       row['summary.gameReports.faceoffSummary'], row['summary.gameReports.faceoffComparison'],
-                       row['summary.gameReports.rosters'], row['summary.gameReports.shotSummary'],
-                       row['summary.gameReports.shiftChart'], row['summary.gameReports.toiAway'],
-                       row['summary.gameReports.toiHome'], row['summary.awayTeam.gameInfo.headCoach.default'],
-                       row['summary.homeTeam.gameInfo.headCoach.default'])
-                cursor.execute(sql, val)
-
-                log = GamesImportLog(game_id=row['gameId'],
-                                     last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-                                     game_center_found=1)
-                log.updateDB()
-
+            row = self.game_center_df[0]
+            sql = "insert into game_center_import (gameId, season, gameType, limitedScoring, gameDate, " \
+                  "`venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, " \
+                  "gameState, gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
+                  "`periodDescriptor.maxRegulationPeriods`, `awayTeam.id`, `awayTeam.name.default`, " \
+                  "`awayTeam.abbrev`, `awayTeam.score`, `awayTeam.sog`, `awayTeam.logo`, " \
+                  "`awayTeam.placename.default`, `awayTeam.placenameWithPreposition.default`, `homeTeam.id`, " \
+                  "`homeTeam.name.default`, `homeTeam.abbrev`, `homeTeam.score`, `homeTeam.sog`, " \
+                  "`homeTeam.logo`, `homeTeam.placename.default`, `homeTeam.placenameWithPreposition.default`, " \
+                  "shootoutInuse, otInUse, `clock.timeRemaining`, `clock.secondsRemaining`, `clock.running`, " \
+                  "`clock.inIntermission`, displayPeriod, `gameOutcome.lastPeriodType`, " \
+                  "`gameVideo.threeMinRecap`, regPeriods, `summary.awayTeamWins`, `summary.homeTeamWins`, " \
+                  "`summary.neededToWin`, `summary.linescore.totals.away`, `summary.linescore.totals.home`, " \
+                  "`summary.gameReports.gameSummary`, `summary.gameReports.eventSummary`, " \
+                  "`summary.gameReports.playByPlay`, `summary.gameReports.faceoffSummary`, " \
+                  "`summary.gameReports.faceoffComparison`, `summary.gameReports.rosters`, " \
+                  "`summary.gameReports.shotSummary`, `summary.gameReports.shiftChart`, " \
+                  "`summary.gameReports.toiAway`, `summary.gameReports.toiHome`, " \
+                  "`summary.awayTeam.gameInfo.headCoach.default`, `summary.homeTeam.gameInfo.headCoach.default`) " \
+                  "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                  "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                  "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            val = (row['gameId'], row['season'], row['gameType'], row['limitedScoring'], row['gameDate'],
+                   row['venue.default'], row['venueLocation.default'], row['startTimeUTC'],
+                   row['easternUTCOffset'], row['venueUTCOffset'], row['gameState'], row['gameScheduleState'],
+                   row['periodDescriptor.number'], row['periodDescriptor.periodType'],
+                   row['periodDescriptor.maxRegulationPeriods'], row['awayTeam.id'],
+                   row['awayTeam.name.default'], row['awayTeam.abbrev'], row['awayTeam.score'],
+                   row['awayTeam.sog'], row['awayTeam.logo'], row['awayTeam.placename.default'],
+                   row['awayTeam.placenameWithPreposition.default'], row['homeTeam.id'],
+                   row['homeTeam.name.default'], row['homeTeam.abbrev'], row['homeTeam.score'],
+                   row['homeTeam.sog'], row['homeTeam.logo'], row['homeTeam.placename.default'],
+                   row['homeTeam.placenameWithPreposition.default'], row['shootoutInuse'], row['otInUse'],
+                   row['clock.timeRemaining'], row['clock.secondsRemaining'], row['clock.running'],
+                   row['clock.inIntermission'], row['displayPeriod'], row['gameOutcome.lastPeriodType'],
+                   row['gameVideo.threeMinRecap'], row['regPeriods'], row['summary.awayTeamWins'],
+                   row['summary.homeTeamWins'], row['summary.neededToWin'], row['summary.linescore.totals.away'],
+                   row['summary.linescore.totals.home'], row['summary.gameReports.gameSummary'],
+                   row['summary.gameReports.eventSummary'], row['summary.gameReports.playByPlay'],
+                   row['summary.gameReports.faceoffSummary'], row['summary.gameReports.faceoffComparison'],
+                   row['summary.gameReports.rosters'], row['summary.gameReports.shotSummary'],
+                   row['summary.gameReports.shiftChart'], row['summary.gameReports.toiAway'],
+                   row['summary.gameReports.toiHome'], row['summary.awayTeam.gameInfo.headCoach.default'],
+                   row['summary.homeTeam.gameInfo.headCoach.default'])
+            cursor.execute(sql, val)
             db.commit()
             cursor.close()
             db.close()
 
-        log = ImportTableUpdateLog("game_center_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-        log.updateDB()
+            log = GamesImportLog(game_id=row['gameId'],
+                                 last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
+                                 game_center_found=1)
+            log.updateDB()
+
+            self.tv_broadcasts.updateDB(game_id=game_id)
+            self.play_by_play.updateDB(game_id=game_id)
+            self.roster_spots.updateDB(game_id=game_id)
+            self.team_game_stats.updateDB(game_id=game_id)
+            self.season_series.updateDB(game_id=game_id)
+            self.linescore_by_period.updateDB(game_id=game_id)
+            self.referees.updateDB(game_id=game_id)
+            self.linesmen.updateDB(game_id=game_id)
+            self.scratches.updateDB(game_id=game_id)
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self, game_id=''):
         cursor, db = db_import_login()
 
         if game_id == '':
@@ -1017,6 +1025,16 @@ class GameCenterImport:
         db.commit()
         cursor.close()
         db.close()
+
+        self.tv_broadcasts.clearDB(game_id=game_id)
+        self.play_by_play.clearDB(game_id=game_id)
+        self.roster_spots.clearDB(game_id=game_id)
+        self.team_game_stats.clearDB(game_id=game_id)
+        self.season_series.clearDB(game_id=game_id)
+        self.linescore_by_period.clearDB(game_id=game_id)
+        self.referees.clearDB(game_id=game_id)
+        self.linesmen.clearDB(game_id=game_id)
+        self.scratches.clearDB(game_id=game_id)
 
         return True
 
@@ -1048,6 +1066,7 @@ class GameCenterImport:
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
         cursor, db = db_import_login()
+
         self.game_center_df = pd.read_sql(sql, db)
         self.game_center_df.fillna('', inplace=True)
 
@@ -1055,21 +1074,23 @@ class GameCenterImport:
         cursor.close()
         db.close()
 
+        self.tv_broadcasts.queryDB(game_id=game_id)
+        self.play_by_play.queryDB(game_id=game_id)
+        self.roster_spots.queryDB(game_id=game_id)
+        self.team_game_stats.queryDB(game_id=game_id)
+        self.season_series.queryDB(game_id=game_id)
+        self.linescore_by_period.queryDB(game_id=game_id)
+        self.referees.queryDB(game_id=game_id)
+        self.linesmen.queryDB(game_id=game_id)
+        self.scratches.queryDB(game_id=game_id)
+
         return True
 
-    def queryNHL(self, game_id=''):
-        open_work_df = self.open_work_df
-
-        if len(open_work_df.index) == 0:
-            return False
-
+    def queryNHL(self, game_id):
         if game_id != '':
-            open_work_df = open_work_df[open_work_df['gameId'] == game_id]
-
-        for index, row in open_work_df.iterrows():
             url_prefix = 'https://api-web.nhle.com/v1/gamecenter/'
             url_suffix = '/play-by-play'
-            query_url = "{}{}{}".format(url_prefix, row['gameId'], url_suffix)
+            query_url = "{}{}{}".format(url_prefix, game_id, url_suffix)
 
             self.json = fetch_json_data(query_url)
             game_center_df = pd.json_normalize(self.json)
@@ -1077,31 +1098,41 @@ class GameCenterImport:
             self.game_center_df = pd.concat([self.game_center_df, game_center_df])
 
             if 'tvBroadcasts' in self.json:
-                self.tv_broadcasts = TvBroadcastsImport(json=self.json)
+                self.tv_broadcasts.json = self.json['tvBroadcasts']
+                self.tv_broadcasts.queryNHL(game_id=game_id)
 
             if 'plays' in self.json:
-                self.plays = PlaysImport(json=self.json)
+                self.play_by_play.json = self.json['plays']
+                self.play_by_play.queryNHL(game_id=game_id)
 
             if 'rosterSpots' in self.json:
-                self.roster_spots = RosterSpotsImport(json=self.json)
+                self.roster_spots.json = self.json['rosterSpots']
+                self.roster_spots.queryNHL(game_id=game_id)
 
-            if ['summary', 'teamGameStats'] in self.json:
-                self.team_game_stats = TeamGameStatsImport(json=self.json)
+            if "teamGameStats" in self.json.get("summary", {}):
+                self.team_game_stats.json = self.json['summary']['teamGameStats']
+                self.team_game_stats.queryNHL(game_id=game_id)
 
-            if ['summary', 'seasonSeries'] in self.json:
-                self.season_series = SeasonSeriesImport(json=self.json)
+            if "seasonSeries" in self.json.get("summary", {}):
+                self.season_series.json = self.json['summary']['seasonSeries']
+                self.season_series.queryNHL(game_id=game_id)
 
-            if ['summary', 'linescore', 'byPeriod'] in self.json:
-                self.linescore_by_period = LinescoreByPeriodImport(json=self.json)
+            if "byPeriod" in self.json.get("summary", {}).get("linescore", {}):
+                self.linescore_by_period.json = self.json['summary']['linescore']['byPeriod']
+                self.linescore_by_period.queryNHL(game_id=game_id)
 
-            if ['summary', 'gameInfo', 'referees'] in self.json:
-                self.referees = RefereesImport(json=self.json)
+            if "referees" in self.json.get("summary", {}).get("gameInfo", {}):
+                self.referees.json = self.json['summary']['gameInfo']['referees']
+                self.referees.queryNHL(game_id=game_id)
 
-            if['summary', 'gameInfo', 'linesmen'] in self.json:
-                self.linesmen = LinesmenImport(json=self.json)
+            if "linesmen" in self.json.get("summary", {}).get("gameInfo", {}):
+                self.linesmen.json = self.json['summary']['linesmen']
+                self.linesmen.queryNHL(game_id=game_id)
 
-            if['summary', 'gameInfo', 'awayTeam', 'scratches'] in self.json:
-                self.scratches = ScratchesImport(json=self.json)
+            if "scratches" in self.json.get("summary", {}).get("gameInfo", {}).get("awayTeam", {}):
+                self.scratches.json = self.json['summary']['gameInfo']['awayTeam']['scratches']
+                self.scratches.json = self.json['summary']['gameInfo']['homeTeam']['scratches']
+                self.scratches.queryNHL(game_id=game_id)
 
         return True
 
@@ -1109,5 +1140,24 @@ class GameCenterImport:
         self.queryNHL(game_id)
         self.clearDB(game_id)
         self.updateDB(game_id)
+
+        return True
+
+
+class GameCenterController:
+    games_import_log = GamesImportLog()
+    open_work = pd.DataFrame()
+
+    def __init__(self):
+        self.games_import_log = self.games_import_log.gameCenterOpenWork()
+        self.open_work = self.games_import_log.game_center_open_work_df
+
+    def queryNHLupdateDBoverOpenWork(self):
+        if len(self.open_work.index) > 0:
+            for index, row in self.open_work:
+                game_center = GameCenterImport()
+                game_center.queryNHLupdateDB(game_id=row['gameId'])
+        log = ImportTableUpdateLog("game_center_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+        log.updateDB()
 
         return True

@@ -55,6 +55,18 @@ OPEN ITEMS
 	        this may mean i don't need to use pandas to build the controller that converts import tables to
 	        normalized tables
 
+    enforce "single query-result" restrictions on all Import objects, such that each parses a single query result.
+        Import objects should be responsible for a single page result
+            refactor all objects as with the most recent changes to the GameCenterImport, and later the PlayerImport
+            create a supporting Controller object
+                Controller object has appropriate ImportLog object(s)
+                Controller object can ask ImportLogs for OpenWork - a list of pages that should be
+                queried one at a time by the controller
+                Controller object can iterate over the OpenWork list, running the associated object's
+                'queryNHLandUpdateDB' functions
+                Completing an OpenWork list should be the step in process that makes an entry to ImportTableUpdate
+
+
 ********************************************************************************
 2024-09-13
 	GamesImportLog.Py
