@@ -79,12 +79,12 @@ class ScratchesImport:
         return True
 
     def queryNHL(self, game_id=''):
-        scratches_df = pd.json_normalize(self.json, meta=['id'],
-                                         record_path=['summary', 'gameInfo', 'awayTeam', 'scratches'])
+        scratches_df = pd.json_normalize(self.json)
         scratches_df.fillna('', inplace=True)
+        scratches_df.rename(columns={"id": "playerId"}, inplace=True)
 
         if game_id != '':
-            scratches_df = scratches_df[scratches_df['gameId'] == game_id]
+            scratches_df.insert(0, 'gameId', game_id)
 
         self.scratches_df = pd.concat([self.scratches_df, scratches_df])
 
@@ -357,7 +357,6 @@ class SeasonSeriesImport:
 
         if game_id != '':
             season_series_df.insert(0, 'gameId', game_id)
-
 
         self.season_series_df = pd.concat([self.season_series_df, season_series_df])
 
@@ -828,10 +827,10 @@ class GameCenterImport:
     scratches = ScratchesImport()
 
     def __init__(self, game_center_pbp_df=pd.DataFrame(), game_center_rr_df=pd.DataFrame(), pbp_json=None,
-                 rr_json=None, tv_broadcasts=TvBroadcastsImport(),
-                 plays=PlaysImport(), roster_spots=RosterSpotsImport(), team_game_stats=TeamGameStatsImport(),
-                 season_series=SeasonSeriesImport(), linescore_by_period=LinescoreByPeriodImport(),
-                 referees=RefereesImport(), linesmen=LinesmenImport(), scratches=ScratchesImport()):
+                 rr_json=None, tv_broadcasts=TvBroadcastsImport(), plays=PlaysImport(),
+                 roster_spots=RosterSpotsImport(), team_game_stats=TeamGameStatsImport(),
+                 season_series=SeasonSeriesImport(), referees=RefereesImport(), linesmen=LinesmenImport(),
+                 scratches=ScratchesImport()):
 
         self.game_center_pbp_df = pd.concat([self.game_center_pbp_df, game_center_pbp_df])
         self.game_center_rr_df = pd.concat([self.game_center_rr_df, game_center_rr_df])
@@ -851,7 +850,6 @@ class GameCenterImport:
         self.roster_spots = roster_spots
         self.team_game_stats = team_game_stats
         self.season_series = season_series
-        self.linescore_by_period = linescore_by_period
         self.referees = referees
         self.linesmen = linesmen
         self.scratches = scratches
@@ -1049,7 +1047,8 @@ class GameCenterImport:
                 self.linesmen.queryNHL(game_id=game_id)
 
             if "scratches" in self.rr_json['gameInfo']['awayTeam']:
-                self.scratches.json = self.rr_json['gameInfo']['awayTeam']['scratches']
+                self.scratches.json = self.rr_json['gameInfo']['awayTeam']['scratches'] + \
+                                      self.rr_json['gameInfo']['homeTeam']['scratches']
                 self.scratches.queryNHL(game_id=game_id)
 
         return True
