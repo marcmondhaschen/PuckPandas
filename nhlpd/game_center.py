@@ -49,7 +49,7 @@ class ScratchesImport:
         if game_id == '':
             sql = "truncate table scratches_import"
         else:
-            sql = "delete from scratches_import where gameId = " + game_id
+            sql = "delete from scratches_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -140,7 +140,7 @@ class LinesmenImport:
         if game_id == '':
             sql = "truncate table linesmen_import"
         else:
-            sql = "delete from linesmen_import where gameId = " + game_id
+            sql = "delete from linesmen_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -229,7 +229,7 @@ class RefereesImport:
         if game_id == '':
             sql = "truncate table referees_import"
         else:
-            sql = "delete from referees_import where gameId = " + game_id
+            sql = "delete from referees_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -320,7 +320,7 @@ class SeasonSeriesImport:
         if game_id == '':
             sql = "truncate table season_series_import"
         else:
-            sql = "delete from season_series_import where gameId = " + game_id
+            sql = "delete from season_series_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -352,6 +352,7 @@ class SeasonSeriesImport:
     def queryNHL(self, game_id=''):
         season_series_df = pd.json_normalize(self.json)
         season_series_df.fillna('', inplace=True)
+        # noinspection PyTypeChecker
         season_series_df.insert(0, 'seriesNumber', range(len(season_series_df)))
         season_series_df.rename(columns={"id": "refGameId"}, inplace=True)
 
@@ -414,7 +415,7 @@ class TeamGameStatsImport:
         if game_id == '':
             sql = "truncate table team_game_stats_import"
         else:
-            sql = "delete from team_game_stats_import where gameId = " + game_id
+            sql = "delete from team_game_stats_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -505,7 +506,7 @@ class RosterSpotsImport:
         if game_id == '':
             sql = "truncate table roster_spots_import"
         else:
-            sql = "delete from roster_spots_import where gameId = " + game_id
+            sql = "delete from roster_spots_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -632,7 +633,7 @@ class PlaysImport:
         if game_id == '':
             sql = "truncate table plays_import"
         else:
-            sql = "delete from plays_import where gameId = " + game_id
+            sql = "delete from plays_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -733,7 +734,7 @@ class TvBroadcastsImport:
         if game_id == '':
             sql = "truncate table tv_broadcasts_import"
         else:
-            sql = "delete from tv_broadcasts_import where gameId = " + game_id
+            sql = "delete from tv_broadcasts_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -855,9 +856,6 @@ class GameCenterImport:
         self.scratches = scratches
 
     def updateDB(self, game_id):
-        if game_id != '':
-            self.game_center_pbp_df = self.game_center_pbp_df[self.game_center_pbp_df['gameId'] == game_id]
-
         if len(self.game_center_pbp_df.index) > 0:
             cursor, db = db_import_login()
             row = self.game_center_pbp_df[0]
@@ -905,6 +903,7 @@ class GameCenterImport:
                    row['summary.gameReports.toiHome'], row['summary.awayTeam.gameInfo.headCoach.default'],
                    row['summary.homeTeam.gameInfo.headCoach.default'])
             cursor.execute(sql, val)
+
             db.commit()
             cursor.close()
             db.close()
@@ -931,7 +930,14 @@ class GameCenterImport:
         if game_id == '':
             sql = "truncate table game_center_import"
         else:
-            sql = "delete from game_center_import where gameId = " + game_id
+            sql = "delete from game_center_import where gameId = " + str(game_id)
+
+        cursor.execute(sql)
+
+        if game_id == '':
+            sql = "truncate table game_center_right_rail_import"
+        else:
+            sql = "delete from game_center_right_rail_import where gameId = " + str(game_id)
 
         cursor.execute(sql)
 
@@ -1008,6 +1014,7 @@ class GameCenterImport:
             self.pbp_json = fetch_json_data(pbp_query_url)
             game_center_pbp_df = pd.json_normalize(self.pbp_json)
             game_center_pbp_df.fillna('', inplace=True)
+            game_center_pbp_df.insert(0, 'gameId', game_id)
             self.game_center_pbp_df = pd.concat([self.game_center_pbp_df, game_center_pbp_df])
 
             self.rr_json = fetch_json_data(rr_query_url)
