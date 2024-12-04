@@ -126,6 +126,7 @@ Most of those have been added to the existing lists, below.
 ### standings
 	- use https://api-web.nhle.com/v1/standings/now
 	- use https://api-web.nhle.com/v1/standings/ [DATE]
+		- HAS CONFERENCE AND DIVISION!!! (can't seem to find on any other query?)
 		- will need to source appropriate dates for each season, probably close of each reg season?
 		- close of each reg season is contained in .../standings-season/
 
