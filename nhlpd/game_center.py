@@ -170,11 +170,11 @@ class LinesmenImport:
         return True
 
     def queryNHL(self, game_id=''):
-        linesmen_df = pd.json_normalize(self.json, meta=['id'], record_path=['summary', 'gameInfo', 'linesmen'])
+        linesmen_df = pd.json_normalize(self.json)
         linesmen_df.fillna('', inplace=True)
 
         if game_id != '':
-            linesmen_df = linesmen_df[linesmen_df['gameId'] == game_id]
+            linesmen_df.insert(0, 'gameId', game_id)
 
         self.linesmen_df = pd.concat([self.linesmen_df, linesmen_df])
 
@@ -259,110 +259,13 @@ class RefereesImport:
         return True
 
     def queryNHL(self, game_id=''):
-        referees_df = pd.json_normalize(self.json, meta=['id'], record_path=['summary', 'gameInfo', 'referees'])
+        referees_df = pd.json_normalize(self.json)
         referees_df.fillna('', inplace=True)
 
         if game_id != '':
-            referees_df = referees_df[referees_df['gameId'] == game_id]
+            referees_df.insert(0, 'gameId', game_id)
 
         self.referees_df = pd.concat([self.referees_df, referees_df])
-
-        return True
-
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
-        self.updateDB(game_id)
-
-        return True
-
-
-class LinescoreByPeriodImport:
-    linescore_by_period_df = pd.DataFrame(columns=['gameId', 'period', 'periodDescriptor.number',
-                                                   'periodDescriptor.periodType', 'maxRegulationPeriods',
-                                                   'period.away', 'period.home'])
-    json = {}
-
-    def __init__(self, linescore_by_period_df=pd.DataFrame(), json=None):
-        self.linescore_by_period_df = pd.concat([self.linescore_by_period_df, linescore_by_period_df])
-        if json is None:
-            self.json = {}
-        else:
-            self.json = json
-
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.linescore_by_period_df = self.linescore_by_period_df[self.linescore_by_period_df['gameId'] == game_id]
-
-        if len(self.linescore_by_period_df.index) > 0:
-            cursor, db = db_import_login()
-
-            for index, row in self.linescore_by_period_df:
-                sql = "insert into linescore_by_period_import (gameId, period, `periodDescriptor.number`, " \
-                      "`periodDescriptor.periodType`, maxRegulationPeriods, `period.away`, `period.home`) values " \
-                      "(%s, %s, %s, %s, %s, %s, %s)"
-                val = (row['gameId'], row['period'], row['periodDescriptor.number'], row['periodDescriptor.periodType'],
-                       row['maxRegulationPeriods'], row['period.away'], row['period.home'])
-                cursor.execute(sql, val)
-
-                log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-                                     linescore_by_period_found=1)
-                log.insertDB()
-
-            db.commit()
-            cursor.close()
-            db.close()
-
-        log = ImportTableUpdateLog("linescore_by_period_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
-        return True
-
-    @staticmethod
-    def clearDB(game_id=''):
-        cursor, db = db_import_login()
-
-        if game_id == '':
-            sql = "truncate table linescore_by_period_import"
-        else:
-            sql = "delete from linescore_by_period_import where gameId = " + game_id
-
-        cursor.execute(sql)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return True
-
-    def queryDB(self, game_id=''):
-        sql_prefix = "select gameId, period, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
-                     "maxRegulationPeriods, `period.away`, `period.home` from linescore_by_period_import "
-        sql_suffix = ""
-
-        if game_id != '':
-            sql_suffix = "where gameId = " + game_id
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
-        cursor, db = db_import_login()
-        self.linescore_by_period_df = pd.read_sql(sql, db)
-        self.linescore_by_period_df.fillna('', inplace=True)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return True
-
-    def queryNHL(self, game_id=''):
-        linescore_by_period_df = pd.json_normalize(self.json, meta=['id'],
-                                                   record_path=['summary', 'linescore', 'byPeriod'])
-        linescore_by_period_df.fillna('', inplace=True)
-
-        if game_id != '':
-            linescore_by_period_df = linescore_by_period_df[linescore_by_period_df['gameId'] == game_id]
-
-        self.linescore_by_period_df = pd.concat([self.linescore_by_period_df, linescore_by_period_df])
 
         return True
 
@@ -447,11 +350,14 @@ class SeasonSeriesImport:
         return True
 
     def queryNHL(self, game_id=''):
-        season_series_df = pd.json_normalize(self.json, meta=['id'], record_path=['summary', 'seasonSeries'])
+        season_series_df = pd.json_normalize(self.json)
         season_series_df.fillna('', inplace=True)
+        season_series_df.insert(0, 'seriesNumber', range(len(season_series_df)))
+        season_series_df.rename(columns={"id": "refGameId"}, inplace=True)
 
         if game_id != '':
-            season_series_df = season_series_df[season_series_df['gameId'] == game_id]
+            season_series_df.insert(0, 'gameId', game_id)
+
 
         self.season_series_df = pd.concat([self.season_series_df, season_series_df])
 
@@ -539,11 +445,11 @@ class TeamGameStatsImport:
         return True
 
     def queryNHL(self, game_id=''):
-        team_game_stats_df = pd.json_normalize(self.json, meta=['id'], record_path=['summary', 'teamGameStats'])
+        team_game_stats_df = pd.json_normalize(self.json)
         team_game_stats_df.fillna('', inplace=True)
 
         if game_id != '':
-            team_game_stats_df = team_game_stats_df[team_game_stats_df['gameId'] == game_id]
+            team_game_stats_df.insert(0, 'gameId', game_id)
 
         self.team_game_stats_df = pd.concat([self.team_game_stats_df, team_game_stats_df])
 
@@ -880,16 +786,16 @@ class TvBroadcastsImport:
 
 class GameCenterImport:
     game_center_pbp_df = pd.DataFrame(columns=['gameId', 'season', 'gameType', 'limitedScoring', 'gameDate',
-                                           'venue.default', 'venueLocation.default', 'startTimeUTC',
-                                           'easternUTCOffset', 'venueUTCOffset', 'gameState', 'gameScheduleState',
-                                           'periodDescriptor.number', 'periodDescriptor.periodType',
-                                           'periodDescriptor.maxRegulationPeriods', 'awayTeam.id',
-                                           'awayTeam.name.default', 'awayTeam.abbrev', 'awayTeam.score',
-                                           'awayTeam.sog', 'awayTeam.logo', 'awayTeam.placename.default',
-                                           'awayTeam.placenameWithPreposition.default', 'homeTeam.id',
-                                           'homeTeam.name.default', 'homeTeam.abbrev', 'homeTeam.score',
-                                           'homeTeam.sog', 'homeTeam.logo', 'homeTeam.placename.default',
-                                           'homeTeam.placenameWithPreposition.default', 'shootoutInuse', 'otInUse',
+                                               'venue.default', 'venueLocation.default', 'startTimeUTC',
+                                               'easternUTCOffset', 'venueUTCOffset', 'gameState', 'gameScheduleState',
+                                               'periodDescriptor.number', 'periodDescriptor.periodType',
+                                               'periodDescriptor.maxRegulationPeriods', 'awayTeam.id',
+                                               'awayTeam.name.default', 'awayTeam.abbrev', 'awayTeam.score',
+                                               'awayTeam.sog', 'awayTeam.logo', 'awayTeam.placename.default',
+                                               'awayTeam.placenameWithPreposition.default', 'homeTeam.id',
+                                               'homeTeam.name.default', 'homeTeam.abbrev', 'homeTeam.score',
+                                               'homeTeam.sog', 'homeTeam.logo', 'homeTeam.placename.default',
+                                               'homeTeam.placenameWithPreposition.default', 'shootoutInuse', 'otInUse',
                                                'clock.timeRemaining', 'clock.secondsRemaining', 'clock.running',
                                                'clock.inIntermission', 'displayPeriod', 'gameOutcome.lastPeriodType',
                                                'gameVideo.threeMinRecap', 'regPeriods', 'summary.awayTeamWins',
@@ -904,12 +810,19 @@ class GameCenterImport:
                                                'summary.homeTeam.gameInfo.headCoach.default'])
     pbp_json = {}
 
+    game_center_rr_df = pd.DataFrame(columns=['gameId', 'seasonSeriesWins.awayTeamWins',
+                                              'seasonSeriesWins.homeTeamWins', 'seasonSeriesWins.neededToWin',
+                                              'gameInfo.awayTeam.headCoach.default',
+                                              'gameInfo.homeTeam.headCoach.default', 'gameVideo.threeMinRecap',
+                                              'linescore.totals.away', 'linescore.totals.home'])
+
+    rr_json = {}
+
     tv_broadcasts = TvBroadcastsImport()
     play_by_play = PlaysImport()
     roster_spots = RosterSpotsImport()
     team_game_stats = TeamGameStatsImport()
     season_series = SeasonSeriesImport()
-    linescore = LinescoreByPeriodImport()
     referees = RefereesImport()
     linesmen = LinesmenImport()
     scratches = ScratchesImport()
@@ -1008,7 +921,6 @@ class GameCenterImport:
             self.roster_spots.updateDB(game_id=game_id)
             self.team_game_stats.updateDB(game_id=game_id)
             self.season_series.updateDB(game_id=game_id)
-            self.linescore_by_period.updateDB(game_id=game_id)
             self.referees.updateDB(game_id=game_id)
             self.linesmen.updateDB(game_id=game_id)
             self.scratches.updateDB(game_id=game_id)
@@ -1034,7 +946,6 @@ class GameCenterImport:
         self.roster_spots.clearDB(game_id=game_id)
         self.team_game_stats.clearDB(game_id=game_id)
         self.season_series.clearDB(game_id=game_id)
-        self.linescore_by_period.clearDB(game_id=game_id)
         self.referees.clearDB(game_id=game_id)
         self.linesmen.clearDB(game_id=game_id)
         self.scratches.clearDB(game_id=game_id)
@@ -1082,7 +993,6 @@ class GameCenterImport:
         self.roster_spots.queryDB(game_id=game_id)
         self.team_game_stats.queryDB(game_id=game_id)
         self.season_series.queryDB(game_id=game_id)
-        self.linescore_by_period.queryDB(game_id=game_id)
         self.referees.queryDB(game_id=game_id)
         self.linesmen.queryDB(game_id=game_id)
         self.scratches.queryDB(game_id=game_id)
@@ -1105,6 +1015,7 @@ class GameCenterImport:
             self.rr_json = fetch_json_data(rr_query_url)
             game_center_rr_df = pd.json_normalize(self.rr_json)
             game_center_rr_df.fillna('', inplace=True)
+            game_center_rr_df.insert(0, 'gameId', game_id)
             self.game_center_rr_df = pd.concat([self.game_center_rr_df, game_center_rr_df])
 
             # in play-by-play
@@ -1121,29 +1032,24 @@ class GameCenterImport:
                 self.roster_spots.queryNHL(game_id=game_id)
 
             # in right-rail
-            if "teamGameStats" in self.rr_json.get("summary", {}):
-                self.team_game_stats.json = self.rr_json['summary']['teamGameStats']
+            if "teamGameStats" in self.rr_json:
+                self.team_game_stats.json = self.rr_json['teamGameStats']
                 self.team_game_stats.queryNHL(game_id=game_id)
 
-            if "seasonSeries" in self.rr_json.get("summary", {}):
-                self.season_series.json = self.rr_json['summary']['seasonSeries']
+            if "seasonSeries" in self.rr_json:
+                self.season_series.json = self.rr_json['seasonSeries']
                 self.season_series.queryNHL(game_id=game_id)
 
-            if "byPeriod" in self.rr_json.get("summary", {}).get("linescore", {}):
-                self.linescore_by_period.json = self.rr_json['summary']['linescore']['byPeriod']
-                self.linescore_by_period.queryNHL(game_id=game_id)
-
-            if "referees" in self.rr_json.get("summary", {}).get("gameInfo", {}):
-                self.referees.json = self.rr_json['summary']['gameInfo']['referees']
+            if "referees" in self.rr_json['gameInfo']:
+                self.referees.json = self.rr_json['gameInfo']['referees']
                 self.referees.queryNHL(game_id=game_id)
 
-            if "linesmen" in self.rr_json.get("summary", {}).get("gameInfo", {}):
-                self.linesmen.json = self.rr_json['summary']['linesmen']
+            if "linesmen" in self.rr_json['gameInfo']:
+                self.linesmen.json = self.rr_json['gameInfo']['linesmen']
                 self.linesmen.queryNHL(game_id=game_id)
 
-            if "scratches" in self.rr_json.get("summary", {}).get("gameInfo", {}).get("awayTeam", {}):
-                self.scratches.json = self.rr_json['summary']['gameInfo']['awayTeam']['scratches']
-                self.scratches.json = self.rr_json['summary']['gameInfo']['homeTeam']['scratches']
+            if "scratches" in self.rr_json['gameInfo']['awayTeam']:
+                self.scratches.json = self.rr_json['gameInfo']['awayTeam']['scratches']
                 self.scratches.queryNHL(game_id=game_id)
 
         return True

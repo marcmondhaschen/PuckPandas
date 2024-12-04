@@ -208,21 +208,6 @@ CREATE TABLE `nhl_pandas_import`.`goalie_season_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-create table `nhl_pandas_import`.`linescore_by_period_import` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `gameId` int NOT NULL,
-  `period` int NOT NULL,
-  `periodDescriptor.number` int DEFAULT NULL,
-  `periodDescriptor.periodType` varchar(5) DEFAULT NULL,
-  `maxRegulationPeriods` int DEFAULT NULL,
-  `period.away` int DEFAULT NULL,
-  `period.home` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
-  KEY `gameTypeId` (`gameId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 create table `nhl_pandas_import`.`linesmen_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,
