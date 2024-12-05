@@ -277,7 +277,7 @@ CREATE TABLE `nhl_pandas_import`.`player_bios_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `nhl_pandas_import`.`player_career_totals_import` (
+CREATE TABLE `nhl_pandas_import`.`skater_career_totals_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `regularSeason.gamesPlayed` int DEFAULT NULL,
@@ -332,7 +332,7 @@ CREATE TABLE `nhl_pandas_import`.`player_import_log` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-create table `nhl_pandas_import`.`player_season_import` (
+create table `nhl_pandas_import`.`skater_season_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
   `assists` int DEFAULT NULL,
