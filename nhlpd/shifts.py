@@ -43,10 +43,13 @@ class ShiftsImport:
         return True
 
     @staticmethod
-    def clearDB():
+    def clearDB(game_id=''):
         cursor, db = db_import_login()
 
-        sql = "truncate table shifts_import"
+        if game_id == '':
+            sql = "truncate table shifts_import"
+        else:
+            sql = "delete from shifts_import where game_id =" + str(game_id)
         cursor.execute(sql)
 
         db.commit()
