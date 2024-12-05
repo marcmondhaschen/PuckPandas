@@ -5,5 +5,3 @@ import nhlpd
 if __name__ == "__main__":
     game_center = nhlpd.GameCenterImport()
     game_center = game_center.queryNHLupdateDB(game_id=2023021019)
-    # game_center = game_center.queryNHL(game_id=2018010046)
-    print(game_center.game_center_pbp_df)

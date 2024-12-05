@@ -70,6 +70,23 @@ create table `nhl_pandas_import`.`game_center_import` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+CREATE TABLE `nhl_pandas_import`.`game_center_right_rail_import` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `gameId` int NOT NULL,
+  `seasonSeriesWins.awayTeamWins` int DEFAULT NULL,
+  `seasonSeriesWins.homeTeamWins` int DEFAULT NULL,
+  `seasonSeriesWins.neededToWin` int DEFAULT NULL,
+  `gameInfo.awayTeam.headCoach.default` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gameInfo.homeTeam.headCoach.default` varchar(250) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gameVideo.threeMinRecap` bigint DEFAULT NULL,
+  `linescore.totals.away` int default NULL,
+  `linescore.totals.home` int default NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `gameId` (`gameId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 CREATE TABLE `nhl_pandas_import`.`game_summary_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,

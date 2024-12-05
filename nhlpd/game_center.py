@@ -1,9 +1,8 @@
 from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
-from .games_import_log import GamesImportLog
-from .import_table_update_log import ImportTableUpdateLog
 from .mysql_db import db_import_login
+from .games_import_log import GamesImportLog
 
 
 class ScratchesImport:
@@ -17,10 +16,7 @@ class ScratchesImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.scratches_df = self.scratches_df[self.scratches_df['gameId'] == game_id]
-
+    def updateDB(self):
         if len(self.scratches_df.index) > 0:
             cursor, db = db_import_login()
 
@@ -30,15 +26,9 @@ class ScratchesImport:
                 val = (row['gameId'], row['playerId'], row['firstName.default'], row['lastName.default'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'), scratches_found=1)
-                log.insertDB()
-
             db.commit()
             cursor.close()
             db.close()
-
-        log = ImportTableUpdateLog("scratches_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
 
         return True
 
@@ -93,7 +83,7 @@ class ScratchesImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -109,27 +99,18 @@ class LinesmenImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.linesmen_df = self.linesmen_df[self.linesmen_df['gameId'] == game_id]
-
+    def updateDB(self):
         if len(self.linesmen_df.index) > 0:
             cursor, db = db_import_login()
 
             for index, row in self.linesmen_df.iterrows():
-                sql = "insert into linesmen_import (gameId, default) values (%s, %s)"
+                sql = "insert into linesmen_import (gameId, `default`) values (%s, %s)"
                 val = (row['gameId'], row['default'])
                 cursor.execute(sql, val)
-
-                log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'), linesmen_found=1)
-                log.insertDB()
 
             db.commit()
             cursor.close()
             db.close()
-
-        log = ImportTableUpdateLog("linesmen_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
 
         return True
 
@@ -183,7 +164,7 @@ class LinesmenImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -199,27 +180,19 @@ class RefereesImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.referees_df = self.referees_df[self.referees_df['gameId'] == game_id]
-
+    def updateDB(self):
         if len(self.referees_df.index) > 0:
             cursor, db = db_import_login()
 
             for index, row in self.referees_df.iterrows():
-                sql = "insert into referees_import (gameId, default) values (%s, %s)"
+                sql = "insert into referees_import (gameId, `default`) values (%s, %s)"
                 val = (row['gameId'], row['default'])
                 cursor.execute(sql, val)
-
-                log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'), referees_found=1)
-                log.insertDB()
 
             db.commit()
             cursor.close()
             db.close()
 
-        log = ImportTableUpdateLog("referees_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
         return True
 
     @staticmethod
@@ -272,7 +245,7 @@ class RefereesImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -288,28 +261,18 @@ class SeasonSeriesImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.season_series_df = self.season_series_df[self.season_series_df['gameId'] == game_id]
-
+    def updateDB(self):
         if len(self.season_series_df.index) > 0:
             cursor, db = db_import_login()
 
-            for index, row in self.season_series_df:
+            for index, row in self.season_series_df.iterrows():
                 sql = 'insert into season_series_import (gameId, seriesNumber, refGameId) values (%s, %s, %s)'
                 val = (row['gameId'], row['seriesNumber'], row['refGameId'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-                                     season_series_found=1)
-                log.insertDB()
-
             db.commit()
             cursor.close()
             db.close()
-
-        log = ImportTableUpdateLog("season_series_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
 
         return True
 
@@ -366,7 +329,7 @@ class SeasonSeriesImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -382,11 +345,8 @@ class TeamGameStatsImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.team_game_stats_df = self.team_game_stats_df[self.team_game_stats_df['gameId'] == game_id]
-
-        if len(self.team_game_stats_df.len) > 0:
+    def updateDB(self):
+        if len(self.team_game_stats_df.index) > 0:
             cursor, db = db_import_login()
 
             for index, row in self.team_game_stats_df.iterrows():
@@ -402,9 +362,6 @@ class TeamGameStatsImport:
             db.commit()
             cursor.close()
             db.close()
-
-        log = ImportTableUpdateLog("team_game_stats_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
 
         return True
 
@@ -458,14 +415,14 @@ class TeamGameStatsImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
 
 class RosterSpotsImport:
     roster_spots_df = pd.DataFrame(columns=['gameId', 'teamId', 'playerId', 'sweaterNumber', 'positionCode', 'headshot',
-                                            'firstName.default', 'lastName.default'])
+                                            'firstName', 'lastName'])
     json = {}
 
     def __init__(self, roster_spots_df=pd.DataFrame(), json=None):
@@ -475,28 +432,20 @@ class RosterSpotsImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.roster_spots_df = self.roster_spots_df[self.roster_spots_df['gameId'] == game_id]
-
+    def updateDB(self):
         cursor, db = db_import_login()
 
         for index, row in self.roster_spots_df.iterrows():
             sql = "insert into roster_spots_import (gameId, teamId, playerId, sweaterNumber, positionCode, headshot," \
-                  "`firstName.default`,`lastName.default`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                  "`firstName`,`lastName`) values (%s, %s, %s, %s, %s, %s, %s, %s)"
             val = (row['gameId'], row['teamId'], row['playerId'], row['sweaterNumber'], row['positionCode'],
                    row['headshot'], row['firstName.default'], row['lastName.default'])
             cursor.execute(sql, val)
-
-            log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'), roster_spots_found=1)
-            log.insertDB()
 
         db.commit()
         cursor.close()
         db.close()
 
-        log = ImportTableUpdateLog("team_game_stats_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log.updateDB()
         return True
 
     @staticmethod
@@ -538,7 +487,7 @@ class RosterSpotsImport:
 
     def queryNHL(self, game_id=''):
         roster_spots_df = pd.json_normalize(self.json)
-        roster_spots_df.fillna('', inplace=True)
+        roster_spots_df = roster_spots_df.fillna('')
 
         if game_id != '':
             roster_spots_df.insert(0, 'gameId', game_id)
@@ -550,7 +499,7 @@ class RosterSpotsImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -579,10 +528,7 @@ class PlaysImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.plays_df = self.plays_df[self.plays_df['id'] == game_id]
-
+    def updateDB(self):
         if len(self.plays_df.index) > 0:
             cursor, db = db_import_login()
 
@@ -620,9 +566,6 @@ class PlaysImport:
             db.commit()
             cursor.close()
             db.close()
-
-        log = ImportTableUpdateLog("plays_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-        log.updateDB()
 
         return True
 
@@ -682,7 +625,7 @@ class PlaysImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -699,10 +642,7 @@ class TvBroadcastsImport:
         else:
             self.json = json
 
-    def updateDB(self, game_id=''):
-        if game_id != '':
-            self.tv_broadcasts_df = self.tv_broadcasts_df[self.tv_broadcasts_df['id'] == game_id]
-
+    def updateDB(self):
         if len(self.tv_broadcasts_df.index) > 0:
             cursor, db = db_import_login()
 
@@ -713,17 +653,9 @@ class TvBroadcastsImport:
                        row['sequenceNumber'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(game_id=row['id'],
-                                     last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-                                     tv_broadcasts_found=1)
-                log.updateDB()
-
             db.commit()
             cursor.close()
             db.close()
-
-        log = ImportTableUpdateLog("tv_broadcasts_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-        log.updateDB()
 
         return True
 
@@ -779,7 +711,7 @@ class TvBroadcastsImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
+        self.updateDB()
 
         return True
 
@@ -855,10 +787,13 @@ class GameCenterImport:
         self.linesmen = linesmen
         self.scratches = scratches
 
-    def updateDB(self, game_id):
+    def updateDB(self):
         if len(self.game_center_pbp_df.index) > 0:
+            row = self.game_center_pbp_df.iloc[0]
+            row = row.fillna('')
+
             cursor, db = db_import_login()
-            row = self.game_center_pbp_df[0]
+
             sql = "insert into game_center_import (gameId, season, gameType, limitedScoring, gameDate, " \
                   "`venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, " \
                   "gameState, gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
@@ -902,25 +837,43 @@ class GameCenterImport:
                    row['summary.gameReports.shiftChart'], row['summary.gameReports.toiAway'],
                    row['summary.gameReports.toiHome'], row['summary.awayTeam.gameInfo.headCoach.default'],
                    row['summary.homeTeam.gameInfo.headCoach.default'])
+
             cursor.execute(sql, val)
 
             db.commit()
             cursor.close()
             db.close()
 
-            log = GamesImportLog(game_id=row['gameId'],
-                                 last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-                                 game_center_found=1)
-            log.updateDB()
+        if len(self.game_center_rr_df.index) > 0:
+            row = self.game_center_rr_df.iloc[0]
+            row = row.fillna('')
 
-            self.tv_broadcasts.updateDB(game_id=game_id)
-            self.play_by_play.updateDB(game_id=game_id)
-            self.roster_spots.updateDB(game_id=game_id)
-            self.team_game_stats.updateDB(game_id=game_id)
-            self.season_series.updateDB(game_id=game_id)
-            self.referees.updateDB(game_id=game_id)
-            self.linesmen.updateDB(game_id=game_id)
-            self.scratches.updateDB(game_id=game_id)
+            cursor, db = db_import_login()
+
+            sql = "insert into game_center_right_rail_import (gameId, `seasonSeriesWins.awayTeamWins`, " \
+                  "`seasonSeriesWins.homeTeamWins`, `seasonSeriesWins.neededToWin`, " \
+                  "`gameInfo.awayTeam.headCoach.default`, `gameInfo.homeTeam.headCoach.default`, " \
+                  "`gameVideo.threeMinRecap`, `linescore.totals.away`, `linescore.totals.home`) " \
+                  "values (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            val = (row['gameId'], row['seasonSeriesWins.awayTeamWins'], row['seasonSeriesWins.homeTeamWins'],
+                   row['seasonSeriesWins.neededToWin'], row['gameInfo.awayTeam.headCoach.default'],
+                   row['gameInfo.homeTeam.headCoach.default'], row['gameVideo.threeMinRecap'],
+                   row['linescore.totals.away'], row['linescore.totals.home'])
+
+            cursor.execute(sql, val)
+
+            db.commit()
+            cursor.close()
+            db.close()
+
+        self.tv_broadcasts.updateDB()
+        self.play_by_play.updateDB()
+        self.roster_spots.updateDB()
+        self.team_game_stats.updateDB()
+        self.season_series.updateDB()
+        self.referees.updateDB()
+        self.linesmen.updateDB()
+        self.scratches.updateDB()
 
         return True
 
@@ -1063,25 +1016,6 @@ class GameCenterImport:
     def queryNHLupdateDB(self, game_id=''):
         self.queryNHL(game_id)
         self.clearDB(game_id)
-        self.updateDB(game_id)
-
-        return True
-
-
-class GameCenterController:
-    games_import_log = GamesImportLog()
-    open_work = pd.DataFrame()
-
-    def __init__(self):
-        self.games_import_log = self.games_import_log.gameCenterOpenWork()
-        self.open_work = self.games_import_log.game_center_open_work_df
-
-    def queryNHLupdateDBoverOpenWork(self):
-        if len(self.open_work.index) > 0:
-            for index, row in self.open_work:
-                game_center = GameCenterImport()
-                game_center.queryNHLupdateDB(game_id=row['gameId'])
-        log = ImportTableUpdateLog("game_center_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-        log.updateDB()
+        self.updateDB()
 
         return True
