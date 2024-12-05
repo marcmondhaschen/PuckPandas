@@ -54,7 +54,7 @@ class ScratchesImport:
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -132,11 +132,11 @@ class LinesmenImport:
         return True
 
     def queryDB(self, game_id=''):
-        sql_prefix = "select gameId, default from linesmen_import "
+        sql_prefix = "select gameId, `default` from linesmen_import "
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -213,11 +213,11 @@ class RefereesImport:
         return True
 
     def queryDB(self, game_id=''):
-        sql_prefix = "select gameId, default from referees_import "
+        sql_prefix = "select gameId, `default` from referees_import "
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -298,7 +298,7 @@ class SeasonSeriesImport:
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -387,7 +387,7 @@ class TeamGameStatsImport:
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -466,12 +466,12 @@ class RosterSpotsImport:
         return True
 
     def queryDB(self, game_id=''):
-        sql_prefix = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName.default`, " \
-                     "`lastName.default` from roster_import "
+        sql_prefix = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, " \
+                     "`lastName` from roster_spots_import "
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -597,7 +597,7 @@ class PlaysImport:
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -682,7 +682,7 @@ class TvBroadcastsImport:
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -932,7 +932,7 @@ class GameCenterImport:
         sql_suffix = ""
 
         if game_id != '':
-            sql_suffix = "where gameId = " + game_id
+            sql_suffix = "where gameId = " + str(game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
