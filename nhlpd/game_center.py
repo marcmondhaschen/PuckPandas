@@ -1,8 +1,6 @@
-from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
-from .games_import_log import GamesImportLog
 
 
 class ScratchesImport:
@@ -355,10 +353,6 @@ class TeamGameStatsImport:
                 val = (row['gameId'], row['category'], row['awayValue'], row['homeValue'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(row['gameId'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
-                                     team_game_stats_found=1)
-                log.insertDB()
-
             db.commit()
             cursor.close()
             db.close()
@@ -558,10 +552,6 @@ class PlaysImport:
                        row['details.assist2PlayerId'], row['details.assist2PlayerTotal'], row['details.awayScore'],
                        row['details.homeScore'])
                 cursor.execute(sql, val)
-
-                log = GamesImportLog(game_id=row['gameId'],
-                                     last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'), plays_found=1)
-                log.updateDB()
 
             db.commit()
             cursor.close()
