@@ -7,15 +7,15 @@ OPEN ITEMS
 		* add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
 		* add ImportTableUpdate logging
 		* add GamesImportLog logging
-        test
+        * test
 
 	Shifts.Py
 		add single gameId overrides (updateDB, queryDB, queryNHL)
-		add ImportTableUpdate logging
-		add GamesImportLog logging
+		* add ImportTableUpdate logging
+		* add GamesImportLog logging
 
     Rosters.Py
-        update logging for PlayersImportLog changes
+        * update logging for PlayersImportLog changes
 
 	Players.Py
 		begin transition from function to object code
