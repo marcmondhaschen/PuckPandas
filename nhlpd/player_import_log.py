@@ -98,3 +98,11 @@ class PlayerImportLog:
         db.close()
 
         return True
+
+# from players.py
+        check_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        check_log_df = pd.DataFrame(data=[[player_id, check_date, player_bio_check, career_check, season_check,
+                                           awards_check]],
+                                    columns=['playerId', 'logDate', 'playerBio', 'career', 'season', 'awards'])
+        check_log_df = check_log_df.fillna('')
+        update_player_log(check_log_df)
