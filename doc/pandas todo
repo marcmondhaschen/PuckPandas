@@ -1,9 +1,9 @@
 OPEN ITEMS
 	Players.Py
 		* begin transition from function to object code
-		use Game_Center patterns as guide
-		use queries & magic numbers already captured in existing code
-		build out objects for player_bios, player_awards, goalie_career_totals, goalie_season_totals,
+		* use Game_Center patterns as guide
+		* use queries & magic numbers already captured in existing code
+		* build out objects for player_bios, player_awards, goalie_career_totals, goalie_season_totals,
 		    skater_career_totals, and skater_season_totals
         test the 6 objects across 4 players - one each of retired/active goalies & skaters
 
