@@ -4,10 +4,12 @@ from .mysql_db import db_import_login
 
 
 class ScratchesImport:
+    game_id = ''
     scratches_df = pd.DataFrame(columns=['gameId', 'playerId', 'firstName.default', 'lastName.default'])
     json = {}
 
-    def __init__(self, scratches_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', scratches_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.scratches_df = pd.concat([self.scratches_df, scratches_df])
         if json is None:
             self.json = {}
@@ -30,14 +32,13 @@ class ScratchesImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table scratches_import"
         else:
-            sql = "delete from scratches_import where gameId = " + str(game_id)
+            sql = "delete from scratches_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -47,12 +48,12 @@ class ScratchesImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, playerId, `firstName.default`, `lastName.default` from scratches_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -66,31 +67,33 @@ class ScratchesImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         scratches_df = pd.json_normalize(self.json)
         scratches_df.fillna('', inplace=True)
         scratches_df.rename(columns={"id": "playerId"}, inplace=True)
 
-        if game_id != '':
-            scratches_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            scratches_df.insert(0, 'gameId', self.game_id)
 
         self.scratches_df = pd.concat([self.scratches_df, scratches_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class LinesmenImport:
+    game_id = ''
     linesmen_df = pd.DataFrame(columns=['gameId', 'default'])
     json = {}
 
-    def __init__(self, linesmen_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', linesmen_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.linesmen_df = pd.concat([self.linesmen_df, linesmen_df])
         if json is None:
             self.json = {}
@@ -112,14 +115,13 @@ class LinesmenImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table linesmen_import"
         else:
-            sql = "delete from linesmen_import where gameId = " + str(game_id)
+            sql = "delete from linesmen_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -129,12 +131,12 @@ class LinesmenImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, `default` from linesmen_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -148,30 +150,32 @@ class LinesmenImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         linesmen_df = pd.json_normalize(self.json)
         linesmen_df.fillna('', inplace=True)
 
-        if game_id != '':
-            linesmen_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            linesmen_df.insert(0, 'gameId', self.game_id)
 
         self.linesmen_df = pd.concat([self.linesmen_df, linesmen_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class RefereesImport:
+    game_id = ''
     referees_df = pd.DataFrame(columns=['gameId', 'default'])
     json = {}
 
-    def __init__(self, referees_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', referees_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.referees_df = pd.concat([self.referees_df, referees_df])
         if json is None:
             self.json = {}
@@ -193,14 +197,13 @@ class RefereesImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table referees_import"
         else:
-            sql = "delete from referees_import where gameId = " + str(game_id)
+            sql = "delete from referees_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -210,12 +213,12 @@ class RefereesImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, `default` from referees_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -229,30 +232,32 @@ class RefereesImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         referees_df = pd.json_normalize(self.json)
         referees_df.fillna('', inplace=True)
 
-        if game_id != '':
-            referees_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            referees_df.insert(0, 'gameId', self.game_id)
 
         self.referees_df = pd.concat([self.referees_df, referees_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class SeasonSeriesImport:
+    game_id = ''
     season_series_df = pd.DataFrame(columns=['gameId', 'seriesNumber', 'refGameId'])
     json = {}
 
-    def __init__(self, season_series_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', season_series_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.season_series_df = pd.concat([self.season_series_df, season_series_df])
         if json is None:
             self.json = {}
@@ -274,14 +279,13 @@ class SeasonSeriesImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table season_series_import"
         else:
-            sql = "delete from season_series_import where gameId = " + str(game_id)
+            sql = "delete from season_series_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -291,12 +295,12 @@ class SeasonSeriesImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, seriesNumber, refGameId from season_series_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -310,33 +314,35 @@ class SeasonSeriesImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         season_series_df = pd.json_normalize(self.json)
         season_series_df.fillna('', inplace=True)
         # noinspection PyTypeChecker
         season_series_df.insert(0, 'seriesNumber', range(len(season_series_df)))
         season_series_df.rename(columns={"id": "refGameId"}, inplace=True)
 
-        if game_id != '':
-            season_series_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            season_series_df.insert(0, 'gameId', self.game_id)
 
         self.season_series_df = pd.concat([self.season_series_df, season_series_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class TeamGameStatsImport:
+    game_id = ''
     team_game_stats_df = pd.DataFrame(columns=['gameId', 'category', 'awayValue', 'homeValue'])
     json = {}
 
-    def __init__(self, team_game_stats_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', team_game_stats_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.team_game_stats_df = pd.concat([self.team_game_stats_df, team_game_stats_df])
         if json is None:
             self.json = {}
@@ -359,14 +365,13 @@ class TeamGameStatsImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table team_game_stats_import"
         else:
-            sql = "delete from team_game_stats_import where gameId = " + str(game_id)
+            sql = "delete from team_game_stats_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -376,12 +381,12 @@ class TeamGameStatsImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, category, awayValue, homeValue from team_game_stats_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -395,31 +400,33 @@ class TeamGameStatsImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         team_game_stats_df = pd.json_normalize(self.json)
         team_game_stats_df.fillna('', inplace=True)
 
-        if game_id != '':
-            team_game_stats_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            team_game_stats_df.insert(0, 'gameId', self.game_id)
 
         self.team_game_stats_df = pd.concat([self.team_game_stats_df, team_game_stats_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class RosterSpotsImport:
+    game_id = ''
     roster_spots_df = pd.DataFrame(columns=['gameId', 'teamId', 'playerId', 'sweaterNumber', 'positionCode', 'headshot',
                                             'firstName', 'lastName'])
     json = {}
 
-    def __init__(self, roster_spots_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', roster_spots_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.roster_spots_df = pd.concat([self.roster_spots_df, roster_spots_df])
         if json is None:
             self.json = {}
@@ -442,14 +449,13 @@ class RosterSpotsImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table roster_spots_import"
         else:
-            sql = "delete from roster_spots_import where gameId = " + str(game_id)
+            sql = "delete from roster_spots_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -459,13 +465,13 @@ class RosterSpotsImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, " \
                      "`lastName` from roster_spots_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -479,26 +485,27 @@ class RosterSpotsImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         roster_spots_df = pd.json_normalize(self.json)
         roster_spots_df = roster_spots_df.fillna('')
 
-        if game_id != '':
-            roster_spots_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            roster_spots_df.insert(0, 'gameId', self.game_id)
 
         self.roster_spots_df = pd.concat([self.roster_spots_df, roster_spots_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class PlaysImport:
+    game_id = ''
     plays_df = pd.DataFrame(columns=['gameId', 'eventId', 'timeInPeriod', 'timeRemaining', 'situationCode',
                                      'homeTeamDefendingSide', 'typeCode', 'typeDescKey', 'sortOrder',
                                      'periodDescriptor.number', 'periodDescriptor.periodType',
@@ -515,7 +522,8 @@ class PlaysImport:
                                      'details.drawnByPlayerId'])
     json = {}
 
-    def __init__(self, plays_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', plays_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.plays_df = pd.concat([self.plays_df, plays_df])
         if json is None:
             self.json = {}
@@ -559,14 +567,13 @@ class PlaysImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table plays_import"
         else:
-            sql = "delete from plays_import where gameId = " + str(game_id)
+            sql = "delete from plays_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -576,7 +583,7 @@ class PlaysImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, eventId, period, periodType, timeInPeriod, timeRemaining, situationCode, " \
                      "typeCode, typeDescKey, sortOrder, eventOwnerTeamId, losingPlayerId,  winningPlayerId, xCoord, " \
                      "yCoord, zoneCode, reason, hittingPlayerId, hitteePlayerId, shotType, shootingPlayerId, " \
@@ -586,8 +593,8 @@ class PlaysImport:
                      "assist2PlayerTotal, awayScore, homeScore from plays_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -601,31 +608,33 @@ class PlaysImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         plays_df = pd.json_normalize(self.json)
         plays_df.fillna('', inplace=True)
 
-        if game_id != '':
-            plays_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            plays_df.insert(0, 'gameId', self.game_id)
 
         self.plays_df = pd.concat([self.plays_df, plays_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class TvBroadcastsImport:
+    game_id = ''
     tv_broadcasts_df = pd.DataFrame(columns=['gameId', 'broadcastId', 'market', 'countryCode', 'network',
                                              'sequenceNumber'])
     json = {}
 
-    def __init__(self, tv_broadcasts_df=pd.DataFrame(), json=None):
+    def __init__(self, game_id='', tv_broadcasts_df=pd.DataFrame(), json=None):
+        self.game_id = game_id
         self.tv_broadcasts_df = pd.concat([self.tv_broadcasts_df, tv_broadcasts_df])
         if json is None:
             self.json = {}
@@ -649,14 +658,13 @@ class TvBroadcastsImport:
 
         return True
 
-    @staticmethod
-    def clearDB(game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
+        if self.game_id == '':
             sql = "truncate table tv_broadcasts_import"
         else:
-            sql = "delete from tv_broadcasts_import where gameId = " + str(game_id)
+            sql = "delete from tv_broadcasts_import where gameId = " + str(self.game_id)
 
         cursor.execute(sql)
 
@@ -666,13 +674,13 @@ class TvBroadcastsImport:
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, broadcastId, market, countryCode, network, sequenceNumber from " \
                      "tv_broadcasts_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -686,27 +694,28 @@ class TvBroadcastsImport:
 
         return True
 
-    def queryNHL(self, game_id=''):
+    def queryNHL(self):
         tv_broadcasts_df = pd.json_normalize(self.json)
         tv_broadcasts_df.fillna('', inplace=True)
         tv_broadcasts_df.rename(columns={"id": "broadcastId"}, inplace=True)
 
-        if game_id != '':
-            tv_broadcasts_df.insert(0, 'gameId', game_id)
+        if self.game_id != '':
+            tv_broadcasts_df.insert(0, 'gameId', self.game_id)
 
         self.tv_broadcasts_df = pd.concat([self.tv_broadcasts_df, tv_broadcasts_df])
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
 
 
 class GameCenterImport:
+    game_id = ''
     game_center_pbp_df = pd.DataFrame(columns=['gameId', 'season', 'gameType', 'limitedScoring', 'gameDate',
                                                'venue.default', 'venueLocation.default', 'startTimeUTC',
                                                'easternUTCOffset', 'venueUTCOffset', 'gameState', 'gameScheduleState',
@@ -737,7 +746,6 @@ class GameCenterImport:
                                               'gameInfo.awayTeam.headCoach.default',
                                               'gameInfo.homeTeam.headCoach.default', 'gameVideo.threeMinRecap',
                                               'linescore.totals.away', 'linescore.totals.home'])
-
     rr_json = {}
 
     tv_broadcasts = TvBroadcastsImport()
@@ -749,16 +757,24 @@ class GameCenterImport:
     linesmen = LinesmenImport()
     scratches = ScratchesImport()
 
-    def __init__(self, game_center_pbp_df=pd.DataFrame(), game_center_rr_df=pd.DataFrame(), pbp_json=None,
+    def __init__(self, game_id, game_center_pbp_df=pd.DataFrame(), game_center_rr_df=pd.DataFrame(), pbp_json=None,
                  rr_json=None, tv_broadcasts=TvBroadcastsImport(), plays=PlaysImport(),
                  roster_spots=RosterSpotsImport(), team_game_stats=TeamGameStatsImport(),
                  season_series=SeasonSeriesImport(), referees=RefereesImport(), linesmen=LinesmenImport(),
                  scratches=ScratchesImport()):
-
+        self.game_id = game_id
         self.game_center_pbp_df = pd.concat([self.game_center_pbp_df, game_center_pbp_df])
         self.game_center_rr_df = pd.concat([self.game_center_rr_df, game_center_rr_df])
-        self.pbp_json = {} if pbp_json is None else self.pbp_json = pbp_json
-        self.rr_json = {} if rr_json is None else self.rr_json = rr_json
+
+        if pbp_json is None:
+            self.pbp_json = {}
+        else:
+            self.pbp_json = pbp_json
+
+        if rr_json is None:
+            self.rr_json = {}
+        else:
+            self.rr_json = rr_json
 
         self.tv_broadcasts = tv_broadcasts
         self.play_by_play = plays
@@ -859,39 +875,33 @@ class GameCenterImport:
 
         return True
 
-    def clearDB(self, game_id=''):
+    def clearDB(self):
         cursor, db = db_import_login()
 
-        if game_id == '':
-            sql = "truncate table game_center_import"
-        else:
-            sql = "delete from game_center_import where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql = "delete from game_center_import where gameId = " + str(self.game_id)
+            cursor.execute(sql)
 
-        cursor.execute(sql)
-
-        if game_id == '':
-            sql = "truncate table game_center_right_rail_import"
-        else:
-            sql = "delete from game_center_right_rail_import where gameId = " + str(game_id)
-
-        cursor.execute(sql)
+        if self.game_id != '':
+            sql = "delete from game_center_right_rail_import where gameId = " + str(self.game_id)
+            cursor.execute(sql)
 
         db.commit()
         cursor.close()
         db.close()
 
-        self.tv_broadcasts.clearDB(game_id=game_id)
-        self.play_by_play.clearDB(game_id=game_id)
-        self.roster_spots.clearDB(game_id=game_id)
-        self.team_game_stats.clearDB(game_id=game_id)
-        self.season_series.clearDB(game_id=game_id)
-        self.referees.clearDB(game_id=game_id)
-        self.linesmen.clearDB(game_id=game_id)
-        self.scratches.clearDB(game_id=game_id)
+        self.tv_broadcasts.clearDB()
+        self.play_by_play.clearDB()
+        self.roster_spots.clearDB()
+        self.team_game_stats.clearDB()
+        self.season_series.clearDB()
+        self.referees.clearDB()
+        self.linesmen.clearDB()
+        self.scratches.clearDB()
 
         return True
 
-    def queryDB(self, game_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, season, gameType, limitedScoring, gameDate, `venue.default`, " \
                      "`venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, gameState, " \
                      "gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
@@ -913,8 +923,8 @@ class GameCenterImport:
                      "from game_center_import "
         sql_suffix = ""
 
-        if game_id != '':
-            sql_suffix = "where gameId = " + str(game_id)
+        if self.game_id != '':
+            sql_suffix = "where gameId = " + str(self.game_id)
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
@@ -927,77 +937,85 @@ class GameCenterImport:
         cursor.close()
         db.close()
 
-        self.tv_broadcasts.queryDB(game_id=game_id)
-        self.play_by_play.queryDB(game_id=game_id)
-        self.roster_spots.queryDB(game_id=game_id)
-        self.team_game_stats.queryDB(game_id=game_id)
-        self.season_series.queryDB(game_id=game_id)
-        self.referees.queryDB(game_id=game_id)
-        self.linesmen.queryDB(game_id=game_id)
-        self.scratches.queryDB(game_id=game_id)
+        self.tv_broadcasts.queryDB()
+        self.play_by_play.queryDB()
+        self.roster_spots.queryDB()
+        self.team_game_stats.queryDB()
+        self.season_series.queryDB()
+        self.referees.queryDB()
+        self.linesmen.queryDB()
+        self.scratches.queryDB()
 
         return True
 
-    def queryNHL(self, game_id):
-        if game_id != '':
+    def queryNHL(self):
+        if self.game_id != '':
             url_prefix = 'https://api-web.nhle.com/v1/gamecenter/'
             pbp_suffix = '/play-by-play'
-            pbp_query_url = "{}{}{}".format(url_prefix, game_id, pbp_suffix)
+            pbp_query_url = "{}{}{}".format(url_prefix, self.game_id, pbp_suffix)
             rr_suffix = '/right-rail'
-            rr_query_url = "{}{}{}".format(url_prefix, game_id, rr_suffix)
+            rr_query_url = "{}{}{}".format(url_prefix, self.game_id, rr_suffix)
 
             self.pbp_json = fetch_json_data(pbp_query_url)
             game_center_pbp_df = pd.json_normalize(self.pbp_json)
             game_center_pbp_df.fillna('', inplace=True)
-            game_center_pbp_df.insert(0, 'gameId', game_id)
+            game_center_pbp_df.insert(0, 'gameId', self.game_id)
             self.game_center_pbp_df = pd.concat([self.game_center_pbp_df, game_center_pbp_df])
 
             self.rr_json = fetch_json_data(rr_query_url)
             game_center_rr_df = pd.json_normalize(self.rr_json)
             game_center_rr_df.fillna('', inplace=True)
-            game_center_rr_df.insert(0, 'gameId', game_id)
+            game_center_rr_df.insert(0, 'gameId', self.game_id)
             self.game_center_rr_df = pd.concat([self.game_center_rr_df, game_center_rr_df])
 
             # in play-by-play
             if 'tvBroadcasts' in self.pbp_json:
                 self.tv_broadcasts.json = self.pbp_json['tvBroadcasts']
-                self.tv_broadcasts.queryNHL(game_id=game_id)
+                self.tv_broadcasts.game_id = self.game_id
+                self.tv_broadcasts.queryNHL()
 
             if 'plays' in self.pbp_json:
                 self.play_by_play.json = self.pbp_json['plays']
-                self.play_by_play.queryNHL(game_id=game_id)
+                self.play_by_play.game_id = self.game_id
+                self.play_by_play.queryNHL()
 
             if 'rosterSpots' in self.pbp_json:
                 self.roster_spots.json = self.pbp_json['rosterSpots']
-                self.roster_spots.queryNHL(game_id=game_id)
+                self.roster_spots.game_id = self.game_id
+                self.roster_spots.queryNHL()
 
             # in right-rail
             if "teamGameStats" in self.rr_json:
                 self.team_game_stats.json = self.rr_json['teamGameStats']
-                self.team_game_stats.queryNHL(game_id=game_id)
+                self.team_game_stats.game_id = self.game_id
+                self.team_game_stats.queryNHL()
 
             if "seasonSeries" in self.rr_json:
                 self.season_series.json = self.rr_json['seasonSeries']
-                self.season_series.queryNHL(game_id=game_id)
+                self.season_series.game_id = self.game_id
+                self.season_series.queryNHL()
 
             if "referees" in self.rr_json['gameInfo']:
                 self.referees.json = self.rr_json['gameInfo']['referees']
-                self.referees.queryNHL(game_id=game_id)
+                self.referees.game_id = self.game_id
+                self.referees.queryNHL()
 
             if "linesmen" in self.rr_json['gameInfo']:
                 self.linesmen.json = self.rr_json['gameInfo']['linesmen']
-                self.linesmen.queryNHL(game_id=game_id)
+                self.linesmen.game_id = self.game_id
+                self.linesmen.queryNHL()
 
             if "scratches" in self.rr_json['gameInfo']['awayTeam']:
                 self.scratches.json = self.rr_json['gameInfo']['awayTeam']['scratches'] + \
                                       self.rr_json['gameInfo']['homeTeam']['scratches']
-                self.scratches.queryNHL(game_id=game_id)
+                self.scratches.game_id = self.game_id
+                self.scratches.queryNHL()
 
         return True
 
-    def queryNHLupdateDB(self, game_id=''):
-        self.queryNHL(game_id)
-        self.clearDB(game_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
         self.updateDB()
 
         return True
