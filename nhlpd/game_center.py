@@ -757,16 +757,8 @@ class GameCenterImport:
 
         self.game_center_pbp_df = pd.concat([self.game_center_pbp_df, game_center_pbp_df])
         self.game_center_rr_df = pd.concat([self.game_center_rr_df, game_center_rr_df])
-
-        if pbp_json is None:
-            self.pbp_json = {}
-        else:
-            self.pbp_json = pbp_json
-
-        if rr_json is None:
-            self.rr_json = {}
-        else:
-            self.rr_json = rr_json
+        self.pbp_json = {} if pbp_json is None else self.pbp_json = pbp_json
+        self.rr_json = {} if rr_json is None else self.rr_json = rr_json
 
         self.tv_broadcasts = tv_broadcasts
         self.play_by_play = plays
