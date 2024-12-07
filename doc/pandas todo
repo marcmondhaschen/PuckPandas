@@ -7,6 +7,10 @@ OPEN ITEMS
         knit these update triggers in with the logging objects, and improve logging objects as required
 
 ---- you're allowed to refactor after this line :) ----
+    when moving game date and TIMES into normalized tables, reduce time to GMT
+        further, resolve datetime() calls in the code base to ask for GMT instead of local
+        datetime.now(timezone.utc)
+
     change constructors for all objects
         remove all but serializing attributes from __init__ (player_id=, game_id=, etc)
         move attribute initializations to inside the init
