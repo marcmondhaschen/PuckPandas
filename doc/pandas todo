@@ -1,13 +1,5 @@
 OPEN ITEMS
-	Players.Py
-		* begin transition from function to object code
-		* use Game_Center patterns as guide
-		* use queries & magic numbers already captured in existing code
-		* build out objects for player_bios, player_awards, goalie_career_totals, goalie_season_totals,
-		    skater_career_totals, and skater_season_totals
-        test the 6 objects across 4 players - one each of retired/active goalies & skaters
-
-    Scheduler.Py
+   Scheduler.Py
 	    add a scheduler object
 		use this object to control all the other objects in order to poll the NHL for updates when appropriate
 		    use the api_query_order_md file to remember the order queries need to happen in
@@ -15,23 +7,9 @@ OPEN ITEMS
         knit these update triggers in with the logging objects, and improve logging objects as required
 
 ---- you're allowed to refactor after this line :) ----
-	Game_Center.Py
-	    * start by creating a GameImportLog object, update it from the DB, and then poll it for open work
-	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
-	    * break into EVEN MORE OBJECTS!! one to control each db table
-		* capture play by play, tv broadcasts, rosters, and game results summary info from game center details
-		* add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
-		* add ImportTableUpdate logging
-		* add GamesImportLog logging
-        * test
-
-	Shifts.Py
-		* add single gameId overrides (updateDB, queryDB, queryNHL)
-		* add ImportTableUpdate logging
-		* add GamesImportLog logging
-
-    Rosters.Py
-        * update logging for PlayersImportLog changes
+    change constructors for all objects
+        remove all but serializing attributes from __init__ (player_id=, game_id=, etc)
+        move attribute initializations to inside the init
 
     swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
 
@@ -74,6 +52,34 @@ OPEN ITEMS
 
 
 ********************************************************************************
+	Game_Center.Py
+	    * start by creating a GameImportLog object, update it from the DB, and then poll it for open work
+	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
+	    * break into EVEN MORE OBJECTS!! one to control each db table
+		* capture play by play, tv broadcasts, rosters, and game results summary info from game center details
+		* add single gameId overrides (updateDB, insertDB, queryDB, queryNHL)
+		* add ImportTableUpdate logging
+		* add GamesImportLog logging
+        * test
+
+	Shifts.Py
+		* add single gameId overrides (updateDB, queryDB, queryNHL)
+		* add ImportTableUpdate logging
+		* add GamesImportLog logging
+
+    Rosters.Py
+        * update logging for PlayersImportLog changes
+
+	Players.Py
+		* begin transition from function to object code
+		* use Game_Center patterns as guide
+		* use queries & magic numbers already captured in existing code
+		* build out objects for player_bios, player_awards, goalie_career_totals, goalie_season_totals,
+		    skater_career_totals, and skater_season_totals
+        * test the 6 objects across 4 players - one each of retired/active goalies & skaters
+
+
+
 2024-09-13
 	GamesImportLog.Py
 	    * update table to include newly introduced objects
