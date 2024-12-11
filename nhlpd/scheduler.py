@@ -7,30 +7,28 @@ from .import_table_update_log import ImportTableUpdateLog
 class Scheduler:
     def __init__(self):
         self.current_time = datetime.now()
-        self.max_season_id = self.checkMaxSeason()
+        self.max_season_id = self.setMaxSeason()
 
-        self.table_log_df = pd.DataFrame()
-        self.game_log_df = pd.DataFrame()
-        self.player_log_df = pd.DataFrame()
+        self.table_log_df = self.queryDBforTables()
+        self.game_log_df = self.queryDBforGames()
+        self.player_log_df = self.queryDBforPlayers()
 
-        self.queryDBforTables()
-        self.queryDBforGames()
-        self.queryDBforPlayers()
-
-    def queryDBforTables(self):
+    @staticmethod
+    def queryDBforTables():
         cursor, db = db_import_login()
 
         sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log where updateFound = 1 " \
               "group by tableName"
-        self.table_log_df = pd.read_sql(sql, db)
+        table_log_df = pd.read_sql(sql, db)
 
         db.commit()
         cursor.close()
         db.close()
 
-        return True
+        return table_log_df
 
-    def queryDBforGames(self):
+    @staticmethod
+    def queryDBforGames():
         cursor, db = db_import_login()
 
         sql = "select a.gameId, a.lastDateUpdated, a.gameFound, a.gameCenterFound, a.tvBroadcastsFound, " \
@@ -39,28 +37,43 @@ class Scheduler:
               "from games_import_log as a join (select gameId, max(lastDateUpdated) as lastDateUpdated " \
               "from games_import_log group by gameId) as b on a.gameId = b.gameId and " \
               "a.lastDateUpdated = b.lastDateUpdated"
-        self.game_log_df = pd.read_sql(sql, db)
+        game_log_df = pd.read_sql(sql, db)
 
         db.commit()
         cursor.close()
         db.close()
 
-        return True
+        return game_log_df
 
-    def queryDBforPlayers(self):
+    @staticmethod
+    def queryDBforPlayers():
         cursor, db = db_import_login()
 
         sql = "select a.playerId, a.lastDateUpdated, a.playerFound, a.playerBioFound, a.careerTotalsFound, " \
               "a.seasonTotalsFound, a.awardsFound from player_import_log as a join (select playerId, " \
               "max(lastDateUpdated) as lastDateUpdated from player_import_log group by playerId) as b on " \
               "a.playerId = b.playerId and a.lastDateUpdated = b.lastDateUpdated"
-        self.player_log_df = pd.read_sql(sql, db)
+        player_log_df = pd.read_sql(sql, db)
 
         db.commit()
         cursor.close()
         db.close()
 
-        return True
+        return player_log_df
+
+    @staticmethod
+    def setMaxSeason():
+        cursor, db = db_import_login()
+        sql = "select max(seasonId) as seasonId from team_seasons_import"
+        max_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        max_season_id = max_df.at[0, 'seasonId']
+
+        return max_season_id
 
     def checkTeamsImport(self):
         check_bool = False
@@ -249,20 +262,6 @@ class Scheduler:
         players = players.unique()
 
         return {check_bool, players}
-
-    @staticmethod
-    def checkMaxSeason():
-        cursor, db = db_import_login()
-        sql = "select max(seasonId) as seasonId from team_seasons_import"
-        max_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        max_season_id = max_df.at[0, 'seasonId']
-
-        return max_season_id
 
     @staticmethod
     def updateTeamsImport():
