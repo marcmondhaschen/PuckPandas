@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import pandas as pd
+import nhlpd
 from .mysql_db import db_import_login
 from .import_table_update_log import ImportTableUpdateLog
 
@@ -9,7 +10,7 @@ class Scheduler:
         self.current_time = datetime.now()
         self.max_season_id = self.setMaxSeason()
 
-        self.table_log_df = self.queryDBforTables()
+        self.table_log_df = nhlpd.ImportTableUpdateLog()
         self.game_log_df = self.queryDBforGames()
         self.player_log_df = self.queryDBforPlayers()
 
@@ -76,16 +77,15 @@ class Scheduler:
         return max_season_id
 
     def checkTeamsImport(self):
+        update_interval = timedelta(days=180)
         check_bool = False
+        last_update = self.table_log_df.lastUpdate(table_name="teams_import")
 
         # if there's no record in the log
-        if "teams_import" not in self.table_log_df['tableName'].values:
+        if last_update != '':
             check_bool = True
 
         # if it's been six months since the last check
-        update_interval = timedelta(days=180)
-        last_update = self.table_log_df.loc[self.table_log_df['tableName'] == "teams_import", 'lastDateUpdated'].item()
-
         if self.current_time - last_update > update_interval:
             check_bool = True
 
@@ -94,9 +94,10 @@ class Scheduler:
     def checkSeasonsImport(self):
         max_season_start_year = int(self.max_season_id[0:4])
         max_season_end_year = int(self.max_season_id[4:8])
+        last_update = self.table_log_df.lastUpdate(table_name="team_seasons_import")
 
         # if there's no record in the log
-        if "team_seasons_import" not in self.table_log_df['tableName'].values:
+        if last_update == '':
             check_bool = True
 
             return check_bool
@@ -114,9 +115,10 @@ class Scheduler:
     def checkGamesImport(self):
         seasons = pd.Series()
         check_bool = False
+        last_update = self.table_log_df.lastUpdate(table_name="games_import")
 
         # if there's no record in the log (all seasons)
-        if "games_import" not in self.table_log_df['tableName'].values:
+        if last_update == '':
             seasons.append(99999999)
             check_bool = True
 
@@ -165,16 +167,18 @@ class Scheduler:
         return {check_bool, games}
 
     def checkRostersImport(self):
+        update_interval = timedelta(days=30)
         seasons = pd.Series()
         check_bool = False
+        last_update = self.table_log_df.lastUpdate(table_name="rosters_import")
 
         # if there's no record in the log (all seasons)
-        if "rosters_import" not in self.table_log_df['tableName'].values:
+        if last_update == '':
             seasons = pd.Series(99999999)
             check_bool = True
             return {check_bool, seasons}
 
-        # if there's a new season (new seasons)
+        # if there's a new season in the DB (new seasons)
         cursor, db = db_import_login()
         sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import as a left join " \
               "rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
@@ -209,10 +213,6 @@ class Scheduler:
             return {check_bool, seasons}
 
         # if it has been a month since the last check (max season)
-        update_interval = timedelta(days=30)
-        last_update = self.table_log_df.loc[self.table_log_df['tableName'] ==
-                                            "rosters_import", 'lastDateUpdated'].item()
-
         if self.current_time - last_update > update_interval:
             seasons = pd.Series(self.max_season_id)
             check_bool = True
@@ -222,9 +222,7 @@ class Scheduler:
     def checkPlayersImport(self):
         players = pd.Series()
         check_bool = False
-
-        last_update = self.table_log_df.loc[self.table_log_df['tableName'] ==
-                                            "players_import", 'lastDateUpdated'].item()
+        last_update = self.table_log_df.lastUpdate(table_name="players_import")
 
         # if there are players who haven't been checked (all players)
         cursor, db = db_import_login()
@@ -265,30 +263,61 @@ class Scheduler:
 
     @staticmethod
     def updateTeamsImport():
+        teams = nhlpd.TeamsImport()
+        check = teams.queryNHLupdateDB()
+
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("teams_import", 1)
+        log_object.updateDB("teams_import", check)
 
     @staticmethod
     def updateSeasonsImport():
+        seasons = nhlpd.SeasonsImport()
+        check = seasons.queryNHLupdateDB()
+
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("seasons_import", 1)
+        log_object.updateDB("seasons_import", check)
 
     @staticmethod
-    def updateGamesImport():
+    def updateGamesImport(seasons):
+        for season_id in seasons['seasonId'].items():
+            season = nhlpd.GamesImport()
+
+            if season_id == 99999999:
+                season.queryNHLupdateDB()
+            else:
+                season.queryNHLupdateDB(season_id=season_id)
+
         log_object = ImportTableUpdateLog()
         log_object.updateDB("games_import", 1)
 
     @staticmethod
-    def updateGameCentersImport():
+    def updateGameCentersImport(games):
+        for game_id in games['gameId'].items():
+            game_center = nhlpd.GameCenterImport(game_id)
+            game_center.queryNHLupdateDB()
+
         log_object = ImportTableUpdateLog()
         log_object.updateDB("game_center_import", 1)
 
     @staticmethod
-    def updateRostersImport():
+    def updateRostersImport(seasons):
+        for season_id in seasons['seasonId'].items():
+            rosters = nhlpd.RostersImport()
+
+            if season_id == 99999999:
+                rosters.queryNHLupdateDB()
+            else:
+                rosters.queryNHLupdateDB(season_id=season_id)
+
         log_object = ImportTableUpdateLog()
         log_object.updateDB("rosters_import", 1)
 
     @staticmethod
-    def updatePlayersImport():
+    def updatePlayersImport(players):
+        for player_id in players['playerId'].items():
+            player = nhlpd.PlayersImport(player_id=player_id)
+
+            player.queryNHLupdateDB()
+
         log_object = ImportTableUpdateLog()
         log_object.updateDB("player_bios_import", 1)

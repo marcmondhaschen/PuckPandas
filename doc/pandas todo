@@ -5,8 +5,12 @@ OPEN ITEMS
 		    use the api_query_order_md file to remember the order queries need to happen in
 		schedule update criteria/triggers for each database table
         knit these update triggers in with the logging objects, and improve logging objects as required
+        test
 
 ---- you're allowed to refactor after this line :) ----
+    there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
+        set of helper functions - particularly each of the DB calls
+
     when moving game date and TIMES into normalized tables, reduce time to GMT
         further, resolve datetime() calls in the code base to ask for GMT instead of local
         datetime.now(timezone.utc)
