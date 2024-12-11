@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import pandas as pd
 from .mysql_db import db_import_login
+from .import_table_update_log import ImportTableUpdateLog
 
 
 class Scheduler:
@@ -205,7 +206,6 @@ class Scheduler:
 
         return {check_bool, seasons}
 
-    @staticmethod
     def checkPlayersImport(self):
         players = pd.Series()
         check_bool = False
@@ -228,9 +228,7 @@ class Scheduler:
 
         if players_to_check.len() > 0:
             check_bool = True
-            players = players_to_check
-
-            return {check_bool, players}
+            players = pd.concat([players, players_to_check])
 
         # if there are games that have been played since the last check (players from those games)
         cursor, db = db_import_login()
@@ -246,7 +244,9 @@ class Scheduler:
 
         if players_to_check_df.len() > 0:
             check_bool = True
-            players = players_to_check
+            players = pd.concat([players, players_to_check])
+
+        players = players.unique()
 
         return {check_bool, players}
 
@@ -263,3 +263,33 @@ class Scheduler:
         max_season_id = max_df.at[0, 'seasonId']
 
         return max_season_id
+
+    @staticmethod
+    def updateTeamsImport():
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("teams_import", 1)
+
+    @staticmethod
+    def updateSeasonsImport():
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("seasons_import", 1)
+
+    @staticmethod
+    def updateGamesImport():
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("games_import", 1)
+
+    @staticmethod
+    def updateGameCentersImport():
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("game_center_import", 1)
+
+    @staticmethod
+    def updateRostersImport():
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("rosters_import", 1)
+
+    @staticmethod
+    def updatePlayersImport():
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("player_bios_import", 1)

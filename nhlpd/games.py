@@ -5,7 +5,6 @@ from .api_query import fetch_json_data
 from .mysql_db import db_import_login
 from .seasons import SeasonsImport
 from .teams import TeamsImport
-from .import_table_update_log import ImportTableUpdateLog
 from .games_import_log import GamesImportLog
 
 
@@ -53,9 +52,6 @@ class GamesImport:
             db.commit()
             cursor.close()
             db.close()
-
-        log_object = ImportTableUpdateLog("games_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log_object.updateDB()
 
         return True
 

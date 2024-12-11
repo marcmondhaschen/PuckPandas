@@ -1,8 +1,6 @@
-from datetime import datetime
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
-from .import_table_update_log import ImportTableUpdateLog
 
 
 class TeamsImport:
@@ -27,9 +25,6 @@ class TeamsImport:
         db.commit()
         cursor.close()
         db.close()
-
-        log_object = ImportTableUpdateLog("teams_import", datetime.today().strftime('%Y-%m-%d %H:%M:%S'), 1)
-        log_object.updateDB()
 
         return True
 
