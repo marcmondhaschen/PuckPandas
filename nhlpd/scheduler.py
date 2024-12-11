@@ -6,6 +6,7 @@ from .mysql_db import db_import_login
 class Scheduler:
     def __init__(self):
         self.current_time = datetime.now()
+        self.max_season_id = self.checkMaxSeason()
 
         self.table_log_df = pd.DataFrame()
         self.game_log_df = pd.DataFrame()
@@ -60,71 +61,205 @@ class Scheduler:
 
         return True
 
-    def checkTeams(self):
+    def checkTeamsImport(self):
         check_bool = False
+
         # if there's no record in the log
         if "teams_import" not in self.table_log_df['tableName'].values:
             check_bool = True
 
         # if it's been six months since the last check
-        junkvar = self.current_time - self.table_log_df.loc[self.table_log_df['tableName'] == "teams_import",
-                                                            'lastDateUpdated'].item()
+        update_interval = timedelta(days=180)
+        last_update = self.table_log_df.loc[self.table_log_df['tableName'] == "teams_import", 'lastDateUpdated'].item()
 
-        timevar = timedelta(days=180)
-
-        if junkvar > timevar:
-            print('yis')
-        else:
-            print('nay')
-
-
-        if self.table_log_df.loc[self.table_log_df['tableName'] == "teams_import", 'lastDateUpdated'].item():
-            print("run")
-        else:
-            print("don't run")
+        if self.current_time - last_update > update_interval:
+            check_bool = True
 
         return check_bool
 
-    def checkSeasons(self):
-        check_bool = False
+    def checkSeasonsImport(self):
+        max_season_start_year = int(self.max_season_id[0:4])
+        max_season_end_year = int(self.max_season_id[4:8])
+
         # if there's no record in the log
+        if "team_seasons_import" not in self.table_log_df['tableName'].values:
+            check_bool = True
 
-        # if there's a new team
+            return check_bool
 
-        # if we should expect a new season based on the calendar month
+        # if we are in a play season & our database has the current season we pass, otherwise run
+        if self.current_time.month >= 9 and self.current_time.year == max_season_start_year:
+            check_bool = False
+        elif self.current_time.month < 6 and self.current_time.year == max_season_end_year:
+            check_bool = False
+        else:
+            check_bool = True
 
-    def checkGames(self):
-        season = ''
-        games = []
+        return check_bool
+
+    def checkGamesImport(self):
+        seasons = pd.Series()
         check_bool = False
+
         # if there's no record in the log (all seasons)
+        if "games_import" not in self.table_log_df['tableName'].values:
+            seasons.append(99999999)
+            check_bool = True
+
+            return {check_bool, seasons}
 
         # if there's a new season (new season)
+        cursor, db = db_import_login()
+        sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join " \
+              "games_import as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
+        new_seasons_df = pd.read_sql(sql, db)
 
-        # if we're in a current season & it has been a month (current season)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        if seasons.len() > 0:
+            seasons = new_seasons_df['seasonId']
+            check_bool = True
+
+            return {check_bool, seasons}
 
         # if we're in the post-season (current season)
+        if 4 <= self.current_time.month <= 6:
+            check_bool = True
+            seasons.append(self.max_season_id)
 
-    def checkGameCenters(self):
-        check_bool = False
-        # if there's are games in the games_import_log table
+        return {check_bool, seasons}
 
-    def checkRosters(self):
-        seasons = []
+    @staticmethod
+    def checkGameCentersImport():
+        games = pd.Series()
         check_bool = False
+
+        # if there are unchecked games in the games_import_log table
+        cursor, db = db_import_login()
+
+        sql = "select a.gameId from games_import as a left join games_import_log as b on a.gameId = b.gameId " \
+              "where b.lastDateUpdated is null"
+        games_to_check_df = pd.read_sql(sql, db)
+        games_to_check = games_to_check_df['gameId']
+
+        if games_to_check.len() > 0:
+            games = games_to_check
+            check_bool = True
+
+        return {check_bool, games}
+
+    def checkRostersImport(self):
+        seasons = pd.Series()
+        check_bool = False
+
         # if there's no record in the log (all seasons)
+        if "rosters_import" not in self.table_log_df['tableName'].values:
+            seasons = pd.Series(99999999)
+            check_bool = True
+            return {check_bool, seasons}
 
-        # if there's a new season (new season)
+        # if there's a new season (new seasons)
+        cursor, db = db_import_login()
+        sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import as a left join " \
+              "rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
+        new_seasons_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        if seasons.len() > 0:
+            seasons = new_seasons_df['seasonId']
+            check_bool = True
+
+            return {check_bool, seasons}
 
         # if there's a new team (max season)
+        cursor, db = db_import_login()
+        sql = "select a.triCode, count(b.playerId) as playerCount from team_seasons_import as a " \
+              "left join rosters_import as b on a.triCode = b.triCode group by a.triCode having playerCount = 0"
+        new_seasons_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        seasons = new_seasons_df['seasonId']
+
+        if seasons.len() > 0:
+            seasons = pd.Series(self.max_season_id)
+            check_bool = True
+
+            return {check_bool, seasons}
 
         # if it has been a month since the last check (max season)
+        update_interval = timedelta(days=30)
+        last_update = self.table_log_df.loc[self.table_log_df['tableName'] ==
+                                            "rosters_import", 'lastDateUpdated'].item()
 
-    def checkPlayers(self):
-        players = []
+        if self.current_time - last_update > update_interval:
+            seasons = pd.Series(self.max_season_id)
+            check_bool = True
+
+        return {check_bool, seasons}
+
+    @staticmethod
+    def checkPlayersImport(self):
+        players = pd.Series()
         check_bool = False
-        # if there's no record in the log (all players)
+
+        last_update = self.table_log_df.loc[self.table_log_df['tableName'] ==
+                                            "players_import", 'lastDateUpdated'].item()
 
         # if there are players who haven't been checked (all players)
+        cursor, db = db_import_login()
 
-        # if there are games that have been played since the last check
+        sql = "select a.playerId from player_bios_import as a left join player_import_log as b on a.playerId = " \
+              "b.playerId where b.lastDateUpdated is null"
+        players_to_check_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        players_to_check = players_to_check_df['playerId']
+
+        if players_to_check.len() > 0:
+            check_bool = True
+            players = players_to_check
+
+            return {check_bool, players}
+
+        # if there are games that have been played since the last check (players from those games)
+        cursor, db = db_import_login()
+
+        sql = "select b.playerId from games_import as a join roster_spots_import as b on a.gameId = b.gameId where " \
+              "a.gameDate between '"
+        sql = "{}{}{}{}".format(sql, last_update, "' and '", self.current_time, "'")
+        players_to_check_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        if players_to_check_df.len() > 0:
+            check_bool = True
+            players = players_to_check
+
+        return {check_bool, players}
+
+    @staticmethod
+    def checkMaxSeason():
+        cursor, db = db_import_login()
+        sql = "select max(seasonId) as seasonId from team_seasons_import"
+        max_df = pd.read_sql(sql, db)
+
+        db.commit()
+        cursor.close()
+        db.close()
+
+        max_season_id = max_df.at[0, 'seasonId']
+
+        return max_season_id
