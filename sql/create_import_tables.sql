@@ -262,6 +262,21 @@ CREATE TABLE `nhl_pandas_import`.`player_bios_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+CREATE TABLE `nhl_pandas_import`.`player_import_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `playerId` int NOT NULL,
+  `lastDateUpdated` datetime DEFAULT NULL,
+  `playerFound` tinyint DEFAULT NULL,
+  `playerBioFound` tinyint DEFAULT NULL,
+  `careerTotalsFound` tinyint DEFAULT NULL,
+  `seasonTotalsFound` tinyint DEFAULT NULL,
+  `awardsFound` tinyint DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  UNIQUE KEY `playerId_UNIQUE` (`playerId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+
+
 CREATE TABLE `nhl_pandas_import`.`plays_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,
@@ -309,21 +324,6 @@ CREATE TABLE `nhl_pandas_import`.`plays_import` (
   KEY `eventId` (`eventId`),
   KEY `typeCode_index` (`typeCode`)
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-CREATE TABLE `player_import_log` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `playerId` int NOT NULL,
-  `lastDateUpdated` datetime DEFAULT NULL,
-  `playerFound` tinyint DEFAULT NULL,
-  `playerBioFound` tinyint DEFAULT NULL,
-  `careerTotalsFound` tinyint DEFAULT NULL,
-  `seasonTotalsFound` tinyint DEFAULT NULL,
-  `awardsFound` tinyint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
-  UNIQUE KEY `playerId_UNIQUE` (`playerId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
 
 create table `nhl_pandas_import`.`referees_import` (
@@ -387,17 +387,6 @@ create table `nhl_pandas_import`.`season_series_import` (
   UNIQUE KEY `id` (`id`),
   KEY `gameTypeId` (`gameId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
-CREATE TABLE `nhl_pandas_import`.`shift_import_log` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `gameId` int NOT NULL,
-  `logDate` datetime DEFAULT NULL,
-  `checked` tinyint DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `gameId_index` (`gameId`),
-  KEY `logDate_index` (`logDate`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
 CREATE TABLE `nhl_pandas_import`.`shifts_import` (
@@ -553,7 +542,7 @@ CREATE TABLE `nhl_pandas_import`.`teams_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-CREATE TABLE `tv_broadcasts_import` (
+CREATE TABLE `nhl_pandas_import`.`tv_broadcasts_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `gameId` int NOT NULL,
   `broadcastId` int NOT NULL,
