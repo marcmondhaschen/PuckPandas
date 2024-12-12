@@ -15,20 +15,6 @@ class Scheduler:
         self.player_log_df = self.queryDBforPlayers()
 
     @staticmethod
-    def queryDBforTables():
-        cursor, db = db_import_login()
-
-        sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log where updateFound = 1 " \
-              "group by tableName"
-        table_log_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return table_log_df
-
-    @staticmethod
     def queryDBforGames():
         cursor, db = db_import_login()
 
@@ -316,8 +302,16 @@ class Scheduler:
     def updatePlayersImport(players):
         for player_id in players['playerId'].items():
             player = nhlpd.PlayersImport(player_id=player_id)
-
             player.queryNHLupdateDB()
 
         log_object = ImportTableUpdateLog()
         log_object.updateDB("player_bios_import", 1)
+
+    def pollNHL(self):
+        if self.checkTeamsImport():
+            self.updateTeamsImport()
+
+        if self.checkSeasonsImport():
+            self.updateSeasonsImport()
+
+        return True
