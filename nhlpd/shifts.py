@@ -105,7 +105,6 @@ class ShiftsImport:
                 shifts_df.fillna('', inplace=True)
 
                 self.shifts_df = pd.concat([self.shifts_df, shifts_df])
-                load_shifts_frame(shifts_df)
 
         return True
 

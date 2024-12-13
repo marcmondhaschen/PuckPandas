@@ -4,7 +4,7 @@ from .mysql_db import db_import_login
 
 
 class ImportTableUpdateLog:
-    update_details = pd.Series(index=['tableName', 'lastDateUpdated', 'updateFound'])
+    update_details = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
 
     def __init__(self):
         self.update_details = pd.concat([self.update_details, self.queryDB()])
@@ -37,4 +37,12 @@ class ImportTableUpdateLog:
         return update_details
 
     def lastUpdate(self, table_name):
-        return self.update_details.loc[self.update_details['tableName'] == table_name, 'lastDateUpdated'].item()
+        last_update = None
+
+        update_exists = self.update_details['tableName'].isin([table_name]).any()
+
+        if update_exists:
+            last_update = self.update_details.loc[self.update_details['tableName'] == table_name,
+                                                  'lastDateUpdated'].values[0]
+
+        return last_update
