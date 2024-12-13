@@ -1,5 +1,6 @@
 import requests
 
+
 # generic call to some nhl api query
 # returns formatted json
 def fetch_json_data(url):

@@ -1,6 +1,18 @@
 OPEN ITEMS
+	Shifts.Py
+	    complete
+		test
+
+    Player_Import_Log.Py
+        complete
+        test
+
+    Games_Import_Log.Py
+        complete
+        test
+
    Scheduler.Py
-	    add a scheduler object
+	    * add a scheduler object
 		use this object to control all the other objects in order to poll the NHL for updates when appropriate
 		    use the api_query_order_md file to remember the order queries need to happen in
 		schedule update criteria/triggers for each database table
@@ -70,10 +82,6 @@ OPEN ITEMS
 		* add GamesImportLog logging
         * test
 
-	Shifts.Py
-		* add single gameId overrides (updateDB, queryDB, queryNHL)
-		* add ImportTableUpdate logging
-		* add GamesImportLog logging
 
     Rosters.Py
         * update logging for PlayersImportLog changes
