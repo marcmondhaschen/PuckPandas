@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from .mysql_db import db_import_login
 
@@ -44,7 +44,8 @@ class PlayerImportLog:
         if (len(self.update_details) > 0) and ('playerId' in self.update_details):
             cursor, db = db_import_login()
 
-            set_string = "set lastDateUpdated = '" + datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "'"
+            set_string = "set lastDateUpdated = '" + \
+                         datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S') + "'"
 
             if self.update_details['playerFound'] != '':
                 set_string = set_string + ", playerFound = " + str(self.update_details['playerFound'])
@@ -100,7 +101,7 @@ class PlayerImportLog:
         return True
 
 # from players.py
-#         check_date = datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+#         check_date = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
 #         check_log_df = pd.DataFrame(data=[[player_id, check_date, player_bio_check, career_check, season_check,
 #                                            awards_check]],
 #                                     columns=['playerId', 'logDate', 'playerBio', 'career', 'season', 'awards'])

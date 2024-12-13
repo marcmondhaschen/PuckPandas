@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 import time
 from .api_query import fetch_json_data
@@ -46,7 +46,7 @@ class GamesImport:
                        row['periodDescriptor.periodType'], row['gameOutcome.lastPeriodType'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(row['id'], datetime.today().strftime('%Y-%m-%d %H:%M:%S'), game_found=1)
+                log = GamesImportLog(row['id'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), game_found=1)
                 log.insertDB()
 
             db.commit()

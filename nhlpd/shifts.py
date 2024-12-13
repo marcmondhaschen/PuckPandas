@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
@@ -31,7 +31,8 @@ class ShiftsImport:
                    row['teamAbbrev'], row['teamId'], row['teamName'], row['typeCode']]
             cursor.execute(sql, val)
 
-            log = GamesImportLog(game_id=row['id'], last_date_updated=datetime.today().strftime('%Y-%m-%d %H:%M:%S'),
+            log = GamesImportLog(game_id=row['id'],
+                                 last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                  shifts_found=1)
             log.updateDB()
 

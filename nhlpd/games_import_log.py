@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from .mysql_db import db_import_login
 
@@ -62,7 +62,8 @@ class GamesImportLog:
         if (len(self.update_details) > 0) and ('gameId' in self.update_details):
             cursor, db = db_import_login()
 
-            set_string = "set lastDateUpdated = '" + datetime.today().strftime('%Y-%m-%d %H:%M:%S') + "'"
+            set_string = "set lastDateUpdated = '" + \
+                         datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S') + "'"
 
             if self.update_details['gameFound'] != '':
                 set_string = set_string + ", gameFound = " + str(self.update_details['gameFound'])

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import pandas as pd
 from .mysql_db import db_import_login
 
@@ -14,7 +14,7 @@ class ImportTableUpdateLog:
         cursor, db = db_import_login()
 
         sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
-        val = (table_name, datetime.now(), update_found)
+        val = (table_name, datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), update_found)
         cursor.execute(sql, val)
 
         db.commit()
