@@ -85,3 +85,8 @@ class TeamsImport:
         team_id = self.teams_df.loc[self.teams_df['triCode'] == tri_code, 'teamId'].item()
 
         return team_id
+
+    def triCodeFromTeamId(self, team_id):
+        tri_code = self.teams_df.loc[self.teams_df['teamId'] == team_id, 'triCode'].item()
+
+        return tri_code
