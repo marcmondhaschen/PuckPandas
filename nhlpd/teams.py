@@ -80,3 +80,8 @@ class TeamsImport:
         self.updateDB(tri_code)
 
         return True
+
+    def teamIdFromTriCode(self, tri_code):
+        team_id = self.teams_df.loc[self.teams_df['triCode'] == tri_code, 'teamId'].item()
+
+        return team_id
