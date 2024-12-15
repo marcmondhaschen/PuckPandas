@@ -5,13 +5,11 @@ from .teams import TeamsImport
 
 
 class SeasonsImport:
-    seasons_df = pd.DataFrame(columns=['triCode', 'seasonId'])
-
-    def __init__(self, seasons_df=pd.DataFrame()):
-        self.seasons_df = pd.concat([self.seasons_df, seasons_df])
+    def __init__(self):
+        self.seasons_df = self.queryDB()
 
     def updateDB(self, tri_code=''):
-        if len(self.seasons_df) > 0:
+        if not self.seasons_df.empty:
             cursor, db = db_import_login()
 
             if tri_code != '':
@@ -44,24 +42,26 @@ class SeasonsImport:
         db.close()
         return True
 
-    def queryDB(self, tri_code=''):
-        sql_prefix = "select triCode, seasonId from team_seasons_import"
+    @staticmethod
+    def queryDB(tri_code='', season_id=''):
+        sql_prefix = "select a.triCode, b.teamId, a.seasonId from team_seasons_import as a join teams_import as b " \
+                     "on a.triCode = b.triCode where b.teamId is not null"
         sql_suffix = ""
-
         if tri_code != '':
-            sql_suffix = " where triCode = " + tri_code
-
+            sql_suffix += " and a.triCode = " + tri_code
+        if season_id != '':
+            sql_suffix += " and a.seasonId = " + season_id
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
         cursor, db = db_import_login()
         seasons_df = pd.read_sql(sql, db)
-        self.seasons_df = seasons_df.fillna('')
-
         db.commit()
         cursor.close()
         db.close()
 
-        return True
+        seasons_df = seasons_df.fillna('')
+
+        return seasons_df
 
     def queryNHL(self, tri_code=''):
         teams = TeamsImport()
