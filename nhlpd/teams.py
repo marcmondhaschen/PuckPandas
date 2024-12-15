@@ -4,10 +4,8 @@ from .mysql_db import db_import_login
 
 
 class TeamsImport:
-    teams_df = pd.DataFrame(columns=['id', 'franchiseId', 'fullName', 'leagueId', 'rawTricode', 'triCode'])
-
-    def __init__(self, teams_df=pd.DataFrame()):
-        self.teams_df = pd.concat([self.teams_df, teams_df])
+    def __init__(self):
+        self.teams_df = self.queryDB()
 
     def updateDB(self, tri_code=''):
         cursor, db = db_import_login()
@@ -45,7 +43,8 @@ class TeamsImport:
 
         return True
 
-    def queryDB(self, tri_code=''):
+    @staticmethod
+    def queryDB(tri_code=''):
         sql_prefix = "select teamId, franchiseId, fullName, leagueId, triCode from teams_import "
         sql_suffix = ""
 
@@ -56,13 +55,13 @@ class TeamsImport:
 
         cursor, db = db_import_login()
         teams_df = pd.read_sql(sql, db)
-        self.teams_df = teams_df.fillna('')
+        teams_df = teams_df.fillna('')
 
         db.commit()
         cursor.close()
         db.close()
 
-        return True
+        return teams_df
 
     def queryNHL(self, tri_code=''):
         json_data = fetch_json_data('https://api.nhle.com/stats/rest/en/team')
