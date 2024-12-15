@@ -530,6 +530,19 @@ CREATE TABLE `nhl_pandas_import`.`team_seasons_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
+CREATE TABLE `nhl_pandas_import`.`team_seasons_import_log` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `teamId` int DEFAULT NULL,
+  `seasonId` varchar(8) DEFAULT '',
+  `lastDateUpdated` date DEFAULT NULL,
+  `gamesFound` tinyint default NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`),
+  KEY `seasonId_idx` (`seasonId`),
+  KEY `teamId_idx` (`teamId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
 CREATE TABLE `nhl_pandas_import`.`teams_import` (
   `teamId` int NOT NULL,
   `franchiseId` int NOT NULL,
