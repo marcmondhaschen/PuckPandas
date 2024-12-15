@@ -20,6 +20,8 @@ OPEN ITEMS
         test
 
 ---- you're allowed to refactor after this line :) ----
+    the single-triCode override for queryNHL in Seasons.py is pretty kludgy and should be refactored
+
     there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
         set of helper functions - particularly each of the DB calls
 
@@ -32,6 +34,9 @@ OPEN ITEMS
         move attribute initializations to inside the init
 
     swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
+
+    rename ImportTableUpdateLog.queryDB() to something more appropriate -
+        this method returns last update for all tables
 
 	re-poll everything from the NHL
 
