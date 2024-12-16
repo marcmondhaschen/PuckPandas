@@ -3,7 +3,7 @@ import pandas as pd
 from .mysql_db import db_import_login
 
 
-class SeasonImportLog:
+class SeasonsImportLog:
     def __init__(self, team_id, season_id, games_found=0):
         self.team_id = team_id
         self.season_id = season_id
