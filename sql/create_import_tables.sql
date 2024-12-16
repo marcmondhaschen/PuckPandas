@@ -108,12 +108,22 @@ CREATE TABLE `nhl_pandas_import`.`games_import` (
   `homeTeamScore` int DEFAULT NULL,
   `periodType` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gameOutcome` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `datePBPChecked` date DEFAULT NULL,
+  `PBPCheckSuccess` tinyint DEFAULT NULL,
+  `seriesStatus.round` int DEFAULT NULL,
+  `seriesStatus.seriesAbbrev` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `seriesStatus.seriesTitle` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `seriesStatus.seriesLetter` varchar(3) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `seriesStatus.neededToWin` int DEFAULT NULL,
+  `seriesStatus.topSeedWins` int DEFAULT NULL,
+  `seriesStatus.bottomSeedWins` int DEFAULT NULL,
+  `seriesStatus.gameNumberOfSeries` int DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `gameId` (`gameId`),
   KEY `seasonId_index` (`seasonId`),
   KEY `gameDate_index` (`gameDate`)
-) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
 
 CREATE TABLE `nhl_pandas_import`.`games_import_log` (
