@@ -9,15 +9,19 @@ class GamesImport:
     games_df = pd.DataFrame(columns=['gameId', 'seasonId', 'gameType', 'gameDate', 'venue', 'neutralSite',
                                      'startTimeUTC', 'venueUTCOffset', 'venueTimezone', 'gameState',
                                      'gameScheduleState', 'awayTeam', 'awayTeamSplitSquad', 'awayTeamScore',
-                                     'homeTeam', 'homeTeamSplitSquad', 'homeTeamScore', 'periodType', 'gameOutcome'])
+                                     'homeTeam', 'homeTeamSplitSquad', 'homeTeamScore', 'periodType', 'gameOutcome',
+                                     'seriesStatus.round', 'seriesStatus.seriesAbbrev', 'seriesStatus.seriesTitle',
+                                     'seriesStatus.seriesLetter', 'seriesStatus.neededToWin',
+                                     'seriesStatus.topSeedWins', 'seriesStatus.bottomSeedWins',
+                                     'seriesStatus.gameNumberOfSeries'])
 
     def __init__(self, team_id, season_id):
         self.team_id = team_id
         self.season_id = season_id
         self.teams = nhlpd.TeamsImport()
-        self.games_df = pd.concat([self.games_df, self.queryDB(team_id=team_id, season_id=season_id)])
+        self.games_df = pd.concat([self.games_df, self.queryDB()])
 
-    def updateDB(self, team_id, season_id):
+    def updateDB(self):
         if self.games_df.size > 0:
             cursor, db = db_import_login()
 
@@ -25,20 +29,27 @@ class GamesImport:
                 sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, " \
                       "startTimeUTC, venueUTCOffset, venueTimezone, gameState, gameScheduleState, awayTeam, " \
                       "awayTeamSplitSquad, awayTeamScore, homeTeam, homeTeamSplitSquad, homeTeamScore, " \
-                      "periodType, gameOutcome) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                      "%s, %s, %s, %s)"
-                val = (row['id'], row['season'], row['gameType'], row['gameDate'], row['venue.default'],
+                      "periodType, gameOutcome, `seriesStatus.round`, `seriesStatus.seriesAbbrev`, " \
+                      "`seriesStatus.seriesTitle`, `seriesStatus.seriesLetter`, `seriesStatus.neededToWin`, " \
+                      "`seriesStatus.topSeedWins`, `seriesStatus.bottomSeedWins`, `seriesStatus.gameNumberOfSeries`) " \
+                      "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                      "%s, %s, %s, %s, %s, %s)"
+                val = (row['gameId'], row['seasonId'], row['gameType'], row['gameDate'], row['venue'],
                        row['neutralSite'], row['startTimeUTC'], row['venueUTCOffset'], row['venueTimezone'],
-                       row['gameState'], row['gameScheduleState'], row['awayTeam.id'], row['awayTeam.awaySplitSquad'],
-                       row['awayTeam.score'], row['homeTeam.id'], row['homeTeam.homeSplitSquad'], row['homeTeam.score'],
-                       row['periodDescriptor.periodType'], row['gameOutcome.lastPeriodType'])
+                       row['gameState'], row['gameScheduleState'], row['awayTeam'], row['awayTeamSplitSquad'],
+                       row['awayTeamScore'], row['homeTeam'], row['homeTeamSplitSquad'], row['homeTeamScore'],
+                       row['periodType'], row['gameOutcome'], row['seriesStatus.round'],
+                       row['seriesStatus.seriesAbbrev'], row['seriesStatus.seriesTitle'],
+                       row['seriesStatus.seriesLetter'], row['seriesStatus.neededToWin'],
+                       row['seriesStatus.topSeedWins'], row['seriesStatus.bottomSeedWins'],
+                       row['seriesStatus.gameNumberOfSeries'])
                 cursor.execute(sql, val)
 
-                game_log = nhlpd.GamesImportLog(row['id'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                game_log = nhlpd.GamesImportLog(row['gameId'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                                 game_found=1)
                 game_log.insertDB()
 
-            season_log = nhlpd.SeasonImportLog(team_id=team_id, season_id=season_id)
+            season_log = nhlpd.SeasonImportLog(team_id=self.team_id, season_id=self.season_id)
             season_log.insertDB()
 
             db.commit()
@@ -47,12 +58,11 @@ class GamesImport:
 
         return True
 
-    @staticmethod
-    def clearDB(team_id, season_id):
-        if team_id == '' and season_id == '':
+    def clearDB(self):
+        if self.team_id == '' and self.season_id == '':
             cursor, db = db_import_login()
-            sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + team_id + " or awayTeam = " \
-                  + team_id + ")" + " and seasonId = '" + str(season_id) + "'"
+            sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + str(self.team_id) + \
+                  " or awayTeam = " + str(self.team_id) + ")" + " and seasonId = '" + str(self.season_id) + "'"
             cursor.execute(sql)
 
             db.commit()
@@ -61,18 +71,20 @@ class GamesImport:
 
         return True
 
-    def queryDB(self, team_id='', season_id=''):
+    def queryDB(self):
         sql_prefix = "select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, " \
                      "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, " \
-                     "homeTeam, homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome from games_import where " \
-                     "gameId > 0"
+                     "homeTeam, homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, " \
+                     "`seriesStatus.seriesAbbrev`, `seriesStatus.seriesTitle`, `seriesStatus.seriesLetter`, " \
+                     "`seriesStatus.neededToWin`, `seriesStatus.topSeedWins`, `seriesStatus.bottomSeedWins`, " \
+                     "`seriesStatus.gameNumberOfSeries` from games_import where gameId > 0"
         sql_suffix = ""
 
-        if team_id != '':
-            sql_suffix += " and (homeTeam = " + team_id + " or awayTeam = " + team_id + ")"
+        if self.team_id != '':
+            sql_suffix += " and (homeTeam = " + str(self.team_id) + " or awayTeam = " + str(self.team_id) + ")"
 
-        if season_id != '':
-            sql_suffix += " and seasonId = '" + season_id + "' '"
+        if self.season_id != '':
+            sql_suffix += " and seasonId = '" + self.season_id + "'"
 
         sql = "{}{}".format(sql_prefix,  sql_suffix)
         cursor, db = db_import_login()
@@ -89,12 +101,12 @@ class GamesImport:
 
         return self.games_df
 
-    def queryNHL(self, team_id, season_id):
+    def queryNHL(self):
         # each page call is a complete season for a given team
-        tri_code = self.teams.triCodeFromTeamId(team_id=team_id)
+        tri_code = self.teams.triCodeFromTeamId(team_id=self.team_id)
 
         base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
-        query_string = "{}{}/{}".format(base_url, tri_code, season_id)
+        query_string = "{}{}/{}".format(base_url, tri_code, self.season_id)
         json_data = fetch_json_data(query_string)
 
         if 'games' in json_data:
@@ -102,6 +114,13 @@ class GamesImport:
             if 'tvBroadcasts' in team_schedule_df:
                 team_schedule_df.drop(columns='tvBroadcasts', inplace=True)
 
+            team_schedule_df.rename(columns={'id': 'gameId', 'season': 'seasonId', 'venue.default': 'venue',
+                                             'awayTeam.id': 'awayTeam', 'awayTeam.awaySplitSquad': 'awayTeamSplitSquad',
+                                             'awayTeam.score': 'awayTeamScore', 'homeTeam.id': 'homeTeam',
+                                             'homeTeam.homeSplitSquad': 'homeTeamSplitSquad',
+                                             'homeTeam.score': 'homeTeamScore',
+                                             'periodDescriptor.periodType': 'periodType',
+                                             'gameOutcome.lastPeriodType': 'gameOutcome'}, inplace=True)
             games_df = self.games_df.head(0)
             games_df = pd.concat([games_df, team_schedule_df])
             games_df.fillna('', inplace=True)
@@ -111,9 +130,9 @@ class GamesImport:
 
         return self.games_df
 
-    def queryNHLupdateDB(self, team_id='', season_id=''):
-        self.queryNHL(team_id, season_id)
-        self.clearDB(team_id, season_id)
-        self.updateDB(team_id, season_id)
+    def queryNHLupdateDB(self):
+        self.queryNHL()
+        self.clearDB()
+        self.updateDB()
 
         return True
