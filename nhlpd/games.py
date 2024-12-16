@@ -1,11 +1,8 @@
 from datetime import datetime, timezone
 import pandas as pd
-import time
+import nhlpd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
-from .seasons import SeasonsImport
-from .teams import TeamsImport
-from .games_import_log import GamesImportLog
 
 
 class GamesImport:
@@ -14,24 +11,15 @@ class GamesImport:
                                      'gameScheduleState', 'awayTeam', 'awayTeamSplitSquad', 'awayTeamScore',
                                      'homeTeam', 'homeTeamSplitSquad', 'homeTeamScore', 'periodType', 'gameOutcome'])
 
-    def __init__(self, games_df=pd.DataFrame()):
-        self.games_df = pd.concat([self.games_df, games_df])
+    def __init__(self, team_id, season_id):
+        self.team_id = team_id
+        self.season_id = season_id
+        self.teams = nhlpd.TeamsImport()
+        self.games_df = pd.concat([self.games_df, self.queryDB(team_id=team_id, season_id=season_id)])
 
-    def updateDB(self, tri_code='', season_id=''):
-        teams = TeamsImport()
-        teams.queryDB()
-
-        if len(self.games_df) > 0:
+    def updateDB(self, team_id, season_id):
+        if self.games_df.size > 0:
             cursor, db = db_import_login()
-
-            if tri_code != '':
-                team_id = teams.teams_df[teams.teams_df['triCode'] == tri_code]['teamId'].values[0]
-                home_games = self.games_df[self.games_df['homeTeam.id'] == team_id]
-                away_games = self.games_df[self.games_df['awayTeam.id'] == team_id]
-                self.games_df = pd.concat([home_games, away_games])
-
-            if season_id != '':
-                self.games_df = self.games_df[self.games_df['season'] == season_id]
 
             for index, row in self.games_df.iterrows():
                 sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, " \
@@ -46,8 +34,12 @@ class GamesImport:
                        row['periodDescriptor.periodType'], row['gameOutcome.lastPeriodType'])
                 cursor.execute(sql, val)
 
-                log = GamesImportLog(row['id'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), game_found=1)
-                log.insertDB()
+                game_log = nhlpd.GamesImportLog(row['id'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                                game_found=1)
+                game_log.insertDB()
+
+            season_log = nhlpd.SeasonImportLog(team_id=team_id, season_id=season_id)
+            season_log.insertDB()
 
             db.commit()
             cursor.close()
@@ -56,96 +48,72 @@ class GamesImport:
         return True
 
     @staticmethod
-    def clearDB(tri_code='', season_id=''):
-        teams = TeamsImport()
-        teams.queryDB()
+    def clearDB(team_id, season_id):
+        if team_id == '' and season_id == '':
+            cursor, db = db_import_login()
+            sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + team_id + " or awayTeam = " \
+                  + team_id + ")" + " and seasonId = '" + str(season_id) + "'"
+            cursor.execute(sql)
 
-        cursor, db = db_import_login()
+            db.commit()
+            cursor.close()
+            db.close()
 
-        if tri_code == '' and season_id == '':
-            sql = "truncate table games_import"
-        else:
-            sql = "delete from games_import where gameId > 0"
-            if tri_code != '':
-                team_id = str(teams.teams_df[teams.teams_df['triCode'] == tri_code]['teamId'].values[0])
-                sql = sql + " and (homeTeam = " + team_id + " or awayTeam = " + team_id + ")"
-            if season_id != '':
-                sql = sql + " and seasonId = '" + str(season_id) + "'"
-
-        cursor.execute(sql)
-
-        db.commit()
-        cursor.close()
-        db.close()
         return True
 
-    def queryDB(self, tri_code='', season_id=''):
-        teams = TeamsImport()
-        teams.queryDB()
-
+    def queryDB(self, team_id='', season_id=''):
         sql_prefix = "select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, " \
                      "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, " \
                      "homeTeam, homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome from games_import where " \
                      "gameId > 0"
         sql_suffix = ""
 
-        if tri_code != '':
-            team_id = str(teams.teams_df[teams.teams_df['triCode'] == tri_code]['teamId'].values[0])
+        if team_id != '':
             sql_suffix += " and (homeTeam = " + team_id + " or awayTeam = " + team_id + ")"
 
         if season_id != '':
-            sql_suffix += " and seasonId = " + season_id + " "
+            sql_suffix += " and seasonId = '" + season_id + "' '"
 
         sql = "{}{}".format(sql_prefix,  sql_suffix)
-
         cursor, db = db_import_login()
-        games_df = pd.read_sql(sql, db)
-        self.games_df = games_df.fillna('')
-
+        query_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
 
-        return True
-
-    def queryNHL(self, tri_code='', season_id=''):
-        seasons = SeasonsImport()
-        seasons.queryDB()
-
-        season_id = str(season_id)
-
-        if tri_code != '':
-            seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['triCode'] == tri_code]
-
-        if season_id != '':
-            seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['seasonId'] == season_id]
-
-        games_df = pd.DataFrame()
-
-        for index, row in seasons.seasons_df.iterrows():
-            base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
-            query_string = "{}{}/{}".format(base_url, row['triCode'], row['seasonId'])
-            json_data = fetch_json_data(query_string)
-
-            if 'games' in json_data:
-                team_schedule_df = pd.json_normalize(json_data, record_path=['games'])
-                if 'tvBroadcasts' in team_schedule_df:
-                    team_schedule_df.drop(columns='tvBroadcasts', inplace=True)
-                team_schedule_df.fillna('', inplace=True)
-                games_df = pd.concat([games_df, team_schedule_df])
-
-            time.sleep(0.25)
-
-        games_df.drop_duplicates(inplace=True)
+        games_df = self.games_df.head(0)
+        games_df = pd.concat([games_df, query_df])
         games_df.fillna('', inplace=True)
-        games_df.dropna(axis=1, inplace=True)
+        games_df.drop_duplicates(inplace=True)
         self.games_df = games_df
 
-        return True
+        return self.games_df
 
-    def queryNHLupdateDB(self, tri_code='', season_id=''):
-        self.queryNHL(tri_code, season_id)
-        self.clearDB(tri_code, season_id)
-        self.updateDB(tri_code, season_id)
+    def queryNHL(self, team_id, season_id):
+        # each page call is a complete season for a given team
+        tri_code = self.teams.triCodeFromTeamId(team_id=team_id)
+
+        base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
+        query_string = "{}{}/{}".format(base_url, tri_code, season_id)
+        json_data = fetch_json_data(query_string)
+
+        if 'games' in json_data:
+            team_schedule_df = pd.json_normalize(json_data, record_path=['games'])
+            if 'tvBroadcasts' in team_schedule_df:
+                team_schedule_df.drop(columns='tvBroadcasts', inplace=True)
+
+            games_df = self.games_df.head(0)
+            games_df = pd.concat([games_df, team_schedule_df])
+            games_df.fillna('', inplace=True)
+            games_df.dropna(axis=1, inplace=True)
+
+            self.games_df = games_df
+
+        return self.games_df
+
+    def queryNHLupdateDB(self, team_id='', season_id=''):
+        self.queryNHL(team_id, season_id)
+        self.clearDB(team_id, season_id)
+        self.updateDB(team_id, season_id)
 
         return True
