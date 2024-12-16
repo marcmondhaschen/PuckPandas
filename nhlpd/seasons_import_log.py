@@ -10,7 +10,7 @@ class SeasonImportLog:
         self.current_time = datetime.now(timezone.utc)
         self.games_found = games_found
 
-    def updateDB(self):
+    def insertDB(self):
         cursor, db = db_import_login()
 
         sql = "insert into team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
