@@ -49,7 +49,7 @@ class GamesImport:
                                                 game_found=1)
                 game_log.insertDB()
 
-            season_log = nhlpd.SeasonImportLog(team_id=self.team_id, season_id=self.season_id)
+            season_log = nhlpd.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id)
             season_log.insertDB()
 
             db.commit()
