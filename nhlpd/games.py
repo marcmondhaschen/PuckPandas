@@ -59,10 +59,11 @@ class GamesImport:
         return True
 
     def clearDB(self):
-        if self.team_id == '' and self.season_id == '':
+        if self.team_id != '' and self.season_id != '':
             cursor, db = db_import_login()
             sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + str(self.team_id) + \
                   " or awayTeam = " + str(self.team_id) + ")" + " and seasonId = '" + str(self.season_id) + "'"
+
             cursor.execute(sql)
 
             db.commit()
