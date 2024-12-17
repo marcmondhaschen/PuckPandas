@@ -132,6 +132,10 @@ class GamesImport:
         return self.games_df
 
     def queryNHLupdateDB(self):
+        # for this object, this pattern has the beneficial side benefit of deleting duplicate gameIds in the
+        # games_import table. each game is presented twice by the API calls - once for each opposing team. the
+        # clear method will drop games from a team about to be imported, removing their impending duplication on import
+        # but leaving behind all the previous competitors' matches that didn't involve them.
         self.queryNHL()
         self.clearDB()
         self.updateDB()
