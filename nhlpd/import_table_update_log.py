@@ -29,6 +29,7 @@ class ImportTableUpdateLog:
 
         sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log group by tableName"
         update_details = pd.read_sql(sql, db)
+        update_details.fillna('', inplace=True)
 
         db.commit()
         cursor.close()
