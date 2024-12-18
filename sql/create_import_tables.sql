@@ -425,21 +425,6 @@ CREATE TABLE `nhl_pandas_import`.`shifts_import` (
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 
-create table `nhl_pandas_import`.`shots_by_period_import` (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `gameId` int NOT NULL,
-  `period` int NOT NULL,
-  `periodDescriptor.number` int DEFAULT NULL,
-  `periodDescriptor.periodType` int DEFAULT NULL,
-  `periodDescriptor.maxRegulationPeriods` int DEFAULT NULL,
-  `away` int DEFAULT NULL,
-  `home` int DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `id` (`id`),
-  KEY `gameTypeId` (`gameId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-
 CREATE TABLE `nhl_pandas_import`.`skater_career_totals_import` (
   `id` int NOT NULL AUTO_INCREMENT,
   `playerId` int NOT NULL,
