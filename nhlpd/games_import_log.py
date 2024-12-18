@@ -11,10 +11,9 @@ class GamesImportLog:
     game_center_open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
     shifts_open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
 
-    def __init__(self, game_id='', last_date_updated='', game_found='', game_center_found='', tv_broadcasts_found='',
+    def __init__(self, game_id, last_date_updated='', game_found='', game_center_found='', tv_broadcasts_found='',
                  plays_found='', roster_spots_found='', team_game_stats_found='', season_series_found='',
-                 linescore_by_period_found='', referees_found='', linesmen_found='', scratches_found='',
-                 shifts_found=''):
+                 referees_found='', linesmen_found='', scratches_found='', shifts_found=''):
         self.update_details['gameId'] = game_id
         self.update_details['lastDateUpdated'] = last_date_updated
         self.update_details['gameFound'] = game_found
@@ -24,21 +23,19 @@ class GamesImportLog:
         self.update_details['rosterSpotsFound'] = roster_spots_found
         self.update_details['teamGameStatsFound'] = team_game_stats_found
         self.update_details['seasonSeriesFound'] = season_series_found
-        self.update_details['linescoreByPeriodFound'] = linescore_by_period_found
         self.update_details['refereesFound'] = referees_found
         self.update_details['linesmenFound'] = linesmen_found
         self.update_details['scratchesFound'] = scratches_found
         self.update_details['shiftsFound'] = shifts_found
 
     def insertDB(self):
-        if self.queryDB(self.update_details['gameId']) != '':
+        if self.queryDB() != '':
             self.updateDB()
 
             return True
 
-        cursor, db = db_import_login()
-
         if self.update_details['gameId'] != '':
+            cursor, db = db_import_login()
             sql = "insert into games_import_log (gameId, lastDateUpdated, gameFound, gameCenterFound, " \
                   "tvBroadcastsFound, playsFound, rosterSpotsFound, teamGameStatsFound, seasonSeriesFound, " \
                   "linescoreByPeriodFound, refereesFound, linesmenFound, scratchesFound, shiftsFound) " \
@@ -52,9 +49,9 @@ class GamesImportLog:
                    self.update_details['scratchesFound'], self.update_details['shiftsFound'])
             cursor.execute(sql, val)
 
-        db.commit()
-        cursor.close()
-        db.close()
+            db.commit()
+            cursor.close()
+            db.close()
 
         return True
 
@@ -79,9 +76,6 @@ class GamesImportLog:
                 set_string = set_string + ", teamGameStatsFound = " + str(self.update_details['teamGameStatsFound'])
             if self.update_details['seasonSeriesFound'] != '':
                 set_string = set_string + ", seasonSeriesFound = " + str(self.update_details['seasonSeriesFound'])
-            if self.update_details['linescoreByPeriodFound'] != '':
-                set_string = set_string + ", linescoreByPeriodFound = " + \
-                             str(self.update_details['linescoreByPeriodFound'])
             if self.update_details['refereesFound'] != '':
                 set_string = set_string + ", refereesFound = " + str(self.update_details['refereesFound'])
             if self.update_details['linesmenFound'] != '':
@@ -102,17 +96,14 @@ class GamesImportLog:
 
         return True
 
-    @staticmethod
-    def queryDB(game_id):
+    def queryDB(self):
         last_update = ''
 
         cursor, db = db_import_login()
-
-        prefix_sql = "select gameId, max(lastDateUpdated) as lastDateUpdated from games_import_log where gameId = "
-        suffix_sql = " group by gameId"
-        update_log_sql = "{}{}{}".format(prefix_sql, game_id, suffix_sql)
-        update_df = pd.read_sql(update_log_sql, db)
-
+        sql = "select gameId, max(lastDateUpdated), gameFound, gameCenterFound as lastDateUpdated from " \
+              "games_import_log where gameId = " + str(self.update_details['gameId']) + " group by gameId, " \
+              "gameFound, gameCenterFound"
+        update_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
@@ -121,27 +112,3 @@ class GamesImportLog:
             last_update = update_df['lastDateUpdated'].iloc[0]
 
         return last_update
-
-    def gameCenterOpenWork(self):
-        cursor, db = db_import_login()
-        sql = "select gameId, lastDateUpdated from games_import_log where (gameCenterFound is NULL or " \
-              "gameCenterFound = 0)"
-        self.game_center_open_work_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return True
-
-    def shiftsOpenWork(self):
-        cursor, db = db_import_login()
-        sql = "select gameId, lastDateUpdated from games_import_log where (shiftsFound is NULL or " \
-              "shiftsFound = 0)"
-        self.shifts_open_work_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return True

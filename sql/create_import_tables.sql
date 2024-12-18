@@ -137,7 +137,6 @@ CREATE TABLE `nhl_pandas_import`.`games_import_log` (
   `rosterSpotsFound` tinyint DEFAULT NULL,
   `teamGameStatsFound` tinyint DEFAULT NULL,
   `seasonSeriesFound` tinyint DEFAULT NULL,
-  `linescoreByPeriodFound` tinyint DEFAULT NULL,
   `refereesFound` tinyint DEFAULT NULL,
   `linesmenFound` tinyint DEFAULT NULL,
   `scratchesFound` tinyint DEFAULT NULL,

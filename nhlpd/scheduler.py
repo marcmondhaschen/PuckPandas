@@ -23,11 +23,10 @@ class Scheduler:
         cursor, db = db_import_login()
 
         sql = "select a.gameId, a.lastDateUpdated, a.gameFound, a.gameCenterFound, a.tvBroadcastsFound, " \
-              "a.playsFound, a.rosterSpotsFound, a.teamGameStatsFound, a.seasonSeriesFound, " \
-              "a.linescoreByPeriodFound, a.refereesFound, a.linesmenFound, a.scratchesFound, a.shiftsFound " \
-              "from games_import_log as a join (select gameId, max(lastDateUpdated) as lastDateUpdated " \
-              "from games_import_log group by gameId) as b on a.gameId = b.gameId and " \
-              "a.lastDateUpdated = b.lastDateUpdated"
+              "a.playsFound, a.rosterSpotsFound, a.teamGameStatsFound, a.seasonSeriesFound, a.refereesFound, " \
+              "a.linesmenFound, a.scratchesFound, a.shiftsFound from games_import_log as a join (select gameId, " \
+              "max(lastDateUpdated) as lastDateUpdated from games_import_log group by gameId) as b on a.gameId = " \
+              "b.gameId and a.lastDateUpdated = b.lastDateUpdated"
         game_log_df = pd.read_sql(sql, db)
 
         db.commit()

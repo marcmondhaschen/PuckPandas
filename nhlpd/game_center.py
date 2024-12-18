@@ -1,4 +1,6 @@
+from datetime import datetime, timezone
 import pandas as pd
+import nhlpd
 from .api_query import fetch_json_data
 from .mysql_db import db_import_login
 
@@ -10,7 +12,7 @@ class ScratchesImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.scratches_df.index) > 0:
+        if self.scratches_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.scratches_df.iterrows():
@@ -22,6 +24,11 @@ class ScratchesImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   scratches_found=1)
+        log.insertDB()
 
         return True
 
@@ -76,7 +83,7 @@ class LinesmenImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.linesmen_df.index) > 0:
+        if self.linesmen_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.linesmen_df.iterrows():
@@ -87,6 +94,11 @@ class LinesmenImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   linesmen_found=1)
+        log.insertDB()
 
         return True
 
@@ -139,7 +151,7 @@ class RefereesImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.referees_df.index) > 0:
+        if self.referees_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.referees_df.iterrows():
@@ -150,6 +162,11 @@ class RefereesImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   referees_found=1)
+        log.insertDB()
 
         return True
 
@@ -202,7 +219,7 @@ class SeasonSeriesImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.season_series_df.index) > 0:
+        if self.season_series_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.season_series_df.iterrows():
@@ -213,6 +230,11 @@ class SeasonSeriesImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   season_series_found=1)
+        log.insertDB()
 
         return True
 
@@ -268,7 +290,7 @@ class TeamGameStatsImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.team_game_stats_df.index) > 0:
+        if self.team_game_stats_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.team_game_stats_df.iterrows():
@@ -280,6 +302,11 @@ class TeamGameStatsImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   team_game_stats_found=1)
+        log.insertDB()
 
         return True
 
@@ -334,18 +361,24 @@ class RosterSpotsImport:
         self.json = {}
 
     def updateDB(self):
-        cursor, db = db_import_login()
+        if self.roster_spots_df.size > 0:
+            cursor, db = db_import_login()
 
-        for index, row in self.roster_spots_df.iterrows():
-            sql = "insert into roster_spots_import (gameId, teamId, playerId, sweaterNumber, positionCode, headshot," \
-                  "`firstName`,`lastName`) values (%s, %s, %s, %s, %s, %s, %s, %s)"
-            val = (row['gameId'], row['teamId'], row['playerId'], row['sweaterNumber'], row['positionCode'],
-                   row['headshot'], row['firstName.default'], row['lastName.default'])
-            cursor.execute(sql, val)
+            for index, row in self.roster_spots_df.iterrows():
+                sql = "insert into roster_spots_import (gameId, teamId, playerId, sweaterNumber, positionCode, " \
+                      "headshot,`firstName`,`lastName`) values (%s, %s, %s, %s, %s, %s, %s, %s)"
+                val = (row['gameId'], row['teamId'], row['playerId'], row['sweaterNumber'], row['positionCode'],
+                       row['headshot'], row['firstName.default'], row['lastName.default'])
+                cursor.execute(sql, val)
 
-        db.commit()
-        cursor.close()
-        db.close()
+            db.commit()
+            cursor.close()
+            db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   roster_spots_found=1)
+        log.insertDB()
 
         return True
 
@@ -413,7 +446,7 @@ class PlaysImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.plays_df.index) > 0:
+        if self.plays_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.plays_df.iterrows():
@@ -446,6 +479,11 @@ class PlaysImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   plays_found=1)
+        log.insertDB()
 
         return True
 
@@ -505,7 +543,7 @@ class TvBroadcastsImport:
         self.json = {}
 
     def updateDB(self):
-        if len(self.tv_broadcasts_df.index) > 0:
+        if self.tv_broadcasts_df.size > 0:
             cursor, db = db_import_login()
 
             for index, row in self.tv_broadcasts_df.iterrows():
@@ -518,6 +556,11 @@ class TvBroadcastsImport:
             db.commit()
             cursor.close()
             db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   tv_broadcasts_found=1)
+        log.insertDB()
 
         return True
 
@@ -615,12 +658,11 @@ class GameCenterImport:
         self.scratches = ScratchesImport(game_id=game_id)
 
     def updateDB(self):
-        if len(self.game_center_pbp_df.index) > 0:
+        if self.game_center_pbp_df.size > 0:
             row = self.game_center_pbp_df.iloc[0]
             row = row.fillna('')
 
             cursor, db = db_import_login()
-
             sql = "insert into game_center_import (gameId, season, gameType, limitedScoring, gameDate, " \
                   "`venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, " \
                   "gameState, gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
@@ -664,19 +706,21 @@ class GameCenterImport:
                    row['summary.gameReports.shiftChart'], row['summary.gameReports.toiAway'],
                    row['summary.gameReports.toiHome'], row['summary.awayTeam.gameInfo.headCoach.default'],
                    row['summary.homeTeam.gameInfo.headCoach.default'])
-
             cursor.execute(sql, val)
-
             db.commit()
             cursor.close()
             db.close()
+
+            log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                       last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                       game_center_found=1)
+            log.insertDB()
 
         if len(self.game_center_rr_df.index) > 0:
             row = self.game_center_rr_df.iloc[0]
             row = row.fillna('')
 
             cursor, db = db_import_login()
-
             sql = "insert into game_center_right_rail_import (gameId, `seasonSeriesWins.awayTeamWins`, " \
                   "`seasonSeriesWins.homeTeamWins`, `seasonSeriesWins.neededToWin`, " \
                   "`gameInfo.awayTeam.headCoach.default`, `gameInfo.homeTeam.headCoach.default`, " \
@@ -686,9 +730,7 @@ class GameCenterImport:
                    row['seasonSeriesWins.neededToWin'], row['gameInfo.awayTeam.headCoach.default'],
                    row['gameInfo.homeTeam.headCoach.default'], row['gameVideo.threeMinRecap'],
                    row['linescore.totals.away'], row['linescore.totals.home'])
-
             cursor.execute(sql, val)
-
             db.commit()
             cursor.close()
             db.close()
