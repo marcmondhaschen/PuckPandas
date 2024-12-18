@@ -36,21 +36,17 @@ class ScratchesImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, playerId, `firstName.default`, `lastName.default` from scratches_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.scratches_df = pd.read_sql(sql, db)
-        self.scratches_df.fillna('', inplace=True)
-
+        sql = "select gameId, playerId, `firstName.default`, `lastName.default` from scratches_import where " \
+              "gameId = " + str(self.game_id)
+        scratches_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.scratches_df = self.scratches_df.head(0)
+        self.scratches_df = pd.concat([self.scratches_df, scratches_df])
+        self.scratches_df.fillna('', inplace=True)
 
         return True
 
@@ -105,21 +101,16 @@ class LinesmenImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, `default` from linesmen_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.linesmen_df = pd.read_sql(sql, db)
-        self.linesmen_df.fillna('', inplace=True)
-
+        sql = "select gameId, `default` from linesmen_import where gameId = " + str(self.game_id)
+        linesmen_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.linesmen_df = self.linesmen_df.head(0)
+        self.linesmen_df = pd.concat([self.linesmen_df, linesmen_df])
+        self.linesmen_df.fillna('', inplace=True)
 
         return True
 
@@ -173,21 +164,16 @@ class RefereesImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, `default` from referees_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.referees_df = pd.read_sql(sql, db)
-        self.referees_df.fillna('', inplace=True)
-
+        sql = "select gameId, `default` from referees_import where gameId = " + str(self.game_id)
+        referees_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.referees_df = self.referees_df.head(0)
+        self.referees_df = pd.concat([self.referees_df,  referees_df])
+        self.referees_df.fillna('', inplace=True)
 
         return True
 
@@ -241,21 +227,16 @@ class SeasonSeriesImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, seriesNumber, refGameId from season_series_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.season_series_df = pd.read_sql(sql, db)
-        self.season_series_df.fillna('', inplace=True)
-
+        sql = "select gameId, seriesNumber, refGameId from season_series_import where gameId = " + str(self.game_id)
+        season_series_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.season_series_df = self.season_series_df.head(0)
+        self.season_series_df = pd.concat([self.season_series_df, season_series_df])
+        self.season_series_df.fillna('', inplace=True)
 
         return True
 
@@ -313,21 +294,17 @@ class TeamGameStatsImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, category, awayValue, homeValue from team_game_stats_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.team_game_stats_df = pd.read_sql(sql, db)
-        self.team_game_stats_df.fillna('', inplace=True)
-
+        sql = "select gameId, category, awayValue, homeValue from team_game_stats_import where gameId = " + \
+              str(self.game_id)
+        team_game_stats_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.team_game_stats_df = self.team_game_stats_df.head(0)
+        self.team_game_stats_df = pd.concat([self.team_game_stats_df, team_game_stats_df])
+        self.team_game_stats_df.fillna('', inplace=True)
 
         return True
 
@@ -383,22 +360,17 @@ class RosterSpotsImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, " \
-                     "`lastName` from roster_spots_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.roster_spots_df = pd.read_sql(sql, db)
-        self.roster_spots_df.fillna('', inplace=True)
-
+        sql = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, `lastName` from " \
+              "roster_spots_import where gameId = " + str(self.game_id)
+        roster_spots_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.roster_spots_df = self.roster_spots_df.head(0)
+        self.roster_spots_df = pd.concat([self.roster_spots_df, roster_spots_df])
+        self.roster_spots_df.fillna('', inplace=True)
 
         return True
 
@@ -488,27 +460,22 @@ class PlaysImport:
         return True
 
     def queryDB(self):
-        sql_prefix = "select gameId, eventId, period, periodType, timeInPeriod, timeRemaining, situationCode, " \
-                     "typeCode, typeDescKey, sortOrder, eventOwnerTeamId, losingPlayerId,  winningPlayerId, xCoord, " \
-                     "yCoord, zoneCode, reason, hittingPlayerId, hitteePlayerId, shotType, shootingPlayerId, " \
-                     "goalieInNetId, awaySOG, homeSOG, playerId, blockingPlayerId, secondaryReason, detailTypeCode, " \
-                     "detailDescKey, detailDuration, detailCommittedByPlayerId, detailDrawnByPlayerId, " \
-                     "scoringPlayerId, scoringPlayerTotal, assist1PlayerId, assist1PlayerTotal, assist2PlayerId, " \
-                     "assist2PlayerTotal, awayScore, homeScore from plays_import "
-        sql_suffix = ""
-
-        if self.game_id != '':
-            sql_suffix = "where gameId = " + str(self.game_id)
-
-        sql = "{}{}".format(sql_prefix, sql_suffix)
-
         cursor, db = db_import_login()
-        self.plays_df = pd.read_sql(sql, db)
-        self.plays_df.fillna('', inplace=True)
-
+        sql = "select gameId, eventId, period, periodType, timeInPeriod, timeRemaining, situationCode, typeCode, "\
+              "typeDescKey, sortOrder, eventOwnerTeamId, losingPlayerId,  winningPlayerId, xCoord, yCoord, "\
+              "zoneCode, reason, hittingPlayerId, hitteePlayerId, shotType, shootingPlayerId, goalieInNetId, "\
+              "awaySOG, homeSOG, playerId, blockingPlayerId, secondaryReason, detailTypeCode, detailDescKey, "\
+              "detailDuration, detailCommittedByPlayerId, detailDrawnByPlayerId, scoringPlayerId, "\
+              "scoringPlayerTotal, assist1PlayerId, assist1PlayerTotal, assist2PlayerId, assist2PlayerTotal, "\
+              "awayScore, homeScore from plays_import where gameId = " + str(self.game_id)
+        plays_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
+
+        self.plays_df = self.plays_df.head(0)
+        self.plays_df = pd.concat([self.plays_df, plays_df])
+        self.plays_df.fillna('', inplace=True)
 
         return True
 
@@ -568,11 +535,13 @@ class TvBroadcastsImport:
         cursor, db = db_import_login()
         sql = "select gameId, broadcastId, market, countryCode, network, sequenceNumber from tv_broadcasts_import " \
               "where gameId = " + str(self.game_id)
-        self.tv_broadcasts_df = pd.read_sql(sql, db)
+        tv_broadcasts_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
 
+        self.tv_broadcasts_df = self.tv_broadcasts_df.head(0)
+        self.tv_broadcasts_df = pd.concat([self.tv_broadcasts_df, tv_broadcasts_df])
         self.tv_broadcasts_df.fillna('', inplace=True)
 
         return True
