@@ -123,9 +123,9 @@ class Scheduler:
 
         # if there's a new season (new seasons)
         cursor, db = db_import_login()
-        sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join " \
+        new_season_sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join " \
               "games_import as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
-        new_seasons_df = pd.read_sql(sql, db)
+        new_seasons_df = pd.read_sql(new_season_sql, db)
 
         db.commit()
         cursor.close()
@@ -138,14 +138,12 @@ class Scheduler:
 
             return {"check_bool": check_bool, "seasons": seasons}
 
-        # if games have been played since the last_update (current season)
+        # if games this season have been played since the last_update (current season)
         cursor, db = db_import_login()
-        sql_prefix = "select gameId from games_import where gameDate between '"
-        sql_suffix = "' and '"
-        sql = "{}{}{}{}'".format(sql_prefix, last_update, sql_suffix, str(self.current_time))
-        games_since_update = pd.read_sql(sql, db)
-
-        print(games_since_update)
+        fresh_games_sql_prefix = "select gameId from games_import where gameDate between '"
+        fresh_games_sql_suffix = "' and '"
+        fresh_games_sql = "{}{}{}{}'".format(fresh_games_sql_prefix, last_update, fresh_games_sql_suffix, str(self.current_time))
+        games_since_update = pd.read_sql(fresh_games_sql, db)
 
         db.commit()
         cursor.close()
@@ -156,9 +154,9 @@ class Scheduler:
             seasons = pd.DataFrame.from_dict(data)
             check_bool = True
 
-        self.current_month = 5
+            return {"check_bool": check_bool, "seasons": seasons}
 
-        # if we're in the post-season (current season)
+        # if we're in this season's playoffs (current season)
         if 4 <= self.current_month <= 6:
             data = {'seasonId': [self.max_season_id]}
             seasons = pd.DataFrame.from_dict(data)
@@ -168,24 +166,18 @@ class Scheduler:
 
     @staticmethod
     def checkGameCentersImport():
-        seasons = nhlpd.SeasonsImport()
-        #populate currentGames by polling the DB
-
-        #eliminate duplicates from newGames before inserting
-
-        games = pd.Series()
+        games = pd.DataFrame()
         check_bool = False
 
         # if there are unchecked games in the games_import_log table
         cursor, db = db_import_login()
 
         sql = "select a.gameId from games_import as a left join games_import_log as b on a.gameId = b.gameId " \
-              "where b.lastDateUpdated is null"
+              "where b.gameFound = 1 and b.gameCenterFound = 0"
         games_to_check_df = pd.read_sql(sql, db)
-        games_to_check = games_to_check_df['gameId']
 
-        if games_to_check.len() > 0:
-            games = games_to_check
+        if games_to_check_df.size > 0:
+            games = games_to_check_df
             check_bool = True
 
         return {"check_bool": check_bool, "games": games}
@@ -324,8 +316,8 @@ class Scheduler:
         return True
 
     def updateGameCentersImport(self, games):
-        for game_id in games['gameId'].items():
-            game_center = nhlpd.GameCenterImport(game_id)
+        for index, row in games.iterrows():
+            game_center = nhlpd.GameCenterImport(row['gameId'])
             game_center.queryNHLupdateDB()
 
         log_object = ImportTableUpdateLog()
@@ -368,10 +360,11 @@ class Scheduler:
             self.updateSeasonsImport()
 
         game_check = self.checkGamesImport()
-
         if game_check['check_bool'] and len(game_check['seasons']) > 0:
             self.updateGamesImport(game_check['seasons'])
 
-
+        game_center_check = self.checkGameCentersImport()
+        if game_center_check['check_bool'] and len(game_center_check['games']) > 0:
+            self.updateGameCentersImport(game_center_check['games'])
 
         return True
