@@ -8,8 +8,6 @@ class GamesImportLog:
                                       'playsFound', 'rosterSpotsFound', 'teamGameStatsFound', 'seasonSeriesFound',
                                       'linescoreByPeriodFound', 'refereesFound', 'linesmenFound', 'scratchesFound',
                                       'shiftsFound'])
-    game_center_open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
-    shifts_open_work_df = pd.DataFrame(columns=['gameId', 'lastDateUpdated'])
 
     def __init__(self, game_id, last_date_updated='', game_found='', game_center_found='', tv_broadcasts_found='',
                  plays_found='', roster_spots_found='', team_game_stats_found='', season_series_found='',
