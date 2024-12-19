@@ -6,9 +6,9 @@ from .teams import TeamsImport
 
 class SeasonsImport:
     def __init__(self):
-        self.seasons_df = self.queryDB()
+        self.seasons_df = self.query_db()
 
-    def updateDB(self, tri_code=''):
+    def update_db(self, tri_code=''):
         if not self.seasons_df.empty:
             cursor, db = db_import_login()
 
@@ -27,7 +27,7 @@ class SeasonsImport:
         return True
 
     @staticmethod
-    def clearDB(tri_code):
+    def clear_db(tri_code):
         cursor, db = db_import_login()
 
         if tri_code == '':
@@ -43,7 +43,7 @@ class SeasonsImport:
         return True
 
     @staticmethod
-    def queryDB(tri_code='', season_id=''):
+    def query_db(tri_code='', season_id=''):
         sql_prefix = "select a.triCode, b.teamId, a.seasonId from team_seasons_import as a join teams_import as b " \
                      "on a.triCode = b.triCode where b.teamId is not null"
         sql_suffix = ""
@@ -63,9 +63,9 @@ class SeasonsImport:
 
         return seasons_df
 
-    def queryNHL(self, tri_code=''):
+    def query_nhl(self, tri_code=''):
         teams = TeamsImport()
-        teams.queryDB()
+        teams.query_db()
 
         team_seasons_df = pd.DataFrame()
 
@@ -87,9 +87,9 @@ class SeasonsImport:
 
         return True
 
-    def queryNHLupdateDB(self, tri_code=''):
-        self.queryNHL(tri_code)
-        self.clearDB(tri_code)
-        self.updateDB(tri_code)
+    def query_nhl_update_db(self, tri_code=''):
+        self.query_nhl(tri_code)
+        self.clear_db(tri_code)
+        self.update_db(tri_code)
 
         return True

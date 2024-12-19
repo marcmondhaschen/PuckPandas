@@ -19,9 +19,9 @@ class GamesImport:
         self.team_id = team_id
         self.season_id = season_id
         self.teams = nhlpd.TeamsImport()
-        self.games_df = pd.concat([self.games_df, self.queryDB()])
+        self.games_df = pd.concat([self.games_df, self.query_db()])
 
-    def updateDB(self):
+    def update_db(self):
         if self.games_df.size > 0:
             cursor, db = db_import_login()
 
@@ -47,10 +47,10 @@ class GamesImport:
 
                 game_log = nhlpd.GamesImportLog(row['gameId'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                                 game_found=1)
-                game_log.insertDB()
+                game_log.insert_db()
 
             season_log = nhlpd.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id)
-            season_log.insertDB()
+            season_log.insert_db()
 
             db.commit()
             cursor.close()
@@ -58,7 +58,7 @@ class GamesImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         if self.team_id != '' and self.season_id != '':
             cursor, db = db_import_login()
             sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + str(self.team_id) + \
@@ -72,7 +72,7 @@ class GamesImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         sql_prefix = "select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, " \
                      "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, " \
                      "homeTeam, homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, " \
@@ -102,9 +102,9 @@ class GamesImport:
 
         return self.games_df
 
-    def queryNHL(self):
+    def query_nhl(self):
         # each page call is a complete season for a given team
-        tri_code = self.teams.triCodeFromTeamId(team_id=self.team_id)
+        tri_code = self.teams.tri_code_from_team_id(team_id=self.team_id)
 
         base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
         query_string = "{}{}/{}".format(base_url, tri_code, self.season_id)
@@ -131,13 +131,13 @@ class GamesImport:
 
         return self.games_df
 
-    def queryNHLupdateDB(self):
+    def query_nhl_update_db(self):
         # for this object, this pattern has the beneficial side benefit of deleting duplicate gameIds in the
         # games_import table. each game is presented twice by the API calls - once for each opposing team. the
         # clear method will drop games from a team about to be imported, removing their impending duplication on import
         # but leaving behind all the previous competitors' matches that didn't involve them.
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True

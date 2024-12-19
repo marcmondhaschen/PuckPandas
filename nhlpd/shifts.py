@@ -13,7 +13,7 @@ class ShiftsImport:
                                                'teamAbbrev', 'teamId', 'teamName', 'typeCode'])
         self.game_id = game_id
 
-    def updateDB(self):
+    def update_db(self):
         cursor, db = nhlpd.db_import_login()
 
         for index, row in self.shifts_df.iterrows():
@@ -30,7 +30,7 @@ class ShiftsImport:
             log = nhlpd.GamesImportLog(game_id=row['id'],
                                        last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                        shifts_found=1)
-            log.updateDB()
+            log.update_db()
 
         db.commit()
         cursor.close()
@@ -38,7 +38,7 @@ class ShiftsImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = nhlpd.db_import_login()
         sql = "delete from shifts_import where game_id =" + str(self.game_id)
         cursor.execute(sql)
@@ -48,7 +48,7 @@ class ShiftsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = nhlpd.db_import_login()
         sql = "select id, detailCode, duration, endTime, eventDescription, eventDetails, eventNumber, firstName, " \
               "gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, teamAbbrev, teamId, teamName, " \
@@ -64,7 +64,7 @@ class ShiftsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         url_prefix = 'https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId='
         url_string = "{}{}".format(url_prefix, self.game_id)
         json_data = nhlpd.fetch_json_data(url_string)
@@ -77,9 +77,9 @@ class ShiftsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True

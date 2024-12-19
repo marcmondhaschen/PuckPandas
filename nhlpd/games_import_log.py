@@ -26,9 +26,9 @@ class GamesImportLog:
         self.update_details['scratchesFound'] = scratches_found
         self.update_details['shiftsFound'] = shifts_found
 
-    def insertDB(self):
-        if self.queryDB() != '':
-            self.updateDB()
+    def insert_db(self):
+        if self.query_db() != '':
+            self.update_db()
 
             return True
 
@@ -53,7 +53,7 @@ class GamesImportLog:
 
         return True
 
-    def updateDB(self):
+    def update_db(self):
         if (len(self.update_details) > 0) and ('gameId' in self.update_details):
             cursor, db = db_import_login()
 
@@ -94,7 +94,7 @@ class GamesImportLog:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         last_update = ''
 
         cursor, db = db_import_login()

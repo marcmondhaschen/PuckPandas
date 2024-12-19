@@ -7,10 +7,10 @@ class ImportTableUpdateLog:
     update_details = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
 
     def __init__(self):
-        self.update_details = pd.concat([self.update_details, self.queryDB()])
+        self.update_details = pd.concat([self.update_details, self.query_db()])
 
     @staticmethod
-    def updateDB(table_name, update_found=1):
+    def update_db(table_name, update_found=1):
         cursor, db = db_import_login()
 
         sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
@@ -24,7 +24,7 @@ class ImportTableUpdateLog:
         return True
 
     @staticmethod
-    def queryDB():
+    def query_db():
         cursor, db = db_import_login()
 
         sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log group by tableName"
@@ -37,7 +37,7 @@ class ImportTableUpdateLog:
 
         return update_details
 
-    def lastUpdate(self, table_name):
+    def last_update(self, table_name):
         last_update = None
 
         update_exists = self.update_details['tableName'].isin([table_name]).any()

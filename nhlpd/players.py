@@ -25,7 +25,7 @@ class SkaterCareerTotalsImport:
         if player_id != '':
             self.player_id = player_id
 
-    def updateDB(self):
+    def update_db(self):
         cursor, db = db_import_login()
 
         for index, row in self.skater_career_totals_df.iterrows():
@@ -63,7 +63,7 @@ class SkaterCareerTotalsImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
 
         if self.player_id == '':
@@ -79,7 +79,7 @@ class SkaterCareerTotalsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         sql_prefix = "select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, " \
                      "`regularSeason.pim`, `regularSeason.points`, `regularSeason.plusMinus`, " \
                      "`regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, " \
@@ -109,7 +109,7 @@ class SkaterCareerTotalsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         skater_career_totals_df = pd.json_normalize(self.json)
         skater_career_totals_df.rename(columns={"id": "playerId"}, inplace=True)
 
@@ -121,10 +121,10 @@ class SkaterCareerTotalsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -141,7 +141,7 @@ class SkaterSeasonImport:
         if player_id != '':
             self.player_id = player_id
 
-    def updateDB(self):
+    def update_db(self):
         cursor, db = db_import_login()
 
         for index, row in self.skater_season_df.iterrows():
@@ -162,7 +162,7 @@ class SkaterSeasonImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
 
         if self.player_id == '':
@@ -178,7 +178,7 @@ class SkaterSeasonImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         sql_prefix = "select playerId, assists, gameTypeId, gamesPlayed, goals, leagueAbbrev, pim, points, season, " \
                      "sequence, `teamName.default`, gameWinningGoals, plusMinus, powerPlayGoals, shorthandedGoals, " \
                      "shots, faceoffWinningPctg from skater_career_totals_import "
@@ -199,7 +199,7 @@ class SkaterSeasonImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         skater_season_df = pd.json_normalize(self.json)
 
         if self.player_id != '':
@@ -210,10 +210,10 @@ class SkaterSeasonImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -240,7 +240,7 @@ class GoalieCareerTotalsImport:
         if player_id != '':
             self.player_id = player_id
 
-    def updateDB(self):
+    def update_db(self):
         cursor, db = db_import_login()
 
         for index, row in self.goalie_career_totals_df.iterrows():
@@ -278,7 +278,7 @@ class GoalieCareerTotalsImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
 
         if self.player_id == '':
@@ -294,7 +294,7 @@ class GoalieCareerTotalsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         sql_prefix = "select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, " \
               "`regularSeason.pim`, `regularSeason.gamesStarted`, `regularSeason.points`, `regularSeason.wins`, " \
               "`regularSeason.losses`, `regularSeason.otLosses`, `regularSeason.shotsAgainst`, " \
@@ -323,7 +323,7 @@ class GoalieCareerTotalsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         if self.player_id != '':
             goalie_career_totals_df = pd.json_normalize(self.json)
             goalie_career_totals_df.rename(columns={"id": "playerId"}, inplace=True)
@@ -346,10 +346,10 @@ class GoalieCareerTotalsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -366,7 +366,7 @@ class GoalieSeasonImport:
         if player_id != '':
             self.player_id = player_id
 
-    def updateDB(self):
+    def update_db(self):
         cursor, db = db_import_login()
 
         for index, row in self.goalie_season_df.iterrows():
@@ -389,7 +389,7 @@ class GoalieSeasonImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
 
         if self.player_id == '':
@@ -405,7 +405,7 @@ class GoalieSeasonImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         sql_prefix = "select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, " \
                      "season, sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, " \
                      "`teamName.default`, savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, " \
@@ -427,7 +427,7 @@ class GoalieSeasonImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         goalie_season_df = pd.json_normalize(self.json)
         goalie_season_df.rename(columns={"id": "playerId"}, inplace=True)
 
@@ -448,10 +448,10 @@ class GoalieSeasonImport:
                 self.goalie_season_df['timeOnIceSeconds'].astype(int)
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -464,7 +464,7 @@ class PlayerAwardsImport:
         if player_id != '':
             self.player_id = player_id
 
-    def updateDB(self):
+    def update_db(self):
         cursor, db = db_import_login()
 
         for index, row in self.player_awards_df.iterrows():
@@ -479,7 +479,7 @@ class PlayerAwardsImport:
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
 
         if self.player_id == '':
@@ -495,7 +495,7 @@ class PlayerAwardsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         sql_prefix = "select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, " \
                      "season, sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, " \
                      "`teamName.default`, savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, " \
@@ -517,7 +517,7 @@ class PlayerAwardsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         player_awards_df = pd.json_normalize(self.json)
         player_awards_df.rename(columns={"id": "playerId"}, inplace=True)
 
@@ -529,10 +529,10 @@ class PlayerAwardsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -558,7 +558,7 @@ class PlayersImport:
             self.skater_career_totals = SkaterCareerTotalsImport(player_id=player_id)
             self.player_awards = PlayerAwardsImport(player_id=player_id)
 
-    def updateDB(self):
+    def update_db(self):
         if len(self.player_bios_df.index) > 0:
             row = self.player_bios_df.iloc[0]
             row = row.fillna('')
@@ -586,15 +586,15 @@ class PlayersImport:
             cursor.close()
             db.close()
 
-        self.goalie_seasons.updateDB()
-        self.goalie_career_totals.updateDB()
-        self.skater_seasons.updateDB()
-        self.skater_career_totals.updateDB()
-        self.player_awards.updateDB()
+        self.goalie_seasons.update_db()
+        self.goalie_career_totals.update_db()
+        self.skater_seasons.update_db()
+        self.skater_career_totals.update_db()
+        self.player_awards.update_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
 
         if self.player_id == '':
@@ -608,15 +608,15 @@ class PlayersImport:
         cursor.close()
         db.close()
 
-        self.goalie_seasons.clearDB()
-        self.goalie_career_totals.clearDB()
-        self.skater_seasons.clearDB()
-        self.skater_career_totals.clearDB()
-        self.player_awards.clearDB()
+        self.goalie_seasons.clear_db()
+        self.goalie_career_totals.clear_db()
+        self.skater_seasons.clear_db()
+        self.skater_career_totals.clear_db()
+        self.player_awards.clear_db()
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
 
         sql = "select id, playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, " \
@@ -634,15 +634,15 @@ class PlayersImport:
         cursor.close()
         db.close()
 
-        self.goalie_seasons.queryDB()
-        self.goalie_career_totals.queryDB()
-        self.skater_seasons.queryDB()
-        self.skater_career_totals.queryDB()
-        self.player_awards.queryDB()
+        self.goalie_seasons.query_db()
+        self.goalie_career_totals.query_db()
+        self.skater_seasons.query_db()
+        self.skater_career_totals.query_db()
+        self.player_awards.query_db()
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         if self.player_id != '':
             url_prefix = 'https://api-web.nhle.com/v1/player/'
             url_suffix = '/landing'
@@ -657,28 +657,28 @@ class PlayersImport:
             if 'careerTotals' in self.json:
                 if self.position == 'G':
                     self.goalie_career_totals.json = self.json['careerTotals']
-                    self.goalie_career_totals.queryNHL()
+                    self.goalie_career_totals.query_nhl()
                 else:
                     self.skater_career_totals.json = self.json['careerTotals']
-                    self.skater_career_totals.queryNHL()
+                    self.skater_career_totals.query_nhl()
 
             if 'seasonTotals' in self.json:
                 if self.position == 'G':
                     self.goalie_seasons.json = self.json['seasonTotals']
-                    self.goalie_seasons.queryNHL()
+                    self.goalie_seasons.query_nhl()
                 else:
                     self.skater_seasons.json = self.json['seasonTotals']
-                    self.skater_seasons.queryNHL()
+                    self.skater_seasons.query_nhl()
 
             if 'awards' in self.json:
                 self.player_awards.json = self.json['awards']
-                self.player_awards.queryNHL()
+                self.player_awards.query_nhl()
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True

@@ -11,15 +11,15 @@ class Scheduler:
         self.current_time = np.datetime64(datetime.now(timezone.utc))
         self.current_month = pd.Timestamp(self.current_time).month
         self.current_year = pd.Timestamp(self.current_time).year
-        self.max_season_id = self.setMaxSeason()
+        self.max_season_id = self.set_max_season()
 
         self.table_log = nhlpd.ImportTableUpdateLog()
 
-        self.game_log_df = self.queryDBforGames()
-        self.player_log_df = self.queryDBforPlayers()
+        self.game_log_df = self.query_db_for_games()
+        self.player_log_df = self.query_db_for_players()
 
     @staticmethod
-    def queryDBforGames():
+    def query_db_for_games():
         cursor, db = db_import_login()
 
         sql = "select a.gameId, a.lastDateUpdated, a.gameFound, a.gameCenterFound, a.tvBroadcastsFound, " \
@@ -36,7 +36,7 @@ class Scheduler:
         return game_log_df
 
     @staticmethod
-    def queryDBforPlayers():
+    def query_db_for_players():
         cursor, db = db_import_login()
 
         sql = "select a.playerId, a.lastDateUpdated, a.playerFound, a.playerBioFound, a.careerTotalsFound, " \
@@ -52,7 +52,7 @@ class Scheduler:
         return player_log_df
 
     @staticmethod
-    def setMaxSeason():
+    def set_max_season():
         cursor, db = db_import_login()
         sql = "select max(seasonId) as seasonId from team_seasons_import"
         max_df = pd.read_sql(sql, db)
@@ -68,10 +68,10 @@ class Scheduler:
 
         return max_season_id
 
-    def checkTeamsImport(self):
+    def check_teams_import(self):
         update_interval = np.timedelta64(180, 'D')
         check_bool = False
-        last_update = self.table_log.lastUpdate(table_name="teams_import")
+        last_update = self.table_log.last_update(table_name="teams_import")
 
         # if there's no record in the log
         if last_update is None:
@@ -85,8 +85,8 @@ class Scheduler:
 
         return check_bool
 
-    def checkSeasonsImport(self):
-        last_update = self.table_log.lastUpdate(table_name="team_seasons_import")
+    def check_seasons_import(self):
+        last_update = self.table_log.last_update(table_name="team_seasons_import")
 
         # if there's no record in the log
         if last_update is None:
@@ -107,10 +107,10 @@ class Scheduler:
 
         return check_bool
 
-    def checkGamesImport(self):
+    def check_games_import(self):
         seasons = pd.DataFrame()
         check_bool = False
-        last_update = self.table_log.lastUpdate(table_name="games_import")
+        last_update = self.table_log.last_update(table_name="games_import")
 
         # if there's no record in the log (all seasons)
         if last_update is None:
@@ -165,7 +165,7 @@ class Scheduler:
         return {"check_bool": check_bool, "seasons": seasons}
 
     @staticmethod
-    def checkGameCentersImport():
+    def check_game_centers_import():
         games = pd.DataFrame()
         check_bool = False
 
@@ -184,7 +184,7 @@ class Scheduler:
         return {"check_bool": check_bool, "games": games}
 
     @staticmethod
-    def checkShiftsImport():
+    def check_shifts_import():
         games = pd.DataFrame()
         check_bool = False
 
@@ -202,16 +202,18 @@ class Scheduler:
 
         return {"check_bool": check_bool, "games": games}
 
-    def checkRostersImport(self):
+    def check_rosters_import(self):
         update_interval = np.timedelta64(30, 'D')
-        seasons = pd.Series()
+        seasons = pd.DataFrame()
         check_bool = False
-        last_update = self.table_log.lastUpdate(table_name="rosters_import")
+        last_update = self.table_log.last_update(table_name="rosters_import")
 
         # if there's no record in the log (all seasons)
         if last_update is None:
-            seasons.concat(pd.Series([99999999], name='season_id'))
+            data = {'seasonId': [99999999]}
+            seasons = pd.DataFrame.from_dict(data)
             check_bool = True
+
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if there's a new season in the DB (new seasons)
@@ -255,10 +257,10 @@ class Scheduler:
 
         return {"check_bool": check_bool, "seasons": seasons}
 
-    def checkPlayersImport(self):
+    def check_players_import(self):
         players = pd.Series()
         check_bool = False
-        last_update = self.table_log.lastUpdate(table_name="players_import")
+        last_update = self.table_log.last_update(table_name="players_import")
 
         # if there are players who haven't been checked (all players)
         cursor, db = db_import_login()
@@ -297,27 +299,27 @@ class Scheduler:
 
         return {"check_bool": check_bool, "players": players}
 
-    def updateTeamsImport(self):
+    def update_teams_import(self):
         teams = nhlpd.TeamsImport()
-        teams.queryNHLupdateDB()
+        teams.query_nh_lupdate_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("teams_import", 1)
+        log_object.update_db("teams_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def updateSeasonsImport(self):
+    def update_seasons_import(self):
         seasons = nhlpd.SeasonsImport()
-        seasons.queryNHLupdateDB()
+        seasons.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("team_seasons_import", 1)
+        log_object.update_db("team_seasons_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def updateGamesImport(self, seasons):
+    def update_games_import(self, seasons):
         update_seasons = nhlpd.SeasonsImport().seasons_df
         update_seasons.sort_values(by=['seasonId', 'teamId'], inplace=True)
 
@@ -327,79 +329,82 @@ class Scheduler:
 
         for index, row in update_seasons.iterrows():
             team_season = nhlpd.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
-            team_season.queryNHLupdateDB()
+            team_season.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("games_import", 1)
+        log_object.update_db("games_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def updateGameCentersImport(self, games):
+    def update_game_centers_import(self, games):
         for index, row in games.iterrows():
             game_center = nhlpd.GameCenterImport(row['gameId'])
-            game_center.queryNHLupdateDB()
+            game_center.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("game_center_import", 1)
+        log_object.update_db("game_center_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def updateShiftsImport(self, games):
+    def update_shifts_import(self, games):
         for index, row in games.iterrows():
             shifts = nhlpd.ShiftsImport(row['gameId'])
-            shifts.queryNHLupdateDB()
+            shifts.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("shifts_import", 1)
+        log_object.update_db("shifts_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def updateRostersImport(self, seasons):
-        for season_id in seasons['seasonId'].items():
-            rosters = nhlpd.RostersImport()
+    def update_rosters_import(self, seasons):
+        update_seasons = nhlpd.SeasonsImport().seasons_df
+        update_seasons.sort_values(by=['seasonId', 'teamId'], inplace=True)
 
-            if season_id == 99999999:
-                rosters.queryNHLupdateDB()
-            else:
-                rosters.queryNHLupdateDB(season_id=season_id)
+        if seasons['seasonId'].values[0] != '99999999':
+            bool_mask = update_seasons['seasonId'].isin(seasons['seasonId'])
+            update_seasons = update_seasons[bool_mask]
+
+        for index, row in update_seasons.iterrows():
+            team_roster = nhlpd.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
+            team_roster.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("rosters_import", 1)
+        log_object.update_db("rosters_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def updatePlayersImport(self, players):
+    def update_players_import(self, players):
         for player_id in players['playerId'].items():
             player = nhlpd.PlayersImport(player_id=player_id)
-            player.queryNHLupdateDB()
+            player.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
-        log_object.updateDB("player_bios_import", 1)
+        log_object.update_db("player_bios_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
         return True
 
-    def pollNHL(self):
-        if self.checkTeamsImport():
-            self.updateTeamsImport()
+    def poll_nhl(self):
+        if self.check_teams_import():
+            self.update_teams_import()
 
-        if self.checkSeasonsImport():
-            self.updateSeasonsImport()
+        if self.check_seasons_import():
+            self.update_seasons_import()
 
-        game_check = self.checkGamesImport()
+        game_check = self.check_games_import()
         if game_check['check_bool'] and len(game_check['seasons']) > 0:
-            self.updateGamesImport(game_check['seasons'])
+            self.update_games_import(game_check['seasons'])
 
-        game_center_check = self.checkGameCentersImport()
+        game_center_check = self.check_game_centers_import()
         if game_center_check['check_bool'] and len(game_center_check['games']) > 0:
-            self.updateGameCentersImport(game_center_check['games'])
+            self.update_game_centers_import(game_center_check['games'])
 
-        shifts_check = self.checkShiftsImport()
+        shifts_check = self.check_shifts_import()
         if shifts_check['check_bool'] and shifts_check['games'].size > 0:
-            self.updateShiftsImport(shifts_check['games'])
+            self.update_shifts_import(shifts_check['games'])
 
         return True

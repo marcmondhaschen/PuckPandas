@@ -5,9 +5,9 @@ from .mysql_db import db_import_login
 
 class TeamsImport:
     def __init__(self):
-        self.teams_df = self.queryDB()
+        self.teams_df = self.query_db()
 
-    def updateDB(self, tri_code=''):
+    def update_db(self, tri_code=''):
         cursor, db = db_import_login()
 
         if tri_code != '':
@@ -27,7 +27,7 @@ class TeamsImport:
         return True
 
     @staticmethod
-    def clearDB(tri_code=''):
+    def clear_db(tri_code=''):
         cursor, db = db_import_login()
 
         if tri_code == '':
@@ -44,7 +44,7 @@ class TeamsImport:
         return True
 
     @staticmethod
-    def queryDB(tri_code=''):
+    def query_db(tri_code=''):
         sql_prefix = "select teamId, franchiseId, fullName, leagueId, triCode from teams_import "
         sql_suffix = ""
 
@@ -63,7 +63,7 @@ class TeamsImport:
 
         return teams_df
 
-    def queryNHL(self, tri_code=''):
+    def query_nhl(self, tri_code=''):
         json_data = fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         api_teams_df = pd.json_normalize(json_data, record_path=['data'])
         api_teams_df = api_teams_df.fillna('')
@@ -74,19 +74,19 @@ class TeamsImport:
 
         return True
 
-    def queryNHLupdateDB(self, tri_code=''):
-        self.queryNHL(tri_code)
-        self.clearDB(tri_code)
-        self.updateDB(tri_code)
+    def query_nh_lupdate_db(self, tri_code=''):
+        self.query_nhl(tri_code)
+        self.clear_db(tri_code)
+        self.update_db(tri_code)
 
         return True
 
-    def teamIdFromTriCode(self, tri_code):
+    def team_id_from_tri_code(self, tri_code):
         team_id = self.teams_df.loc[self.teams_df['triCode'] == tri_code, 'teamId'].item()
 
         return team_id
 
-    def triCodeFromTeamId(self, team_id):
+    def tri_code_from_team_id(self, team_id):
         tri_code = self.teams_df.loc[self.teams_df['teamId'] == team_id, 'triCode'].item()
 
         return tri_code

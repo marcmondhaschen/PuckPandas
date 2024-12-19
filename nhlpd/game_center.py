@@ -11,7 +11,7 @@ class ScratchesImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.scratches_df.size > 0:
             cursor, db = db_import_login()
 
@@ -28,11 +28,11 @@ class ScratchesImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    scratches_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from scratches_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -42,7 +42,7 @@ class ScratchesImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, playerId, `firstName.default`, `lastName.default` from scratches_import where " \
               "gameId = " + str(self.game_id)
@@ -57,7 +57,7 @@ class ScratchesImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         scratches_df = pd.json_normalize(self.json)
         scratches_df.insert(0, 'gameId', self.game_id)
         scratches_df.rename(columns={"id": "playerId"}, inplace=True)
@@ -68,10 +68,10 @@ class ScratchesImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -82,7 +82,7 @@ class LinesmenImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.linesmen_df.size > 0:
             cursor, db = db_import_login()
 
@@ -98,11 +98,11 @@ class LinesmenImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    linesmen_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from linesmen_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -112,7 +112,7 @@ class LinesmenImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, `default` from linesmen_import where gameId = " + str(self.game_id)
         linesmen_df = pd.read_sql(sql, db)
@@ -126,7 +126,7 @@ class LinesmenImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         linesmen_df = pd.json_normalize(self.json)
         linesmen_df.insert(0, 'gameId', self.game_id)
 
@@ -136,10 +136,10 @@ class LinesmenImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -150,7 +150,7 @@ class RefereesImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.referees_df.size > 0:
             cursor, db = db_import_login()
 
@@ -166,11 +166,11 @@ class RefereesImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    referees_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from referees_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -180,7 +180,7 @@ class RefereesImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, `default` from referees_import where gameId = " + str(self.game_id)
         referees_df = pd.read_sql(sql, db)
@@ -194,7 +194,7 @@ class RefereesImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         referees_df = pd.json_normalize(self.json)
         referees_df.insert(0, 'gameId', self.game_id)
 
@@ -204,10 +204,10 @@ class RefereesImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -218,7 +218,7 @@ class SeasonSeriesImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.season_series_df.size > 0:
             cursor, db = db_import_login()
 
@@ -234,11 +234,11 @@ class SeasonSeriesImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    season_series_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from season_series_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -248,7 +248,7 @@ class SeasonSeriesImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, seriesNumber, refGameId from season_series_import where gameId = " + str(self.game_id)
         season_series_df = pd.read_sql(sql, db)
@@ -262,7 +262,7 @@ class SeasonSeriesImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         season_series_df = pd.json_normalize(self.json)
         # noinspection PyTypeChecker
         season_series_df.insert(0, 'seriesNumber', range(len(season_series_df)))
@@ -275,10 +275,10 @@ class SeasonSeriesImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -289,7 +289,7 @@ class TeamGameStatsImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.team_game_stats_df.size > 0:
             cursor, db = db_import_login()
 
@@ -306,11 +306,11 @@ class TeamGameStatsImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    team_game_stats_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from team_game_stats_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -320,7 +320,7 @@ class TeamGameStatsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, category, awayValue, homeValue from team_game_stats_import where gameId = " + \
               str(self.game_id)
@@ -335,7 +335,7 @@ class TeamGameStatsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         team_game_stats_df = pd.json_normalize(self.json)
         team_game_stats_df.insert(0, 'gameId', self.game_id)
 
@@ -345,10 +345,10 @@ class TeamGameStatsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -360,7 +360,7 @@ class RosterSpotsImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.roster_spots_df.size > 0:
             cursor, db = db_import_login()
 
@@ -378,11 +378,11 @@ class RosterSpotsImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    roster_spots_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from roster_spots_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -392,7 +392,7 @@ class RosterSpotsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, `lastName` from " \
               "roster_spots_import where gameId = " + str(self.game_id)
@@ -407,7 +407,7 @@ class RosterSpotsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         roster_spots_df = pd.json_normalize(self.json)
         roster_spots_df.insert(0, 'gameId', self.game_id)
 
@@ -417,10 +417,10 @@ class RosterSpotsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -445,7 +445,7 @@ class PlaysImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.plays_df.size > 0:
             cursor, db = db_import_login()
 
@@ -483,11 +483,11 @@ class PlaysImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    plays_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from plays_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -497,7 +497,7 @@ class PlaysImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, eventId, period, periodType, timeInPeriod, timeRemaining, situationCode, typeCode, "\
               "typeDescKey, sortOrder, eventOwnerTeamId, losingPlayerId,  winningPlayerId, xCoord, yCoord, "\
@@ -517,7 +517,7 @@ class PlaysImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         plays_df = pd.json_normalize(self.json)
         plays_df.insert(0, 'gameId', self.game_id)
 
@@ -527,10 +527,10 @@ class PlaysImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -542,7 +542,7 @@ class TvBroadcastsImport:
         self.game_id = game_id
         self.json = {}
 
-    def updateDB(self):
+    def update_db(self):
         if self.tv_broadcasts_df.size > 0:
             cursor, db = db_import_login()
 
@@ -560,11 +560,11 @@ class TvBroadcastsImport:
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    tv_broadcasts_found=1)
-        log.insertDB()
+        log.insert_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from tv_broadcasts_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -574,7 +574,7 @@ class TvBroadcastsImport:
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
         sql = "select gameId, broadcastId, market, countryCode, network, sequenceNumber from tv_broadcasts_import " \
               "where gameId = " + str(self.game_id)
@@ -589,7 +589,7 @@ class TvBroadcastsImport:
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         tv_broadcasts_df = pd.json_normalize(self.json)
         tv_broadcasts_df.rename(columns={"id": "broadcastId"}, inplace=True)
         tv_broadcasts_df.insert(0, 'gameId', self.game_id)
@@ -600,10 +600,10 @@ class TvBroadcastsImport:
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True
 
@@ -657,7 +657,7 @@ class GameCenterImport:
         self.linesmen = LinesmenImport(game_id=game_id)
         self.scratches = ScratchesImport(game_id=game_id)
 
-    def updateDB(self):
+    def update_db(self):
         if self.game_center_pbp_df.size > 0:
             row = self.game_center_pbp_df.iloc[0]
             row = row.fillna('')
@@ -714,7 +714,7 @@ class GameCenterImport:
             log = nhlpd.GamesImportLog(game_id=self.game_id,
                                        last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                        game_center_found=1)
-            log.insertDB()
+            log.insert_db()
 
         if len(self.game_center_rr_df.index) > 0:
             row = self.game_center_rr_df.iloc[0]
@@ -735,18 +735,18 @@ class GameCenterImport:
             cursor.close()
             db.close()
 
-        self.tv_broadcasts.updateDB()
-        self.play_by_play.updateDB()
-        self.roster_spots.updateDB()
-        self.team_game_stats.updateDB()
-        self.season_series.updateDB()
-        self.referees.updateDB()
-        self.linesmen.updateDB()
-        self.scratches.updateDB()
+        self.tv_broadcasts.update_db()
+        self.play_by_play.update_db()
+        self.roster_spots.update_db()
+        self.team_game_stats.update_db()
+        self.season_series.update_db()
+        self.referees.update_db()
+        self.linesmen.update_db()
+        self.scratches.update_db()
 
         return True
 
-    def clearDB(self):
+    def clear_db(self):
         cursor, db = db_import_login()
         sql = "delete from game_center_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
@@ -756,18 +756,18 @@ class GameCenterImport:
         cursor.close()
         db.close()
 
-        self.tv_broadcasts.clearDB()
-        self.play_by_play.clearDB()
-        self.roster_spots.clearDB()
-        self.team_game_stats.clearDB()
-        self.season_series.clearDB()
-        self.referees.clearDB()
-        self.linesmen.clearDB()
-        self.scratches.clearDB()
+        self.tv_broadcasts.clear_db()
+        self.play_by_play.clear_db()
+        self.roster_spots.clear_db()
+        self.team_game_stats.clear_db()
+        self.season_series.clear_db()
+        self.referees.clear_db()
+        self.linesmen.clear_db()
+        self.scratches.clear_db()
 
         return True
 
-    def queryDB(self):
+    def query_db(self):
         cursor, db = db_import_login()
 
         pbp_sql = "select gameId, season, gameType, limitedScoring, gameDate, `venue.default`, " \
@@ -803,18 +803,18 @@ class GameCenterImport:
         cursor.close()
         db.close()
 
-        self.tv_broadcasts.queryDB()
-        self.play_by_play.queryDB()
-        self.roster_spots.queryDB()
-        self.team_game_stats.queryDB()
-        self.season_series.queryDB()
-        self.referees.queryDB()
-        self.linesmen.queryDB()
-        self.scratches.queryDB()
+        self.tv_broadcasts.query_db()
+        self.play_by_play.query_db()
+        self.roster_spots.query_db()
+        self.team_game_stats.query_db()
+        self.season_series.query_db()
+        self.referees.query_db()
+        self.linesmen.query_db()
+        self.scratches.query_db()
 
         return True
 
-    def queryNHL(self):
+    def query_nhl(self):
         if self.game_id != '':
             url_prefix = 'https://api-web.nhle.com/v1/gamecenter/'
 
@@ -839,43 +839,43 @@ class GameCenterImport:
             # in play-by-play
             if 'tvBroadcasts' in self.pbp_json:
                 self.tv_broadcasts.json = self.pbp_json['tvBroadcasts']
-                self.tv_broadcasts.queryNHL()
+                self.tv_broadcasts.query_nhl()
 
             if 'plays' in self.pbp_json:
                 self.play_by_play.json = self.pbp_json['plays']
-                self.play_by_play.queryNHL()
+                self.play_by_play.query_nhl()
 
             if 'rosterSpots' in self.pbp_json:
                 self.roster_spots.json = self.pbp_json['rosterSpots']
-                self.roster_spots.queryNHL()
+                self.roster_spots.query_nhl()
 
             # in right-rail
             if "teamGameStats" in self.rr_json:
                 self.team_game_stats.json = self.rr_json['teamGameStats']
-                self.team_game_stats.queryNHL()
+                self.team_game_stats.query_nhl()
 
             if "seasonSeries" in self.rr_json:
                 self.season_series.json = self.rr_json['seasonSeries']
-                self.season_series.queryNHL()
+                self.season_series.query_nhl()
 
             if "referees" in self.rr_json['gameInfo']:
                 self.referees.json = self.rr_json['gameInfo']['referees']
-                self.referees.queryNHL()
+                self.referees.query_nhl()
 
             if "linesmen" in self.rr_json['gameInfo']:
                 self.linesmen.json = self.rr_json['gameInfo']['linesmen']
-                self.linesmen.queryNHL()
+                self.linesmen.query_nhl()
 
             if "scratches" in self.rr_json['gameInfo']['awayTeam']:
                 self.scratches.json = self.rr_json['gameInfo']['awayTeam']['scratches'] + \
                                       self.rr_json['gameInfo']['homeTeam']['scratches']
-                self.scratches.queryNHL()
+                self.scratches.query_nhl()
 
         return True
 
-    def queryNHLupdateDB(self):
-        self.queryNHL()
-        self.clearDB()
-        self.updateDB()
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
 
         return True

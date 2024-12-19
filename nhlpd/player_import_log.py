@@ -18,9 +18,9 @@ class PlayerImportLog:
         self.update_details['seasonTotalsFound'] = season_totals_found
         self.update_details['awardsFound'] = awards_found
 
-    def insertDB(self):
-        if self.queryDB(self.update_details['playerId']) != '':
-            self.updateDB()
+    def insert_db(self):
+        if self.query_db(self.update_details['playerId']) != '':
+            self.update_db()
 
             return True
 
@@ -40,7 +40,7 @@ class PlayerImportLog:
 
         return True
 
-    def updateDB(self):
+    def update_db(self):
         if (len(self.update_details) > 0) and ('playerId' in self.update_details):
             cursor, db = db_import_login()
 
@@ -69,7 +69,7 @@ class PlayerImportLog:
         return True
 
     @staticmethod
-    def queryDB(player_id):
+    def query_db(player_id):
         last_update = ''
 
         cursor, db = db_import_login()
@@ -88,7 +88,7 @@ class PlayerImportLog:
 
         return last_update
 
-    def playerOpenWork(self):
+    def player_open_work(self):
         cursor, db = db_import_login()
         sql = "select playerId, lastDateUpdated from player_import_log where (playerBioFound is NULL or " \
               "playerBioFound = 0)"

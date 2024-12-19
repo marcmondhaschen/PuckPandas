@@ -10,7 +10,7 @@ class RostersImport:
     def __init__(self, rosters_df=pd.DataFrame()):
         self.rosters_df = pd.concat([self.rosters_df, rosters_df])
 
-    def updateDB(self, tri_code='', season_id=''):
+    def update_db(self, tri_code='', season_id=''):
         if len(self.rosters_df) > 0:
             cursor, db = db_import_login()
 
@@ -34,7 +34,7 @@ class RostersImport:
         return True
 
     @staticmethod
-    def clearDB(tri_code='', season_id=''):
+    def clear_db(tri_code='', season_id=''):
         cursor, db = db_import_login()
 
         if tri_code == '' and season_id == '':
@@ -57,7 +57,7 @@ class RostersImport:
 
         return True
 
-    def queryDB(self, tri_code='', season_id=''):
+    def query_db(self, tri_code='', season_id=''):
         sql_prefix = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 "
         sql_middle = ""
         sql_suffix = ""
@@ -76,9 +76,9 @@ class RostersImport:
 
         return True
 
-    def queryNHL(self, tri_code='', season_id=''):
+    def query_nhl(self, tri_code='', season_id=''):
         seasons = SeasonsImport()
-        seasons.queryDB()
+        seasons.query_db()
 
         if tri_code != '':
             seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['triCode'] == tri_code]
@@ -109,8 +109,8 @@ class RostersImport:
 
         return True
 
-    def queryNHLupdateDB(self, tri_code='', season_id=''):
-        self.queryNHL(tri_code, season_id)
-        self.clearDB(tri_code, season_id)
-        self.updateDB(tri_code, season_id)
+    def query_nhl_update_db(self, tri_code='', season_id=''):
+        self.query_nhl(tri_code, season_id)
+        self.clear_db(tri_code, season_id)
+        self.update_db(tri_code, season_id)
         return True
