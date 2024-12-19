@@ -20,6 +20,16 @@ OPEN ITEMS
         test
 
 ---- you're allowed to refactor after this line :) ----
+    FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
+        of pandas. Value '' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+
+    FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future
+        version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the
+        old behavior, exclude the relevant entries before the concat operation.
+
+    UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3
+        DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+
     the single-triCode override for queryNHL in Seasons.py is pretty kludgy and should be refactored
 
     there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
