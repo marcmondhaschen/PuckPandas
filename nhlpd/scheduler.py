@@ -123,7 +123,7 @@ class Scheduler:
         # if there's a new season (new seasons)
         cursor, db = db_import_login()
         new_season_sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join " \
-              "games_import as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
+                         "games_import as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
         new_seasons_df = pd.read_sql(new_season_sql, db)
 
         db.commit()
@@ -141,7 +141,8 @@ class Scheduler:
         cursor, db = db_import_login()
         fresh_games_sql_prefix = "select gameId from games_import where gameDate between '"
         fresh_games_sql_suffix = "' and '"
-        fresh_games_sql = "{}{}{}{}'".format(fresh_games_sql_prefix, last_update, fresh_games_sql_suffix, str(self.current_time))
+        fresh_games_sql = "{}{}{}{}'".format(fresh_games_sql_prefix, last_update, fresh_games_sql_suffix,
+                                             str(self.current_time))
         games_since_update = pd.read_sql(fresh_games_sql, db)
 
         db.commit()
@@ -170,10 +171,30 @@ class Scheduler:
 
         # if there are unchecked games in the games_import_log table
         cursor, db = db_import_login()
-
-        sql = "select a.gameId from games_import as a left join games_import_log as b on a.gameId = b.gameId " \
-              "where b.gameFound = 1 and b.gameCenterFound = 0"
+        sql = "select gameId from games_import_log where gameFound = 1 and gameCenterFound = 0"
         games_to_check_df = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        if games_to_check_df.size > 0:
+            games = games_to_check_df
+            check_bool = True
+
+        return {"check_bool": check_bool, "games": games}
+
+    @staticmethod
+    def checkShiftsImport():
+        games = pd.DataFrame()
+        check_bool = False
+
+        # if there are unchecked games in the games_import_log table
+        cursor, db = db_import_login()
+        sql = "select gameId from games_import_log where gameFound = 1 and shiftsFound = 0"
+        games_to_check_df = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
 
         if games_to_check_df.size > 0:
             games = games_to_check_df
@@ -325,6 +346,17 @@ class Scheduler:
 
         return True
 
+    def updateShiftsImport(self, games):
+        for index, row in games.iterrows():
+            shifts = nhlpd.ShiftsImport(row['gameId'])
+            shifts.queryNHLupdateDB()
+
+        log_object = ImportTableUpdateLog()
+        log_object.updateDB("shifts_import", 1)
+        self.table_log = nhlpd.ImportTableUpdateLog()
+
+        return True
+
     def updateRostersImport(self, seasons):
         for season_id in seasons['seasonId'].items():
             rosters = nhlpd.RostersImport()
@@ -365,5 +397,9 @@ class Scheduler:
         game_center_check = self.checkGameCentersImport()
         if game_center_check['check_bool'] and len(game_center_check['games']) > 0:
             self.updateGameCentersImport(game_center_check['games'])
+
+        shifts_check = self.checkShiftsImport()
+        if shifts_check['check_bool'] and shifts_check['games'].size > 0:
+            self.updateShiftsImport(shifts_check['games'])
 
         return True
