@@ -1,13 +1,13 @@
 OPEN ITEMS
-	Shifts.Py
-	    complete
-		test
+    Rosters.Py
+        complete
+        test
 
     Player_Import_Log.Py
         complete
         test
 
-    Games_Import_Log.Py
+	Players.Py
         complete
         test
 
@@ -31,6 +31,8 @@ OPEN ITEMS
         DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
 
     the single-triCode override for queryNHL in Seasons.py is pretty kludgy and should be refactored
+
+    Google says iterrows is slow and that seems to be the case - maybe try factoring it out?
 
     there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
         set of helper functions - particularly each of the DB calls
@@ -87,6 +89,14 @@ OPEN ITEMS
 
 
 ********************************************************************************
+	Shifts.Py
+	    * complete
+		* test
+
+    Games_Import_Log.Py
+        complete
+        test
+
 	Game_Center.Py
 	    * start by creating a GameImportLog object, update it from the DB, and then poll it for open work
 	    * use https://api-web.nhle.com/v1/gamecenter/2018030417/play-by-play as a modern reference ;)
