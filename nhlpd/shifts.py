@@ -27,20 +27,20 @@ class ShiftsImport:
                    row['teamAbbrev'], row['teamId'], row['teamName'], row['typeCode']]
             cursor.execute(sql, val)
 
-            log = nhlpd.GamesImportLog(game_id=row['id'],
-                                       last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                       shifts_found=1)
-            log.update_db()
-
         db.commit()
         cursor.close()
         db.close()
+
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   shifts_found=1)
+        log.update_db()
 
         return True
 
     def clear_db(self):
         cursor, db = nhlpd.db_import_login()
-        sql = "delete from shifts_import where game_id =" + str(self.game_id)
+        sql = "delete from shifts_import where gameId =" + str(self.game_id)
         cursor.execute(sql)
         db.commit()
         cursor.close()
