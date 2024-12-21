@@ -14,7 +14,7 @@ class RostersImport:
         if self.roster_df.size > 0:
             cursor, db = nhlpd.db_import_login()
             for index, row in self.roster_df.iterrows():
-                if 'id' in row:
+                if 'playerId' in row:
                     sql = "insert into rosters_import (triCode, seasonId, playerId) " \
                           "values (%s, %s, %s)"
                     val = (row['triCode'], row['seasonId'], row['playerId'])
@@ -49,26 +49,30 @@ class RostersImport:
         roster_df = self.roster_df.head(0)
         roster_df = pd.concat([roster_df, query_df])
         roster_df.fillna('', inplace=True)
-        roster_df.drop_duplicates(inplace=True)
         self.roster_df = roster_df
 
         return self.roster_df
 
     def query_nhl(self):
-        base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
+        base_url = 'https://api-web.nhle.com/v1/roster/'
         query_string = "{}{}/{}".format(base_url, self.tri_code, self.season_id)
         json_data = nhlpd.fetch_json_data(query_string)
 
-        if 'games' in json_data:
-            query_df = pd.json_normalize(json_data, record_path=['games'])
+        forwards_data = pd.json_normalize(json_data, record_path=['forwards'])
+        defensemen_data = pd.json_normalize(json_data, record_path=['defensemen'])
+        goalies_data = pd.json_normalize(json_data, record_path=['goalies'])
+        query_df = pd.concat([forwards_data, defensemen_data, goalies_data])
 
-            query_df.rename(columns={'id': 'playerId'}, inplace=True)
+        if 'id' in query_df:
+            query_df.rename(columns={"id": "playerId"}, inplace=True)
+            query_df = query_df[['playerId']]
+            query_df['triCode'] = self.tri_code
+            query_df['seasonId'] = self.season_id
+            query_df.fillna('', inplace=True)
 
-            roster_df = self.roster_df.head(0)
-            roster_df = pd.concat([roster_df, query_df])
-            roster_df.fillna('', inplace=True)
-
-            self.roster_df = roster_df
+        roster_df = self.roster_df.head(0)
+        roster_df = pd.concat([roster_df, query_df])
+        self.roster_df = roster_df
 
         return self.roster_df
 
