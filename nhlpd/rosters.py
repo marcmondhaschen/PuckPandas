@@ -1,116 +1,79 @@
 import pandas as pd
-from .api_query import fetch_json_data
-from .mysql_db import db_import_login
-from .seasons import SeasonsImport
+import nhlpd
 
 
 class RostersImport:
-    rosters_df = pd.DataFrame(columns=['triCode', 'seasonId', 'playerId'])
+    def __init__(self, team_id, season_id):
+        self.team_id = team_id
+        self.season_id = season_id
+        self.teams = nhlpd.TeamsImport()
+        self.tri_code = self.teams.tri_code_from_team_id(self.team_id)
+        self.roster_df = pd.DataFrame(columns=['triCode', 'seasonId', 'playerId'])
 
-    def __init__(self, rosters_df=pd.DataFrame()):
-        self.rosters_df = pd.concat([self.rosters_df, rosters_df])
-
-    def update_db(self, tri_code='', season_id=''):
-        if len(self.rosters_df) > 0:
-            cursor, db = db_import_login()
-
-            if tri_code != '':
-                self.rosters_df = self.rosters_df[self.rosters_df['triCode'] == tri_code]
-
-            if season_id != '':
-                self.rosters_df = self.rosters_df[self.rosters_df['seasonId'] == season_id]
-
-            for index, row in self.rosters_df.iterrows():
+    def update_db(self):
+        if self.roster_df.size > 0:
+            cursor, db = nhlpd.db_import_login()
+            for index, row in self.roster_df.iterrows():
                 if 'id' in row:
                     sql = "insert into rosters_import (triCode, seasonId, playerId) " \
                           "values (%s, %s, %s)"
-                    val = (row['triCode'], row['seasonId'], row['id'])
+                    val = (row['triCode'], row['seasonId'], row['playerId'])
                     cursor.execute(sql, val)
-
             db.commit()
             cursor.close()
             db.close()
 
         return True
 
-    @staticmethod
-    def clear_db(tri_code='', season_id=''):
-        cursor, db = db_import_login()
+    def clear_db(self):
+        if self.tri_code != '' and self.season_id != '':
+            cursor, db = nhlpd.db_import_login()
+            sql = "delete from rosters_import where triCode = '" + str(self.tri_code) + "' and seasonId = " + \
+                  str(self.season_id)
+            cursor.execute(sql)
+            db.commit()
+            cursor.close()
+            db.close()
 
-        if tri_code == '' and season_id == '':
-            sql = "truncate table rosters_import"
-        else:
-            sql_prefix = "delete from rosters_import where playerId != 0 "
-            sql_middle = ""
-            sql_suffix = ""
-            if tri_code != '':
-                sql_middle = "and triCode = " + tri_code + " "
-            if season_id != '':
-                sql_suffix = "and seasonId = " + season_id + " "
-            sql = "{}{}{}".format(sql_prefix, sql_middle, sql_suffix)
+        return True
 
-        cursor.execute(sql)
-
+    def query_db(self):
+        cursor, db = nhlpd.db_import_login()
+        sql = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 and  triCode = " + \
+              self.tri_code + " and seasonId = " + self.season_id
+        query_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
 
-        return True
+        roster_df = self.roster_df.head(0)
+        roster_df = pd.concat([roster_df, query_df])
+        roster_df.fillna('', inplace=True)
+        roster_df.drop_duplicates(inplace=True)
+        self.roster_df = roster_df
 
-    def query_db(self, tri_code='', season_id=''):
-        sql_prefix = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 "
-        sql_middle = ""
-        sql_suffix = ""
+        return self.roster_df
 
-        if tri_code != '':
-            sql_middle = "and  triCode = " + tri_code + " "
+    def query_nhl(self):
+        base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
+        query_string = "{}{}/{}".format(base_url, self.tri_code, self.season_id)
+        json_data = nhlpd.fetch_json_data(query_string)
 
-        if season_id != '':
-            sql_suffix = "and seasonId = " + season_id + " "
+        if 'games' in json_data:
+            query_df = pd.json_normalize(json_data, record_path=['games'])
 
-        sql = "{}{}{}".format(sql_prefix, sql_middle, sql_suffix)
+            query_df.rename(columns={'id': 'playerId'}, inplace=True)
 
-        cursor, db = db_import_login()
-        rosters_df = pd.read_sql(sql, db)
-        self.rosters_df = rosters_df.fillna('')
+            roster_df = self.roster_df.head(0)
+            roster_df = pd.concat([roster_df, query_df])
+            roster_df.fillna('', inplace=True)
 
-        return True
+            self.roster_df = roster_df
 
-    def query_nhl(self, tri_code='', season_id=''):
-        seasons = SeasonsImport()
-        seasons.query_db()
+        return self.roster_df
 
-        if tri_code != '':
-            seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['triCode'] == tri_code]
-
-        if season_id != '':
-            seasons.seasons_df = seasons.seasons_df[seasons.seasons_df['seasonId'] == season_id]
-
-        rosters_df = pd.DataFrame()
-
-        for index, row in seasons.seasons_df.iterrows():
-            url_prefix = "https://api-web.nhle.com/v1/roster/"
-            query_url = "{}{}/{}".format(url_prefix, row['triCode'], row['seasonId'])
-
-            json_data = fetch_json_data(query_url)
-
-            forwards_data = pd.json_normalize(json_data, record_path=['forwards'])
-            defensemen_data = pd.json_normalize(json_data, record_path=['defensemen'])
-            goalies_data = pd.json_normalize(json_data, record_path=['goalies'])
-            this_roster_df = pd.concat([forwards_data, defensemen_data, goalies_data])
-
-            this_roster_df['triCode'] = row['triCode']
-            this_roster_df['seasonId'] = row['seasonId']
-            this_roster_df.fillna('', inplace=True)
-
-            rosters_df = pd.concat([rosters_df, this_roster_df])
-
-        self.rosters_df = rosters_df
-
-        return True
-
-    def query_nhl_update_db(self, tri_code='', season_id=''):
-        self.query_nhl(tri_code, season_id)
-        self.clear_db(tri_code, season_id)
-        self.update_db(tri_code, season_id)
+    def query_nhl_update_db(self):
+        self.query_nhl()
+        self.clear_db()
+        self.update_db()
         return True
