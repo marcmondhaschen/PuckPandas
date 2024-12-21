@@ -122,7 +122,7 @@
 # print(df)
 
 
-from alchemy_db import dba_import_login
+from nhlpd.alchemy_db import dba_import_login
 from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import Session
 import pandas as pd
@@ -142,3 +142,9 @@ my_session = Session(engine)
 my_session.execute(query)
 
 print(my_table)
+
+# this code didn't work as expected
+# it failed to insert rows into the target table
+# engine = nhlpd.dba_import_login()
+# df = pd.read_sql("select * from shifts_import", engine)
+# self.shifts_df.to_sql(name='shifts_import', con=engine, if_exists='append', index=False)
