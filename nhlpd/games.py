@@ -73,22 +73,15 @@ class GamesImport:
         return True
 
     def query_db(self):
-        sql_prefix = "select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, " \
-                     "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, " \
-                     "homeTeam, homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, " \
-                     "`seriesStatus.seriesAbbrev`, `seriesStatus.seriesTitle`, `seriesStatus.seriesLetter`, " \
-                     "`seriesStatus.neededToWin`, `seriesStatus.topSeedWins`, `seriesStatus.bottomSeedWins`, " \
-                     "`seriesStatus.gameNumberOfSeries` from games_import where gameId > 0"
-        sql_suffix = ""
-
-        if self.team_id != '':
-            sql_suffix += " and (homeTeam = " + str(self.team_id) + " or awayTeam = " + str(self.team_id) + ")"
-
-        if self.season_id != '':
-            sql_suffix += " and seasonId = '" + self.season_id + "'"
-
-        sql = "{}{}".format(sql_prefix,  sql_suffix)
         cursor, db = db_import_login()
+        sql = (("select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, "
+               "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, homeTeam, "
+               "homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, "
+               "`seriesStatus.seriesAbbrev`, `seriesStatus.seriesTitle`, `seriesStatus.seriesLetter`, "
+               "`seriesStatus.neededToWin`, `seriesStatus.topSeedWins`, `seriesStatus.bottomSeedWins`, "
+               "`seriesStatus.gameNumberOfSeries` from games_import where gameId > 0 and (homeTeam = ") +
+               str(self.team_id) + " or awayTeam = " + str(self.team_id) + ") and seasonId = '" +
+               self.season_id + "'")
         query_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
