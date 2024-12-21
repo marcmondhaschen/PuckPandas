@@ -185,12 +185,14 @@ class Scheduler:
 
     @staticmethod
     def check_shifts_import():
+        # shift records don't start until 20102011 season
         games = pd.DataFrame()
         check_bool = False
 
         # if there are unchecked games in the games_import_log table
         cursor, db = db_import_login()
-        sql = "select gameId from games_import_log where gameFound = 1 and shiftsFound = 0"
+        sql = "select a.gameId from games_import_log as a join games_import as b on a.gameId = b.gameId where " \
+              "a.gameFound = 1 and a.shiftsFound = 0 and b.seasonId >= 20102011"
         games_to_check_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
