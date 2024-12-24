@@ -1,8 +1,4 @@
 OPEN ITEMS
-    Rosters.Py
-        complete
-        test
-
     Player_Import_Log.Py
         complete
         test
@@ -14,12 +10,15 @@ OPEN ITEMS
    Scheduler.Py
 	    * add a scheduler object
 		use this object to control all the other objects in order to poll the NHL for updates when appropriate
-		    use the api_query_order_md file to remember the order queries need to happen in
-		schedule update criteria/triggers for each database table
-        knit these update triggers in with the logging objects, and improve logging objects as required
+		    * use the api_query_order_md file to remember the order queries need to happen in
+		* schedule update criteria/triggers for each database table
+        * knit these update triggers in with the logging objects, and improve logging objects as required
         test
 
 ---- you're allowed to refactor after this line :) ----
+    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
+        every class from the folder they're in
+
     FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
         of pandas. Value '' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
 
@@ -89,6 +88,10 @@ OPEN ITEMS
 
 
 ********************************************************************************
+    Rosters.Py
+       * complete
+       * test
+
 	Shifts.Py
 	    * complete
 		* test
