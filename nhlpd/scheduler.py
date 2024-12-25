@@ -211,93 +211,76 @@ class Scheduler:
         last_update = self.table_log.last_update(table_name="rosters_import")
 
         # if there's no record in the log (all seasons)
+
         if last_update is None:
-            data = {'seasonId': [99999999]}
+            data = {'seasonId': ['99999999']}
             seasons = pd.DataFrame.from_dict(data)
             check_bool = True
 
             return {"check_bool": check_bool, "seasons": seasons}
 
-        # if there's a new season in the DB (new seasons)
+        # if there are seasons we haven't logged rosters from (new seasons)
+
         cursor, db = db_import_login()
-        sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import as a left join " \
-              "rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
-        new_seasons_df = pd.read_sql(sql, db)
+        new_season_sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import " \
+                         "as a left join rosters_import as b on a.seasonId = b.seasonId group by " \
+                         "a.seasonId having playerCount = 0"
+        new_seasons_df = pd.read_sql(new_season_sql, db)
 
         db.commit()
         cursor.close()
         db.close()
 
-        if seasons.len() > 0:
-            seasons = pd.concat([seasons, pd.Series([new_seasons_df['seasonId']], name='season_id')])
-            check_bool = True
-
-            return {"check_bool": check_bool, "seasons": seasons}
-
-        # if there's a new team (max season)
-        cursor, db = db_import_login()
-        sql = "select a.triCode, count(b.playerId) as playerCount from team_seasons_import as a " \
-              "left join rosters_import as b on a.triCode = b.triCode group by a.triCode having playerCount = 0"
-        new_seasons_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        seasons = new_seasons_df['seasonId']
-
-        if seasons.len() > 0:
-            seasons = pd.concat([seasons, pd.Series([self.max_season_id], name='season_id')])
+        if new_seasons_df.size > 0:
+            data = new_seasons_df['seasonId']
+            seasons = pd.DataFrame.from_dict(data)
             check_bool = True
 
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if it has been a month since the last check (max season)
         if self.current_time - last_update > update_interval:
-            seasons = pd.concat([seasons, pd.Series([self.max_season_id], name='season_id')])
+            data = {'seasonId': [self.max_season_id]}
+            seasons = pd.DataFrame.from_dict(data)
+            check_bool = True
+
+            return {"check_bool": check_bool, "seasons": seasons}
+
+        # if we're in this season's playoffs (current season)
+        if 4 <= self.current_month <= 6:
+            data = {'seasonId': [self.max_season_id]}
+            seasons = pd.DataFrame.from_dict(data)
             check_bool = True
 
         return {"check_bool": check_bool, "seasons": seasons}
 
     def check_players_import(self):
-        players = pd.Series()
         check_bool = False
         last_update = self.table_log.last_update(table_name="players_import")
+        import_log = nhlpd.PlayerImportLog()
+
+        # update the player_import_log table for any new players
+        import_log.insert_untracked_players()
 
         # if there are players who haven't been checked (all players)
-        cursor, db = db_import_login()
+        players = import_log.player_open_work()
 
-        sql = "select a.playerId from player_bios_import as a left join player_import_log as b on a.playerId = " \
-              "b.playerId where b.lastDateUpdated is null"
-        players_to_check_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        players_to_check = players_to_check_df['playerId']
-
-        if players_to_check.len() > 0:
+        if players.size > 0:
             check_bool = True
-            players = pd.concat([players, players_to_check])
+            return {"check_bool": check_bool, "players": players}
 
         # if there are games that have been played since the last check (players from those games)
         cursor, db = db_import_login()
-
         sql = "select b.playerId from games_import as a join roster_spots_import as b on a.gameId = b.gameId where " \
               "a.gameDate between '"
         sql = "{}{}{}{}".format(sql, last_update, "' and '", self.current_time, "'")
         players_to_check_df = pd.read_sql(sql, db)
-
         db.commit()
         cursor.close()
         db.close()
 
         if players_to_check_df.len() > 0:
             check_bool = True
-            players = pd.concat([players, players_to_check])
-
-        players = players.unique()
 
         return {"check_bool": check_bool, "players": players}
 
@@ -370,8 +353,8 @@ class Scheduler:
             update_seasons = update_seasons[bool_mask]
 
         for index, row in update_seasons.iterrows():
-            team_roster = nhlpd.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
-            team_roster.query_nhl_update_db()
+            team_season = nhlpd.RostersImport(team_id=row['teamId'], season_id=row['seasonId'])
+            team_season.query_nhl_update_db()
 
         log_object = ImportTableUpdateLog()
         log_object.update_db("rosters_import", 1)
@@ -380,7 +363,7 @@ class Scheduler:
         return True
 
     def update_players_import(self, players):
-        for player_id in players['playerId'].items():
+        for idx, player_id in players['playerId'].items():
             player = nhlpd.PlayersImport(player_id=player_id)
             player.query_nhl_update_db()
 
@@ -408,5 +391,13 @@ class Scheduler:
         shifts_check = self.check_shifts_import()
         if shifts_check['check_bool'] and shifts_check['games'].size > 0:
             self.update_shifts_import(shifts_check['games'])
+
+        roster_check = self.check_rosters_import()
+        if roster_check['check_bool'] and len(roster_check['seasons']) > 0:
+            self.update_rosters_import(roster_check['seasons'])
+
+        player_check = self.check_players_import()
+        if player_check['check_bool'] and player_check['players'].size > 0:
+            self.update_players_import(player_check['players'])
 
         return True

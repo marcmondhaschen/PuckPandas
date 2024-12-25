@@ -1,16 +1,13 @@
 from datetime import datetime, timezone
 import pandas as pd
-from .mysql_db import db_import_login
+import nhlpd
 
 
 class PlayerImportLog:
-    update_details = pd.Series(index=['playerId', 'lastDateUpdated', 'playerFound', 'careerTotalsFound',
-                                      'seasonTotalsFound', 'awardsFound'])
-
-    player_bio_open_work_df = pd.DataFrame(columns=['playerId', 'lastDateUpdated'])
-
     def __init__(self, player_id='', last_date_updated='', player_found='', career_totals_found='',
                  season_totals_found='', awards_found=''):
+        self.update_details = pd.Series(index=['playerId', 'lastDateUpdated', 'playerFound', 'careerTotalsFound',
+                                      'seasonTotalsFound', 'awardsFound'])
         self.update_details['playerId'] = player_id
         self.update_details['lastDateUpdated'] = last_date_updated
         self.update_details['playerFound'] = player_found
@@ -19,30 +16,31 @@ class PlayerImportLog:
         self.update_details['awardsFound'] = awards_found
 
     def insert_db(self):
-        if self.query_db(self.update_details['playerId']) != '':
-            self.update_db()
-
-            return True
-
-        cursor, db = db_import_login()
-
         if self.update_details['playerId'] != '':
-            sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
-                  "seasonTotalsFound, awardsFound) values (%s, %s, %s, %s, %s, %s)"
-            val = (self.update_details['playerId'], self.update_details['lastDateUpdated'],
-                   self.update_details['playerFound'], self.update_details['careerTotalsFound'],
-                   self.update_details['seasonTotalsFound'], self.update_details['awardsFound'])
-            cursor.execute(sql, val)
+            if self.query_db(self.update_details['playerId']) != '':
+                self.update_db()
 
-        db.commit()
-        cursor.close()
-        db.close()
+                return True
+
+            cursor, db = nhlpd.db_import_login()
+
+            if self.update_details['playerId'] != '':
+                sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
+                      "seasonTotalsFound, awardsFound) values (%s, %s, %s, %s, %s, %s)"
+                val = (self.update_details['playerId'], self.update_details['lastDateUpdated'],
+                       self.update_details['playerFound'], self.update_details['careerTotalsFound'],
+                       self.update_details['seasonTotalsFound'], self.update_details['awardsFound'])
+                cursor.execute(sql, val)
+
+            db.commit()
+            cursor.close()
+            db.close()
 
         return True
 
     def update_db(self):
         if (len(self.update_details) > 0) and ('playerId' in self.update_details):
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             set_string = "set lastDateUpdated = '" + \
                          datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S') + "'"
@@ -72,13 +70,10 @@ class PlayerImportLog:
     def query_db(player_id):
         last_update = ''
 
-        cursor, db = db_import_login()
-
-        prefix_sql = "select playerId, max(lastDateUpdated) as lastDateUpdated from games_import_log where playerId = "
-        suffix_sql = " group by playerId"
-        update_log_sql = "{}{}{}".format(prefix_sql, player_id, suffix_sql)
-        update_df = pd.read_sql(update_log_sql, db)
-
+        cursor, db = nhlpd.db_import_login()
+        sql = "select playerId, max(lastDateUpdated) as lastDateUpdated from player_import_log where playerId = " \
+              + str(player_id) + " group by playerId"
+        update_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
@@ -88,11 +83,18 @@ class PlayerImportLog:
 
         return last_update
 
-    def player_open_work(self):
-        cursor, db = db_import_login()
-        sql = "select playerId, lastDateUpdated from player_import_log where (playerBioFound is NULL or " \
-              "playerBioFound = 0)"
-        self.player_bio_open_work_df = pd.read_sql(sql, db)
+    @staticmethod
+    def insert_untracked_players():
+        cursor, db = nhlpd.db_import_login()
+        untracked_players_sql = "select distinct a.playerId as playerId from roster_spots_import as a left join " \
+                                "player_import_log as b on a.playerId = b.playerId where b.playerId is Null"
+        untracked_players_df = pd.read_sql(untracked_players_sql, db)
+
+        if untracked_players_df.size > 0:
+            for index, row in untracked_players_df.iterrows():
+                sql = "insert into player_import_log (playerId) values (%s)"
+                val = (str(row['playerId']))
+                cursor.execute(sql, (val,))
 
         db.commit()
         cursor.close()
@@ -100,10 +102,13 @@ class PlayerImportLog:
 
         return True
 
-# from players.py
-#         check_date = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-#         check_log_df = pd.DataFrame(data=[[player_id, check_date, player_bio_check, career_check, season_check,
-#                                            awards_check]],
-#                                     columns=['playerId', 'logDate', 'playerBio', 'career', 'season', 'awards'])
-#         check_log_df = check_log_df.fillna('')
-#         update_player_log(check_log_df)
+    @staticmethod
+    def player_open_work():
+        cursor, db = nhlpd.db_import_login()
+        sql = "select playerId from player_import_log where (playerBioFound is NULL or playerBioFound = 0)"
+        player_bio_open_work_df = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return player_bio_open_work_df
