@@ -39,7 +39,7 @@ class Scheduler:
     def query_db_for_players():
         cursor, db = db_import_login()
 
-        sql = "select a.playerId, a.lastDateUpdated, a.playerFound, a.playerBioFound, a.careerTotalsFound, " \
+        sql = "select a.playerId, a.lastDateUpdated, a.playerFound, a.careerTotalsFound, " \
               "a.seasonTotalsFound, a.awardsFound from player_import_log as a join (select playerId, " \
               "max(lastDateUpdated) as lastDateUpdated from player_import_log group by playerId) as b on " \
               "a.playerId = b.playerId and a.lastDateUpdated = b.lastDateUpdated"

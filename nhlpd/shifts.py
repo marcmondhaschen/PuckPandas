@@ -14,26 +14,28 @@ class ShiftsImport:
         self.game_id = game_id
 
     def update_db(self):
-        cursor, db = nhlpd.db_import_login()
+        shifts_found = 0
+        if self.shifts_df.size > 0:
+            shifts_found = 1
 
-        for index, row in self.shifts_df.iterrows():
-            sql = 'insert into shifts_import (id, detailCode, duration, endTime, eventDescription, eventDetails, ' \
-                  'eventNumber, firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, ' \
-                  'teamAbbrev, teamId, teamName, typeCode) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, ' \
-                  '%s, %s, %s, %s, %s, %s, %s)'
-            val = [row['id'], row['detailCode'], row['duration'], row['endTime'], row['eventDescription'],
-                   row['eventDetails'], row['eventNumber'], row['firstName'], row['gameId'], row['hexValue'],
-                   row['lastName'], row['period'], row['playerId'], row['shiftNumber'], row['startTime'],
-                   row['teamAbbrev'], row['teamId'], row['teamName'], row['typeCode']]
-            cursor.execute(sql, val)
-
-        db.commit()
-        cursor.close()
-        db.close()
+            cursor, db = nhlpd.db_import_login()
+            for index, row in self.shifts_df.iterrows():
+                sql = 'insert into shifts_import (id, detailCode, duration, endTime, eventDescription, eventDetails, ' \
+                      'eventNumber, firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, ' \
+                      'teamAbbrev, teamId, teamName, typeCode) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, ' \
+                      '%s, %s, %s, %s, %s, %s, %s)'
+                val = [row['id'], row['detailCode'], row['duration'], row['endTime'], row['eventDescription'],
+                       row['eventDetails'], row['eventNumber'], row['firstName'], row['gameId'], row['hexValue'],
+                       row['lastName'], row['period'], row['playerId'], row['shiftNumber'], row['startTime'],
+                       row['teamAbbrev'], row['teamId'], row['teamName'], row['typeCode']]
+                cursor.execute(sql, val)
+            db.commit()
+            cursor.close()
+            db.close()
 
         log = nhlpd.GamesImportLog(game_id=self.game_id,
                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   shifts_found=1)
+                                   shifts_found=shifts_found)
         log.update_db()
 
         return True
