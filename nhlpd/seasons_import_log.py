@@ -43,3 +43,28 @@ class SeasonsImportLog:
             last_update = update_df['lastDateUpdated'].values[0]
 
         return last_update
+
+    @staticmethod
+    def seasons_without_games():
+        cursor, db = nhlpd.db_import_login()
+        sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join games_import " \
+              "as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
+        seasons = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return seasons
+
+    @staticmethod
+    def seasons_without_rosters():
+        cursor, db = nhlpd.db_import_login()
+        sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import as a left join " \
+              "rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
+        seasons = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return seasons
+

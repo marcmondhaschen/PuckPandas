@@ -49,15 +49,14 @@ class Scheduler:
 
     def check_seasons_import(self):
         last_update = self.table_log.last_update(table_name="team_seasons_import")
+        max_season_start_year = int(self.max_season_id[0:4])
+        max_season_end_year = int(self.max_season_id[4:8])
 
         # if there's no record in the log
         if last_update is None:
             check_bool = True
 
             return check_bool
-
-        max_season_start_year = int(self.max_season_id[0:4])
-        max_season_end_year = int(self.max_season_id[4:8])
 
         # if we are in a play season & our database has the current season we pass, otherwise run
         if self.current_month >= 9 and self.current_year == max_season_start_year:
@@ -70,7 +69,6 @@ class Scheduler:
         return check_bool
 
     def check_games_import(self):
-        seasons = pd.DataFrame()
         check_bool = False
         last_update = self.table_log.last_update(table_name="games_import")
 
@@ -79,43 +77,20 @@ class Scheduler:
             data = {'seasonId': ['99999999']}
             seasons = pd.DataFrame.from_dict(data)
             check_bool = True
-
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if there's a new season (new seasons)
-        cursor, db = nhlpd.db_import_login()
-        new_season_sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join " \
-                         "games_import as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
-        new_seasons_df = pd.read_sql(new_season_sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        if new_seasons_df.size > 0:
-            data = new_seasons_df['seasonId']
-            seasons = pd.DataFrame.from_dict(data)
+        seasons = nhlpd.SeasonsImportLog.seasons_without_games()
+        if seasons.size > 0:
             check_bool = True
-
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if games this season have been played since the last_update (current season)
-        cursor, db = nhlpd.db_import_login()
-        fresh_games_sql_prefix = "select gameId from games_import where gameDate between '"
-        fresh_games_sql_suffix = "' and '"
-        fresh_games_sql = "{}{}{}{}'".format(fresh_games_sql_prefix, last_update, fresh_games_sql_suffix,
-                                             str(self.current_time))
-        games_since_update = pd.read_sql(fresh_games_sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        if games_since_update.size > 0:
+        games = nhlpd.GamesImportLog.games_between_dates(last_update, self.current_time)
+        if games.size > 0:
             data = {'seasonId': [self.max_season_id]}
             seasons = pd.DataFrame.from_dict(data)
             check_bool = True
-
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if we're in this season's playoffs (current season)
@@ -149,7 +124,6 @@ class Scheduler:
 
     def check_shifts_import(self):
         # shift records don't start until 20102011 season
-
         check_bool = False
         last_update = self.table_log.last_update(table_name="game_center_import")
         import_log = nhlpd.GamesImportLog()
@@ -172,7 +146,6 @@ class Scheduler:
 
     def check_rosters_import(self):
         update_interval = np.timedelta64(30, 'D')
-        seasons = pd.DataFrame()
         check_bool = False
         last_update = self.table_log.last_update(table_name="rosters_import")
 
@@ -185,20 +158,9 @@ class Scheduler:
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if there are seasons we haven't logged rosters from (new seasons)
+        seasons = nhlpd.SeasonsImportLog.seasons_without_rosters()
 
-        cursor, db = nhlpd.db_import_login()
-        new_season_sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import " \
-                         "as a left join rosters_import as b on a.seasonId = b.seasonId group by " \
-                         "a.seasonId having playerCount = 0"
-        new_seasons_df = pd.read_sql(new_season_sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        if new_seasons_df.size > 0:
-            data = new_seasons_df['seasonId']
-            seasons = pd.DataFrame.from_dict(data)
+        if seasons.size > 0:
             check_bool = True
 
             return {"check_bool": check_bool, "seasons": seasons}

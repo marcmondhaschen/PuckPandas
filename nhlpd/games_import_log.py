@@ -158,3 +158,15 @@ class GamesImportLog:
         db.close()
 
         return shifts_open_work_df
+
+    @staticmethod
+    def games_between_dates(begin_date, end_date):
+        cursor, db = nhlpd.db_import_login()
+        sql = "select gameId from games_import where gameDate between '" + str(begin_date) + "' and '" \
+              + str(end_date) + "'"
+        games = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return games

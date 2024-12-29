@@ -1,8 +1,4 @@
 OPEN ITEMS
-    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
-        every class from the folder they're in
-        current code works on the E part of the ETL, but we still need a T and L folder.
-
     FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a
         future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior,
         set `pd.set_option('future.no_silent_downcasting', True)` self.goalie_season_df =
@@ -20,11 +16,15 @@ OPEN ITEMS
         swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
 
     Google says iterrows is slow and that seems to be the case - maybe try factoring it out?
+        * 24 uses so far, and it looks like they're all used exactly the same way
+        * for index, row in [some DataFrame].iterrows():
 
-    there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
-        set of helper functions - particularly each of the DB calls
+    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
+        need a second sub folder for database normalization controllers
+        need a third sub for any needed visualization controllers
 
 	build normalized database schema from the imported data
+	    * code which controls these transformations will
 		* assign import tables to an import database schema
 		* build import schema agent, separate from normalized schema agent and access
 		reduce each import table to normalized components
@@ -48,7 +48,17 @@ OPEN ITEMS
 	        this may mean i don't need to use pandas to build the controller that converts import tables to
 	        normalized tables
 
+    "nice to haves" from Drew's .wadl
+        standings
+
+    outside data sources
+        suspensions - wikipedia goes back to 2010ish
+        contracts?
+
 ********************************************************************************
+    * there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
+        set of helper functions - particularly each of the DB calls
+
     * when moving game date and TIMES into normalized tables, reduce time to GMT
         further, resolve datetime() calls in the code base to ask for GMT instead of local
         datetime.now(timezone.utc)
