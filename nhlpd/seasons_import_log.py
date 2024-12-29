@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 import pandas as pd
-from .mysql_db import db_import_login
+import nhlpd
 
 
 class SeasonsImportLog:
@@ -11,7 +11,7 @@ class SeasonsImportLog:
         self.games_found = games_found
 
     def insert_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         sql = "insert into team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
               "values (%s, %s, %s, %s)"
@@ -27,7 +27,7 @@ class SeasonsImportLog:
     def last_update(self):
         last_update = ''
 
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         prefix_sql = "select teamId, seasonId, max(lastDateUpdated) as lastDateUpdated from " \
                      "team_seasons_import_log where teamId = "
         mid_sql = " and seasonId = '"

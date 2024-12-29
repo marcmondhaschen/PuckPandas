@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
-from .api_query import fetch_json_data
-from .mysql_db import db_import_login
 
 
 class GamesImport:
@@ -22,7 +20,7 @@ class GamesImport:
 
     def update_db(self):
         if self.games_df.size > 0:
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             for index, row in self.games_df.iterrows():
                 sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, " \
@@ -59,7 +57,7 @@ class GamesImport:
 
     def clear_db(self):
         if self.team_id != '' and self.season_id != '':
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
             sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + str(self.team_id) + \
                   " or awayTeam = " + str(self.team_id) + ")" + " and seasonId = '" + str(self.season_id) + "'"
 
@@ -72,7 +70,7 @@ class GamesImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = (("select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, "
                "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, homeTeam, "
                "homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, "
@@ -100,7 +98,7 @@ class GamesImport:
 
         base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
         query_string = "{}{}/{}".format(base_url, tri_code, self.season_id)
-        json_data = fetch_json_data(query_string)
+        json_data = nhlpd.fetch_json_data(query_string)
 
         if 'games' in json_data:
             team_schedule_df = pd.json_normalize(json_data, record_path=['games'])

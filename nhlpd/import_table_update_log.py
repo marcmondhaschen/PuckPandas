@@ -1,18 +1,16 @@
 from datetime import datetime, timezone
 import pandas as pd
-from .mysql_db import db_import_login
+import nhlpd
 
 
 class ImportTableUpdateLog:
-
-
     def __init__(self):
         self.update_details = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
         self.update_details = pd.concat([self.update_details, self.query_db()])
 
     @staticmethod
     def update_db(table_name, update_found=1):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
         val = (table_name, datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), update_found)
@@ -26,7 +24,7 @@ class ImportTableUpdateLog:
 
     @staticmethod
     def query_db():
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log group by tableName"
         update_details = pd.read_sql(sql, db)

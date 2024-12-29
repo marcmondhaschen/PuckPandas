@@ -19,8 +19,6 @@ OPEN ITEMS
         DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
         swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
 
-    the single-triCode override for queryNHL in Seasons.py is pretty kludgy and should be refactored
-
     Google says iterrows is slow and that seems to be the case - maybe try factoring it out?
 
     there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
@@ -55,6 +53,8 @@ OPEN ITEMS
 	        normalized tables
 
 ********************************************************************************
+    * the single-triCode override for queryNHL in Seasons.py is pretty kludgy and should be refactored
+
     * change constructors for all objects
         * remove all but serializing attributes from __init__ (player_id=, game_id=, etc)
         * move attribute initializations to inside the init

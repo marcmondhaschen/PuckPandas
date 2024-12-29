@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
-from .mysql_db import db_import_login
-from .import_table_update_log import ImportTableUpdateLog
 import numpy as np
 
 
@@ -17,7 +15,7 @@ class Scheduler:
 
     @staticmethod
     def set_max_season():
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select max(seasonId) as seasonId from team_seasons_import"
         max_df = pd.read_sql(sql, db)
 
@@ -85,7 +83,7 @@ class Scheduler:
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if there's a new season (new seasons)
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         new_season_sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join " \
                          "games_import as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
         new_seasons_df = pd.read_sql(new_season_sql, db)
@@ -102,7 +100,7 @@ class Scheduler:
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if games this season have been played since the last_update (current season)
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         fresh_games_sql_prefix = "select gameId from games_import where gameDate between '"
         fresh_games_sql_suffix = "' and '"
         fresh_games_sql = "{}{}{}{}'".format(fresh_games_sql_prefix, last_update, fresh_games_sql_suffix,
@@ -188,7 +186,7 @@ class Scheduler:
 
         # if there are seasons we haven't logged rosters from (new seasons)
 
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         new_season_sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import " \
                          "as a left join rosters_import as b on a.seasonId = b.seasonId group by " \
                          "a.seasonId having playerCount = 0"
@@ -249,7 +247,7 @@ class Scheduler:
         teams = nhlpd.TeamsImport()
         teams.query_nh_lupdate_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("teams_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
@@ -259,7 +257,7 @@ class Scheduler:
         seasons = nhlpd.SeasonsImport()
         seasons.query_nhl_update_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("team_seasons_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
@@ -277,7 +275,7 @@ class Scheduler:
             team_season = nhlpd.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
             team_season.query_nhl_update_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("games_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
@@ -288,7 +286,7 @@ class Scheduler:
             game_center = nhlpd.GameCenterImport(row['gameId'])
             game_center.query_nhl_update_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("game_center_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
@@ -299,7 +297,7 @@ class Scheduler:
             shifts = nhlpd.ShiftsImport(row['gameId'])
             shifts.query_nhl_update_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("shifts_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
@@ -317,7 +315,7 @@ class Scheduler:
             team_season = nhlpd.RostersImport(team_id=row['teamId'], season_id=row['seasonId'])
             team_season.query_nhl_update_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("rosters_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 
@@ -328,7 +326,7 @@ class Scheduler:
             player = nhlpd.PlayersImport(player_id=player_id)
             player.query_nhl_update_db()
 
-        log_object = ImportTableUpdateLog()
+        log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("player_bios_import", 1)
         self.table_log = nhlpd.ImportTableUpdateLog()
 

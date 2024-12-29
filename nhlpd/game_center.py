@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
-from .api_query import fetch_json_data
-from .mysql_db import db_import_login
 
 
 class ScratchesImport:
@@ -16,7 +14,7 @@ class ScratchesImport:
         if self.scratches_df.size > 0:
             scratches_found = 1
 
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
             for index, row in self.scratches_df.iterrows():
                 sql = "insert into scratches_import (gameId, playerId, `firstName.default`, `lastName.default`) " \
                       "values (%s, %s, %s, %s)"
@@ -34,7 +32,7 @@ class ScratchesImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from scratches_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -44,7 +42,7 @@ class ScratchesImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, playerId, `firstName.default`, `lastName.default` from scratches_import where " \
               "gameId = " + str(self.game_id)
         scratches_df = pd.read_sql(sql, db)
@@ -88,7 +86,7 @@ class LinesmenImport:
         if self.linesmen_df.size > 0:
             linesmen_found = 1
 
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
             for index, row in self.linesmen_df.iterrows():
                 sql = "insert into linesmen_import (gameId, `default`) values (%s, %s)"
                 val = (row['gameId'], row['default'])
@@ -105,7 +103,7 @@ class LinesmenImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from linesmen_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -115,7 +113,7 @@ class LinesmenImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, `default` from linesmen_import where gameId = " + str(self.game_id)
         linesmen_df = pd.read_sql(sql, db)
         db.commit()
@@ -157,7 +155,7 @@ class RefereesImport:
         if self.referees_df.size > 0:
             referees_found = 1
 
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
             for index, row in self.referees_df.iterrows():
                 sql = "insert into referees_import (gameId, `default`) values (%s, %s)"
                 val = (row['gameId'], row['default'])
@@ -174,7 +172,7 @@ class RefereesImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from referees_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -184,7 +182,7 @@ class RefereesImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, `default` from referees_import where gameId = " + str(self.game_id)
         referees_df = pd.read_sql(sql, db)
         db.commit()
@@ -225,7 +223,7 @@ class SeasonSeriesImport:
         season_series_found = 0
         if self.season_series_df.size > 0:
             season_series_found = 1
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             for index, row in self.season_series_df.iterrows():
                 sql = 'insert into season_series_import (gameId, seriesNumber, refGameId) values (%s, %s, %s)'
@@ -244,7 +242,7 @@ class SeasonSeriesImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from season_series_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -254,7 +252,7 @@ class SeasonSeriesImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, seriesNumber, refGameId from season_series_import where gameId = " + str(self.game_id)
         season_series_df = pd.read_sql(sql, db)
         db.commit()
@@ -298,7 +296,7 @@ class TeamGameStatsImport:
         team_game_stats_found = 0
         if self.team_game_stats_df.size > 0:
             team_game_stats_found = 1
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             for index, row in self.team_game_stats_df.iterrows():
                 sql = "insert into team_game_stats_import (gameId, category, awayValue, homeValue) values (%s, %s, " \
@@ -318,7 +316,7 @@ class TeamGameStatsImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from team_game_stats_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -328,7 +326,7 @@ class TeamGameStatsImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, category, awayValue, homeValue from team_game_stats_import where gameId = " + \
               str(self.game_id)
         team_game_stats_df = pd.read_sql(sql, db)
@@ -371,7 +369,7 @@ class RosterSpotsImport:
         roster_spots_found = 0
         if self.roster_spots_df.size > 0:
             roster_spots_found = 1
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             for index, row in self.roster_spots_df.iterrows():
                 sql = "insert into roster_spots_import (gameId, teamId, playerId, sweaterNumber, positionCode, " \
@@ -392,7 +390,7 @@ class RosterSpotsImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from roster_spots_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -402,7 +400,7 @@ class RosterSpotsImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, `lastName` from " \
               "roster_spots_import where gameId = " + str(self.game_id)
         roster_spots_df = pd.read_sql(sql, db)
@@ -458,7 +456,7 @@ class PlaysImport:
         plays_found = 0
         if self.plays_df.size > 0:
             plays_found = 1
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             for index, row in self.plays_df.iterrows():
                 sql = "insert into plays_import (gameId, eventId, period, periodType, timeInPeriod, timeRemaining, " \
@@ -499,7 +497,7 @@ class PlaysImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from plays_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -509,7 +507,7 @@ class PlaysImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, eventId, period, periodType, timeInPeriod, timeRemaining, situationCode, typeCode, "\
               "typeDescKey, sortOrder, eventOwnerTeamId, losingPlayerId,  winningPlayerId, xCoord, yCoord, "\
               "zoneCode, reason, hittingPlayerId, hitteePlayerId, shotType, shootingPlayerId, goalieInNetId, "\
@@ -557,7 +555,7 @@ class TvBroadcastsImport:
         tv_broadcasts_found = 0
         if self.tv_broadcasts_df.size > 0:
             tv_broadcasts_found = 1
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             for index, row in self.tv_broadcasts_df.iterrows():
                 sql = "insert into tv_broadcasts_import (gameId, broadcastId, market, countryCode, network, " \
@@ -578,7 +576,7 @@ class TvBroadcastsImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from tv_broadcasts_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         db.commit()
@@ -588,7 +586,7 @@ class TvBroadcastsImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "select gameId, broadcastId, market, countryCode, network, sequenceNumber from tv_broadcasts_import " \
               "where gameId = " + str(self.game_id)
         tv_broadcasts_df = pd.read_sql(sql, db)
@@ -677,7 +675,7 @@ class GameCenterImport:
             row = self.game_center_pbp_df.iloc[0]
             row = row.fillna('')
 
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
             sql = "insert into game_center_import (gameId, season, gameType, limitedScoring, gameDate, " \
                   "`venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, " \
                   "gameState, gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
@@ -735,7 +733,7 @@ class GameCenterImport:
             row = self.game_center_rr_df.iloc[0]
             row = row.fillna('')
 
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
             sql = "insert into game_center_right_rail_import (gameId, `seasonSeriesWins.awayTeamWins`, " \
                   "`seasonSeriesWins.homeTeamWins`, `seasonSeriesWins.neededToWin`, " \
                   "`gameInfo.awayTeam.headCoach.default`, `gameInfo.homeTeam.headCoach.default`, " \
@@ -762,7 +760,7 @@ class GameCenterImport:
         return True
 
     def clear_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         sql = "delete from game_center_import where gameId = " + str(self.game_id)
         cursor.execute(sql)
         sql = "delete from game_center_right_rail_import where gameId = " + str(self.game_id)
@@ -783,7 +781,7 @@ class GameCenterImport:
         return True
 
     def query_db(self):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         pbp_sql = "select gameId, season, gameType, limitedScoring, gameDate, `venue.default`, " \
                   "`venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, gameState, " \
@@ -835,7 +833,7 @@ class GameCenterImport:
 
             pbp_suffix = '/play-by-play'
             pbp_query_url = "{}{}{}".format(url_prefix, self.game_id, pbp_suffix)
-            self.pbp_json = fetch_json_data(pbp_query_url)
+            self.pbp_json = nhlpd.fetch_json_data(pbp_query_url)
             game_center_pbp_df = pd.json_normalize(self.pbp_json)
             game_center_pbp_df.insert(0, 'gameId', self.game_id)
             self.game_center_pbp_df = self.game_center_pbp_df.head(0)
@@ -844,7 +842,7 @@ class GameCenterImport:
 
             rr_suffix = '/right-rail'
             rr_query_url = "{}{}{}".format(url_prefix, self.game_id, rr_suffix)
-            self.rr_json = fetch_json_data(rr_query_url)
+            self.rr_json = nhlpd.fetch_json_data(rr_query_url)
             game_center_rr_df = pd.json_normalize(self.rr_json)
             game_center_rr_df.insert(0, 'gameId', self.game_id)
             self.game_center_rr_df = self.game_center_rr_df.head(0)

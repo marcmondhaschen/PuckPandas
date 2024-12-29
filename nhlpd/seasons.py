@@ -1,7 +1,5 @@
 import pandas as pd
-from .api_query import fetch_json_data
-from .mysql_db import db_import_login
-from .teams import TeamsImport
+import nhlpd
 
 
 class SeasonsImport:
@@ -10,7 +8,7 @@ class SeasonsImport:
 
     def update_db(self, tri_code=''):
         if not self.seasons_df.empty:
-            cursor, db = db_import_login()
+            cursor, db = nhlpd.db_import_login()
 
             if tri_code != '':
                 self.seasons_df = self.seasons_df[self.seasons_df['triCode'] == tri_code]
@@ -28,7 +26,7 @@ class SeasonsImport:
 
     @staticmethod
     def clear_db(tri_code):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         if tri_code == '':
             sql = "truncate table team_seasons_import"
@@ -53,7 +51,7 @@ class SeasonsImport:
             sql_suffix += " and a.seasonId = " + season_id
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         seasons_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
@@ -64,7 +62,7 @@ class SeasonsImport:
         return seasons_df
 
     def query_nhl(self, tri_code=''):
-        teams = TeamsImport()
+        teams = nhlpd.TeamsImport()
         teams.query_db()
 
         team_seasons_df = pd.DataFrame()
@@ -72,7 +70,7 @@ class SeasonsImport:
         for index, row in teams.teams_df.iterrows():
             base_url = 'https://api-web.nhle.com/v1/roster-season/'
             query_string = "{}{}".format(base_url, row['triCode'])
-            json_data = fetch_json_data(query_string)
+            json_data = nhlpd.fetch_json_data(query_string)
 
             seasons_df = pd.DataFrame(json_data)
             seasons_df.rename(columns={0: "seasonId"}, inplace=True)
