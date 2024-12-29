@@ -4,9 +4,10 @@ from .mysql_db import db_import_login
 
 
 class ImportTableUpdateLog:
-    update_details = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
+
 
     def __init__(self):
+        self.update_details = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
         self.update_details = pd.concat([self.update_details, self.query_db()])
 
     @staticmethod

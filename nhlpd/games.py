@@ -6,19 +6,18 @@ from .mysql_db import db_import_login
 
 
 class GamesImport:
-    games_df = pd.DataFrame(columns=['gameId', 'seasonId', 'gameType', 'gameDate', 'venue', 'neutralSite',
-                                     'startTimeUTC', 'venueUTCOffset', 'venueTimezone', 'gameState',
-                                     'gameScheduleState', 'awayTeam', 'awayTeamSplitSquad', 'awayTeamScore',
-                                     'homeTeam', 'homeTeamSplitSquad', 'homeTeamScore', 'periodType', 'gameOutcome',
-                                     'seriesStatus.round', 'seriesStatus.seriesAbbrev', 'seriesStatus.seriesTitle',
-                                     'seriesStatus.seriesLetter', 'seriesStatus.neededToWin',
-                                     'seriesStatus.topSeedWins', 'seriesStatus.bottomSeedWins',
-                                     'seriesStatus.gameNumberOfSeries'])
-
     def __init__(self, team_id, season_id):
         self.team_id = team_id
         self.season_id = season_id
         self.teams = nhlpd.TeamsImport()
+        self.games_df = pd.DataFrame(columns=['gameId', 'seasonId', 'gameType', 'gameDate', 'venue', 'neutralSite',
+                                              'startTimeUTC', 'venueUTCOffset', 'venueTimezone', 'gameState',
+                                              'gameScheduleState', 'awayTeam', 'awayTeamSplitSquad', 'awayTeamScore',
+                                              'homeTeam', 'homeTeamSplitSquad', 'homeTeamScore', 'periodType',
+                                              'gameOutcome', 'seriesStatus.round', 'seriesStatus.seriesAbbrev',
+                                              'seriesStatus.seriesTitle', 'seriesStatus.seriesLetter',
+                                              'seriesStatus.neededToWin', 'seriesStatus.topSeedWins',
+                                              'seriesStatus.bottomSeedWins', 'seriesStatus.gameNumberOfSeries'])
         self.games_df = pd.concat([self.games_df, self.query_db()])
 
     def update_db(self):

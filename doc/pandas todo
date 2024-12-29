@@ -3,6 +3,11 @@ OPEN ITEMS
         every class from the folder they're in
         current code works on the E part of the ETL, but we still need a T and L folder.
 
+    FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a
+        future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior,
+        set `pd.set_option('future.no_silent_downcasting', True)` self.goalie_season_df =
+        self.goalie_season_df.fillna(0)
+
     FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
         of pandas. Value '' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
 
@@ -24,13 +29,6 @@ OPEN ITEMS
     when moving game date and TIMES into normalized tables, reduce time to GMT
         further, resolve datetime() calls in the code base to ask for GMT instead of local
         datetime.now(timezone.utc)
-
-    change constructors for all objects
-        remove all but serializing attributes from __init__ (player_id=, game_id=, etc)
-        move attribute initializations to inside the init
-
-
-	re-poll everything from the NHL
 
 	build normalized database schema from the imported data
 		* assign import tables to an import database schema
@@ -56,8 +54,12 @@ OPEN ITEMS
 	        this may mean i don't need to use pandas to build the controller that converts import tables to
 	        normalized tables
 
-
 ********************************************************************************
+    * change constructors for all objects
+        * remove all but serializing attributes from __init__ (player_id=, game_id=, etc)
+        * move attribute initializations to inside the init
+
+	* re-poll everything from the NHL
 
     * enforce "single query-result" restrictions on all Import objects, such that each parses a single query result.
         * Import objects should be responsible for a single page result
@@ -111,7 +113,6 @@ OPEN ITEMS
 		* add GamesImportLog logging
         * test
 
-
     Rosters.Py
         * update logging for PlayersImportLog changes
 
@@ -122,8 +123,6 @@ OPEN ITEMS
 		* build out objects for player_bios, player_awards, goalie_career_totals, goalie_season_totals,
 		    skater_career_totals, and skater_season_totals
         * test the 6 objects across 4 players - one each of retired/active goalies & skaters
-
-
 
 2024-09-13
 	GamesImportLog.Py
@@ -296,4 +295,3 @@ OPEN ITEMS
 	* build import functions for each of these tables
 	* wire import functions into the rest of players.py functions
 	* test completed players.py
-

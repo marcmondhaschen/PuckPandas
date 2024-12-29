@@ -1,6 +1,5 @@
 import pandas as pd
-from .api_query import fetch_json_data
-from .mysql_db import db_import_login
+import nhlpd
 
 
 class TeamsImport:
@@ -8,7 +7,7 @@ class TeamsImport:
         self.teams_df = self.query_db()
 
     def update_db(self, tri_code=''):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         if tri_code != '':
             self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
@@ -28,7 +27,7 @@ class TeamsImport:
 
     @staticmethod
     def clear_db(tri_code=''):
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
 
         if tri_code == '':
             sql = "truncate table teams_import"
@@ -53,7 +52,7 @@ class TeamsImport:
 
         sql = "{}{}".format(sql_prefix, sql_suffix)
 
-        cursor, db = db_import_login()
+        cursor, db = nhlpd.db_import_login()
         teams_df = pd.read_sql(sql, db)
         teams_df = teams_df.fillna('')
 
@@ -64,7 +63,7 @@ class TeamsImport:
         return teams_df
 
     def query_nhl(self, tri_code=''):
-        json_data = fetch_json_data('https://api.nhle.com/stats/rest/en/team')
+        json_data = nhlpd.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         api_teams_df = pd.json_normalize(json_data, record_path=['data'])
         api_teams_df = api_teams_df.fillna('')
         self.teams_df = pd.concat([self.teams_df, api_teams_df])
