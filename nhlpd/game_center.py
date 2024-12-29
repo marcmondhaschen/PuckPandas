@@ -726,10 +726,10 @@ class GameCenterImport:
             cursor.close()
             db.close()
 
-            log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                       last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                       game_center_found=game_center_found)
-            log.insert_db()
+        log = nhlpd.GamesImportLog(game_id=self.game_id,
+                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
+                                   game_center_found=game_center_found)
+        log.insert_db()
 
         if len(self.game_center_rr_df.index) > 0:
             row = self.game_center_rr_df.iloc[0]
