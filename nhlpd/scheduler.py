@@ -15,42 +15,6 @@ class Scheduler:
 
         self.table_log = nhlpd.ImportTableUpdateLog()
 
-        self.game_log_df = self.query_db_for_games()
-        self.player_log_df = self.query_db_for_players()
-
-    @staticmethod
-    def query_db_for_games():
-        cursor, db = db_import_login()
-
-        sql = "select a.gameId, a.lastDateUpdated, a.gameFound, a.gameCenterFound, a.tvBroadcastsFound, " \
-              "a.playsFound, a.rosterSpotsFound, a.teamGameStatsFound, a.seasonSeriesFound, a.refereesFound, " \
-              "a.linesmenFound, a.scratchesFound, a.shiftsFound from games_import_log as a join (select gameId, " \
-              "max(lastDateUpdated) as lastDateUpdated from games_import_log group by gameId) as b on a.gameId = " \
-              "b.gameId and a.lastDateUpdated = b.lastDateUpdated"
-        game_log_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return game_log_df
-
-    @staticmethod
-    def query_db_for_players():
-        cursor, db = db_import_login()
-
-        sql = "select a.playerId, a.lastDateUpdated, a.playerFound, a.careerTotalsFound, " \
-              "a.seasonTotalsFound, a.awardsFound from player_import_log as a join (select playerId, " \
-              "max(lastDateUpdated) as lastDateUpdated from player_import_log group by playerId) as b on " \
-              "a.playerId = b.playerId and a.lastDateUpdated = b.lastDateUpdated"
-        player_log_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
-
-        return player_log_df
-
     @staticmethod
     def set_max_season():
         cursor, db = db_import_login()
@@ -164,42 +128,46 @@ class Scheduler:
 
         return {"check_bool": check_bool, "seasons": seasons}
 
-    @staticmethod
-    def check_game_centers_import():
-        games = pd.DataFrame()
+    def check_game_centers_import(self):
         check_bool = False
+        last_update = self.table_log.last_update(table_name="game_center_import")
+        import_log = nhlpd.GamesImportLog()
+        last_minus_two_weeks = ''
+        if last_update != '':
+            last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
 
         # if there are unchecked games in the games_import_log table
-        cursor, db = db_import_login()
-        sql = "select gameId from games_import_log where gameFound = 1 and gameCenterFound = 0"
-        games_to_check_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        unpolled_games = import_log.games_not_queried()
 
-        if games_to_check_df.size > 0:
-            games = games_to_check_df
+        # if there are recently played games, since the last update
+        recent_games = import_log.games_played_recently(last_minus_two_weeks, self.current_time)
+
+        games = pd.concat([unpolled_games, recent_games])
+
+        if games.size > 0:
             check_bool = True
 
         return {"check_bool": check_bool, "games": games}
 
-    @staticmethod
-    def check_shifts_import():
+    def check_shifts_import(self):
         # shift records don't start until 20102011 season
-        games = pd.DataFrame()
+
         check_bool = False
+        last_update = self.table_log.last_update(table_name="game_center_import")
+        import_log = nhlpd.GamesImportLog()
+        last_minus_two_weeks = ''
+        if last_update != '':
+            last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
 
-        # if there are unchecked games in the games_import_log table
-        cursor, db = db_import_login()
-        sql = "select a.gameId from games_import_log as a join games_import as b on a.gameId = b.gameId where " \
-              "a.gameFound = 1 and a.shiftsFound = 0 and b.seasonId >= 20102011"
-        games_to_check_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        # if there are games where we haven't checked for shift data
+        unpolled_games = import_log.shifts_not_queried()
 
-        if games_to_check_df.size > 0:
-            games = games_to_check_df
+        # if there are games played recently with no shift data
+        recent_games = import_log.games_played_recently(last_minus_two_weeks, self.current_time)
+
+        games = pd.concat([unpolled_games, recent_games])
+
+        if games.size > 0:
             check_bool = True
 
         return {"check_bool": check_bool, "games": games}
@@ -211,7 +179,6 @@ class Scheduler:
         last_update = self.table_log.last_update(table_name="rosters_import")
 
         # if there's no record in the log (all seasons)
-
         if last_update is None:
             data = {'seasonId': ['99999999']}
             seasons = pd.DataFrame.from_dict(data)
@@ -256,30 +223,24 @@ class Scheduler:
 
     def check_players_import(self):
         check_bool = False
-        last_update = self.table_log.last_update(table_name="players_import")
+        last_update = self.table_log.last_update(table_name="player_bios_import")
         import_log = nhlpd.PlayerImportLog()
+        last_minus_two_weeks = ''
+        if last_update != '':
+            last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
 
         # update the player_import_log table for any new players
         import_log.insert_untracked_players()
 
         # if there are players who haven't been checked (all players)
-        players = import_log.player_open_work()
-
-        if players.size > 0:
-            check_bool = True
-            return {"check_bool": check_bool, "players": players}
+        unpolled_players = import_log.players_not_queried()
 
         # if there are games that have been played since the last check (players from those games)
-        cursor, db = db_import_login()
-        sql = "select b.playerId from games_import as a join roster_spots_import as b on a.gameId = b.gameId where " \
-              "a.gameDate between '"
-        sql = "{}{}{}{}".format(sql, last_update, "' and '", self.current_time, "'")
-        players_to_check_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        recently_played = import_log.players_played_recently(last_minus_two_weeks, self.current_time)
 
-        if players_to_check_df.len() > 0:
+        players = pd.concat([unpolled_players, recently_played])
+
+        if players.size > 0:
             check_bool = True
 
         return {"check_bool": check_bool, "players": players}

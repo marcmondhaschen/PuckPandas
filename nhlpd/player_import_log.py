@@ -103,12 +103,25 @@ class PlayerImportLog:
         return True
 
     @staticmethod
-    def player_open_work():
+    def players_not_queried():
         cursor, db = nhlpd.db_import_login()
-        sql = "select playerId from player_import_log where (playerBioFound is NULL or playerBioFound = 0)"
-        player_bio_open_work_df = pd.read_sql(sql, db)
+        sql = "select playerId from player_import_log where playerFound is NULL"
+        player_open_work_df = pd.read_sql(sql, db)
         db.commit()
         cursor.close()
         db.close()
 
-        return player_bio_open_work_df
+        return player_open_work_df
+
+    @staticmethod
+    def players_played_recently(start_date, end_date):
+        cursor, db = nhlpd.db_import_login()
+        sql = ("select distinct b.playerId as playerId from roster_spots_import as b join (select gameId from "
+               "games_import where gameDate between '" + str(start_date) + "' and '" + str(end_date) +
+               "') as a on a.gameId = b.gameId")
+        player_open_work_df = pd.read_sql(sql, db)
+        db.commit()
+        cursor.close()
+        db.close()
+
+        return player_open_work_df
