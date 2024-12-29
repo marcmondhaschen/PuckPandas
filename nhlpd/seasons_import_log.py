@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import numpy as np
 import pandas as pd
 import nhlpd
 
@@ -7,7 +8,6 @@ class SeasonsImportLog:
     def __init__(self, team_id, season_id, games_found=0):
         self.team_id = team_id
         self.season_id = season_id
-        self.current_time = datetime.now(timezone.utc)
         self.games_found = games_found
 
     def insert_db(self):
@@ -15,7 +15,8 @@ class SeasonsImportLog:
 
         sql = "insert into team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
               "values (%s, %s, %s, %s)"
-        val = (self.team_id, self.season_id, self.current_time, self.games_found)
+        val = (self.team_id, self.season_id, np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))),
+               self.games_found)
         cursor.execute(sql, val)
 
         db.commit()

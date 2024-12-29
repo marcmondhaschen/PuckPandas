@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
 
@@ -42,8 +41,7 @@ class GamesImport:
                        row['seriesStatus.gameNumberOfSeries'])
                 cursor.execute(sql, val)
 
-                game_log = nhlpd.GamesImportLog(row['gameId'], datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                                game_found=1)
+                game_log = nhlpd.GamesImportLog(row['gameId'], game_found=1)
                 game_log.insert_db()
 
             season_log = nhlpd.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id)

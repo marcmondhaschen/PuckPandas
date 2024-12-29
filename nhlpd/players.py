@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
 
@@ -60,9 +59,7 @@ class SkaterCareerTotalsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.PlayerImportLog(player_id=self.player_id,
-                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                    career_totals_found=career_totals_found)
+        log = nhlpd.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
         log.insert_db()
 
         return True
@@ -150,9 +147,7 @@ class SkaterSeasonImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.PlayerImportLog(player_id=self.player_id,
-                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                    season_totals_found=season_totals_found)
+        log = nhlpd.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
         log.insert_db()
 
         return True
@@ -260,9 +255,7 @@ class GoalieCareerTotalsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.PlayerImportLog(player_id=self.player_id,
-                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                    career_totals_found=career_totals_found)
+        log = nhlpd.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
         log.insert_db()
 
         return True
@@ -367,9 +360,7 @@ class GoalieSeasonImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.PlayerImportLog(player_id=self.player_id,
-                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                    season_totals_found=season_totals_found)
+        log = nhlpd.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
         log.insert_db()
 
         return True
@@ -451,9 +442,7 @@ class PlayerAwardsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.PlayerImportLog(player_id=self.player_id,
-                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                    awards_found=awards_found)
+        log = nhlpd.PlayerImportLog(player_id=self.player_id, awards_found=awards_found)
         log.insert_db()
 
         return True
@@ -561,9 +550,7 @@ class PlayersImport:
             self.skater_career_totals.update_db()
             self.player_awards.update_db()
 
-        log = nhlpd.PlayerImportLog(player_id=self.player_id,
-                                    last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                    player_found=player_found)
+        log = nhlpd.PlayerImportLog(player_id=self.player_id, player_found=player_found)
         log.insert_db()
 
         return True

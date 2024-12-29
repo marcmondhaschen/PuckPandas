@@ -1,15 +1,15 @@
 from datetime import datetime, timezone
+import numpy as np
 import pandas as pd
 import nhlpd
 
 
 class PlayerImportLog:
-    def __init__(self, player_id='', last_date_updated='', player_found='', career_totals_found='',
+    def __init__(self, player_id='', player_found='', career_totals_found='',
                  season_totals_found='', awards_found=''):
         self.update_details = pd.Series(index=['playerId', 'lastDateUpdated', 'playerFound', 'careerTotalsFound',
                                       'seasonTotalsFound', 'awardsFound'])
         self.update_details['playerId'] = player_id
-        self.update_details['lastDateUpdated'] = last_date_updated
         self.update_details['playerFound'] = player_found
         self.update_details['careerTotalsFound'] = career_totals_found
         self.update_details['seasonTotalsFound'] = season_totals_found
@@ -27,7 +27,8 @@ class PlayerImportLog:
             if self.update_details['playerId'] != '':
                 sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
                       "seasonTotalsFound, awardsFound) values (%s, %s, %s, %s, %s, %s)"
-                val = (self.update_details['playerId'], self.update_details['lastDateUpdated'],
+                val = (self.update_details['playerId'],
+                       np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))),
                        self.update_details['playerFound'], self.update_details['careerTotalsFound'],
                        self.update_details['seasonTotalsFound'], self.update_details['awardsFound'])
                 cursor.execute(sql, val)
@@ -42,8 +43,8 @@ class PlayerImportLog:
         if (len(self.update_details) > 0) and ('playerId' in self.update_details):
             cursor, db = nhlpd.db_import_login()
 
-            set_string = "set lastDateUpdated = '" + \
-                         datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S') + "'"
+            set_string = ("set lastDateUpdated = '" +
+                          np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))) + "'")
 
             if self.update_details['playerFound'] != '':
                 set_string = set_string + ", playerFound = " + str(self.update_details['playerFound'])

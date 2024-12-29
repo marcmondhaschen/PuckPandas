@@ -1,10 +1,7 @@
-from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
 
 """ shift details first appear in the NHL's API set in the 20102011 season """
-
-
 class ShiftsImport:
     def __init__(self, game_id):
         self.shifts_df = pd.DataFrame(columns=['id', 'detailCode', 'duration', 'endTime', 'eventDescription',
@@ -33,9 +30,7 @@ class ShiftsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   shifts_found=shifts_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, shifts_found=shifts_found)
         log.update_db()
 
         return True

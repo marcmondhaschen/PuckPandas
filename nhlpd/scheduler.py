@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
+import numpy as np
 import pandas as pd
 import nhlpd
-import numpy as np
 
 
 class Scheduler:

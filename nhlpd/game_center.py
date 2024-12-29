@@ -1,4 +1,3 @@
-from datetime import datetime, timezone
 import pandas as pd
 import nhlpd
 
@@ -24,9 +23,7 @@ class ScratchesImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   scratches_found=scratches_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, scratches_found=scratches_found)
         log.insert_db()
 
         return True
@@ -96,7 +93,6 @@ class LinesmenImport:
             db.close()
 
         log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
                                    linesmen_found=linesmen_found)
         log.insert_db()
 
@@ -164,9 +160,7 @@ class RefereesImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   referees_found=referees_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, referees_found=referees_found)
         log.insert_db()
 
         return True
@@ -234,9 +228,7 @@ class SeasonSeriesImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   season_series_found=season_series_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, season_series_found=season_series_found)
         log.insert_db()
 
         return True
@@ -308,9 +300,7 @@ class TeamGameStatsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   team_game_stats_found=team_game_stats_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, team_game_stats_found=team_game_stats_found)
         log.insert_db()
 
         return True
@@ -382,9 +372,7 @@ class RosterSpotsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   roster_spots_found=roster_spots_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, roster_spots_found=roster_spots_found)
         log.insert_db()
 
         return True
@@ -489,9 +477,7 @@ class PlaysImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   plays_found=plays_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, plays_found=plays_found)
         log.insert_db()
 
         return True
@@ -568,9 +554,7 @@ class TvBroadcastsImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   tv_broadcasts_found=tv_broadcasts_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, tv_broadcasts_found=tv_broadcasts_found)
         log.insert_db()
 
         return True
@@ -724,9 +708,7 @@ class GameCenterImport:
             cursor.close()
             db.close()
 
-        log = nhlpd.GamesImportLog(game_id=self.game_id,
-                                   last_date_updated=datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'),
-                                   game_center_found=game_center_found)
+        log = nhlpd.GamesImportLog(game_id=self.game_id, game_center_found=game_center_found)
         log.insert_db()
 
         if len(self.game_center_rr_df.index) > 0:
