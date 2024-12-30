@@ -1,5 +1,6 @@
 import pandas as pd
 import nhlpd
+from sqlalchemy import text
 
 
 class SeasonsImport:
@@ -7,41 +8,34 @@ class SeasonsImport:
         self.seasons_df = self.query_db()
 
     def update_db(self, tri_code=''):
-        if not self.seasons_df.empty:
-            cursor, db = nhlpd.db_import_login()
-
+        if self.seasons_df.size > 0:
             if tri_code != '':
                 self.seasons_df = self.seasons_df[self.seasons_df['triCode'] == tri_code]
 
-            for index, row in self.seasons_df.iterrows():
-                sql = "insert into team_seasons_import (triCode, seasonId) values (%s, %s)"
-                val = (row['triCode'], row['seasonId'])
-                cursor.execute(sql, val)
-
-            db.commit()
-            cursor.close()
-            db.close()
+            engine = nhlpd.dba_import_login()
+            sql = "insert into team_seasons_import (triCode, seasonId) values (:triCode, :seasonId)"
+            params = self.seasons_df.to_dict('records')
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         return True
 
     @staticmethod
     def clear_db(tri_code):
-        cursor, db = nhlpd.db_import_login()
-
+        engine = nhlpd.dba_import_login()
         if tri_code == '':
             sql = "truncate table team_seasons_import"
         else:
             sql = "delete from team_seasons_import where triCode = " + tri_code
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
-        cursor.execute(sql)
-
-        db.commit()
-        cursor.close()
-        db.close()
         return True
 
     @staticmethod
     def query_db(tri_code='', season_id=''):
+        engine = nhlpd.dba_import_login()
         sql_prefix = "select a.triCode, b.teamId, a.seasonId from team_seasons_import as a join teams_import as b " \
                      "on a.triCode = b.triCode where b.teamId is not null"
         sql_suffix = ""
@@ -50,14 +44,10 @@ class SeasonsImport:
         if season_id != '':
             sql_suffix += " and a.seasonId = " + season_id
         sql = "{}{}".format(sql_prefix, sql_suffix)
+        seasons_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        cursor, db = nhlpd.db_import_login()
-        seasons_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
-
-        seasons_df = seasons_df.fillna('')
+        seasons_df.fillna('', inplace=True)
 
         return seasons_df
 
