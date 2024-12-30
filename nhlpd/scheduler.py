@@ -6,7 +6,7 @@ import nhlpd
 
 class Scheduler:
     def __init__(self):
-        self.current_time = np.datetime64(datetime.now(timezone.utc))
+        self.current_time = np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"))
         self.current_month = pd.Timestamp(self.current_time).month
         self.current_year = pd.Timestamp(self.current_time).year
         self.max_season_id = self.set_max_season()
@@ -15,13 +15,10 @@ class Scheduler:
 
     @staticmethod
     def set_max_season():
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select max(seasonId) as seasonId from team_seasons_import"
-        max_df = pd.read_sql(sql, db)
-
-        db.commit()
-        cursor.close()
-        db.close()
+        max_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         max_season_id = max_df.at[0, 'seasonId']
 
@@ -207,7 +204,7 @@ class Scheduler:
 
     def update_teams_import(self):
         teams = nhlpd.TeamsImport()
-        teams.query_nh_lupdate_db()
+        teams.query_nhl_update_db()
 
         log_object = nhlpd.ImportTableUpdateLog()
         log_object.update_db("teams_import", 1)
