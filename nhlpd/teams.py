@@ -52,7 +52,6 @@ class TeamsImport:
         json_data = nhlpd.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         api_teams_df = pd.json_normalize(json_data, record_path=['data'])
         api_teams_df.rename(columns={'id': 'teamId'}, inplace=True)
-        api_teams_df.drop('rawTricode', axis=1, inplace=True)
         api_teams_df.fillna(0, inplace=True)
         self.teams_df = self.teams_df.head(0)
         self.teams_df = pd.concat([self.teams_df, api_teams_df])
