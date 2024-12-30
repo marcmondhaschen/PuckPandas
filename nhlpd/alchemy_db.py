@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, NullPool
 
 def dba_import_login():
     """
@@ -21,7 +21,7 @@ def dba_import_login():
     schema = os.environ['DB_IMPORT_SCHEMA']
 
     connection_string = "{}+{}://{}:{}@{}:{}/{}".format(dialect, driver, username, password, server, port, schema)
-    engine = create_engine(connection_string)
+    engine = create_engine(connection_string, poolclass=NullPool)
 
     return engine
 
