@@ -38,7 +38,8 @@ class GamesImportLog:
                       "tvBroadcastsFound, playsFound, rosterSpotsFound, teamGameStatsFound, seasonSeriesFound, " \
                       "linescoreByPeriodFound, refereesFound, linesmenFound, scratchesFound, shiftsFound) " \
                       "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                val = (self.update_details['gameId'], np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))),
+                val = (self.update_details['gameId'],
+                       np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")),
                        self.update_details['gameFound'], self.update_details['gameCenterFound'],
                        self.update_details['tvBroadcastsFound'], self.update_details['playsFound'],
                        self.update_details['rosterSpotsFound'], self.update_details['teamGameStatsFound'],
@@ -59,7 +60,7 @@ class GamesImportLog:
                 cursor, db = nhlpd.db_import_login()
 
                 set_string = "set lastDateUpdated = '" + \
-                             np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))) + "'"
+                             datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S") + "'"
 
                 if self.update_details['gameFound'] != '':
                     set_string = set_string + ", gameFound = " + str(self.update_details['gameFound'])

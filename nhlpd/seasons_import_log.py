@@ -15,7 +15,7 @@ class SeasonsImportLog:
 
         sql = "insert into team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
               "values (%s, %s, %s, %s)"
-        val = (self.team_id, self.season_id, np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))),
+        val = (self.team_id, self.season_id, np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")),
                self.games_found)
         cursor.execute(sql, val)
 

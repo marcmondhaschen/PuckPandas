@@ -14,7 +14,7 @@ class ImportTableUpdateLog:
         cursor, db = nhlpd.db_import_login()
 
         sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
-        val = (table_name, np.datetime_as_string(np.datetime64(datetime.now(timezone.utc))), update_found)
+        val = (table_name, np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")), update_found)
         # val = (table_name, datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), update_found)
         cursor.execute(sql, val)
 
