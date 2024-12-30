@@ -7,10 +7,10 @@ class TeamsImport:
         self.teams_df = self.query_db()
 
     def update_db(self, tri_code=''):
-        if tri_code != '':
-            self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
-
         if len(self.teams_df.index) > 0:
+            if tri_code != '':
+                self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
+
             engine = nhlpd.dba_import_login()
             sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) values (:teamId, " \
                   ":franchiseId, :fullName, :leagueId, :triCode)"
