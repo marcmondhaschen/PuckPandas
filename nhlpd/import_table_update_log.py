@@ -2,39 +2,36 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 import nhlpd
+from sqlalchemy import text
 
 
 class ImportTableUpdateLog:
     def __init__(self):
-        self.update_details = pd.DataFrame(columns=['tableName', 'lastDateUpdated', 'updateFound'])
-        self.update_details = pd.concat([self.update_details, self.query_db()])
+        self.update_details = self.query_db()
+        self.update_details = self.update_details.reindex(columns=['tableName', 'lastDateUpdated'])
 
     @staticmethod
     def update_db(table_name, update_found=1):
-        cursor, db = nhlpd.db_import_login()
-
-        sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values (%s, %s, %s)"
-        val = (table_name, np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")), update_found)
-        # val = (table_name, datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S'), update_found)
-        cursor.execute(sql, val)
-
-        db.commit()
-        cursor.close()
-        db.close()
+        engine = nhlpd.dba_import_login()
+        sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values " \
+              "(:tableName, :lastDateUpdated, :updateFound)"
+        param = {'tableName': table_name,
+                 'lastDateUpdated': np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
+                 'updateFound': update_found}
+        with engine.connect() as conn:
+            conn.execute(text(sql), parameters=param)
 
         return True
 
     @staticmethod
     def query_db():
-        cursor, db = nhlpd.db_import_login()
-
+        engine = nhlpd.dba_import_login()
         sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log group by tableName"
-        update_details = pd.read_sql(sql, db)
-        update_details.fillna('', inplace=True)
+        update_details = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        db.commit()
-        cursor.close()
-        db.close()
+        if update_details.size > 0:
+            update_details.fillna('', inplace=True)
 
         return update_details
 

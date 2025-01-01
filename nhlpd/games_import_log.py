@@ -42,7 +42,7 @@ class GamesImportLog:
                       ":playsFound, :rosterSpotsFound, :teamGameStats, :seasonSeriesFound, :linescoreByPeriodFound, " \
                       ":refereesFound, :linesmenFound, :scratchesFound, :shiftsFound)"
                 params = {"gameId": self.update_details['gameId'],
-                       "lastDateUpdated": np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")),
+                       "lastDateUpdated": np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
                        "gameFound": self.update_details['gameFound'],
                        "gameCenterFound": self.update_details['gameCenterFound'],
                        "tvBroadcastsFound": self.update_details['tvBroadcastsFound'],
@@ -66,7 +66,7 @@ class GamesImportLog:
                 engine = nhlpd.dba_import_login()
 
                 set_string = "set lastDateUpdated = '" + \
-                             datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S") + "'"
+                             np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str) + "'"
 
                 if self.update_details['gameFound'] != '':
                     set_string = set_string + ", gameFound = " + str(self.update_details['gameFound'])

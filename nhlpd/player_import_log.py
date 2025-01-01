@@ -28,7 +28,7 @@ class PlayerImportLog:
                 sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
                       "seasonTotalsFound, awardsFound) values (%s, %s, %s, %s, %s, %s)"
                 val = (self.update_details['playerId'],
-                       np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")),
+                       np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
                        self.update_details['playerFound'], self.update_details['careerTotalsFound'],
                        self.update_details['seasonTotalsFound'], self.update_details['awardsFound'])
                 cursor.execute(sql, val)
@@ -44,7 +44,7 @@ class PlayerImportLog:
             cursor, db = nhlpd.db_import_login()
 
             set_string = ("set lastDateUpdated = '" +
-                          np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")) + "'")
+                          np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str) + "'")
 
             if self.update_details['playerFound'] != '':
                 set_string = set_string + ", playerFound = " + str(self.update_details['playerFound'])
