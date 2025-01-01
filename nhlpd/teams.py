@@ -5,6 +5,7 @@ from sqlalchemy import text
 class TeamsImport:
     def __init__(self):
         self.teams_df = self.query_db()
+        self.table_columns = ['teamId', 'franchiseId', 'fullName', 'leagueId', 'triCode']
 
     def update_db(self, tri_code=''):
         if len(self.teams_df.index) > 0:
@@ -50,11 +51,11 @@ class TeamsImport:
 
     def query_nhl(self, tri_code=''):
         json_data = nhlpd.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
-        api_teams_df = pd.json_normalize(json_data, record_path=['data'])
-        api_teams_df.rename(columns={'id': 'teamId'}, inplace=True)
-        api_teams_df.fillna(0, inplace=True)
-        self.teams_df = self.teams_df.head(0)
-        self.teams_df = pd.concat([self.teams_df, api_teams_df])
+        if json_data != {}:
+            teams_df = pd.json_normalize(json_data, record_path=['data'])
+            teams_df.rename(columns={'id': 'teamId'}, inplace=True)
+            teams_df.fillna(0, inplace=True)
+            self.teams_df = teams_df.reindex(columns=self.table_columns)
 
         if tri_code != '':
             self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]

@@ -5,6 +5,7 @@ from sqlalchemy import text
 
 class SeasonsImport:
     def __init__(self):
+        self.table_columns = ['triCode', 'seasonId']
         self.seasons_df = self.query_db()
 
     def update_db(self, tri_code=''):
@@ -33,8 +34,7 @@ class SeasonsImport:
 
         return True
 
-    @staticmethod
-    def query_db(tri_code='', season_id=''):
+    def query_db(self, tri_code='', season_id=''):
         engine = nhlpd.dba_import_login()
         sql_prefix = "select a.triCode, b.teamId, a.seasonId from team_seasons_import as a join teams_import as b " \
                      "on a.triCode = b.triCode where b.teamId is not null"
@@ -47,6 +47,7 @@ class SeasonsImport:
         seasons_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
+        seasons_df = seasons_df.reindex(columns=self.table_columns)
         seasons_df.fillna('', inplace=True)
 
         return seasons_df
@@ -66,7 +67,10 @@ class SeasonsImport:
             seasons_df.rename(columns={0: "seasonId"}, inplace=True)
             seasons_df['triCode'] = row['triCode']
 
-            team_seasons_df = pd.concat([team_seasons_df, seasons_df])
+            if team_seasons_df.size > 0:
+                team_seasons_df = pd.concat([team_seasons_df, seasons_df])
+            else:
+                team_seasons_df = seasons_df
 
         self.seasons_df = team_seasons_df
 

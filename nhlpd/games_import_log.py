@@ -2,13 +2,14 @@ from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
 import nhlpd
+from sqlalchemy import text
 
 
 class GamesImportLog:
     def __init__(self, game_id = '', game_found='', game_center_found='', tv_broadcasts_found='',
                  plays_found='', roster_spots_found='', team_game_stats_found='', season_series_found='',
                  referees_found='', linesmen_found='', scratches_found='', shifts_found=''):
-        self.update_details = pd.Series(index=['gameId', 'lastDateUpdated', 'gameFound', 'gameCenterFound',
+        self.update_details = pd.Series(dtype=str, index=['gameId', 'lastDateUpdated', 'gameFound', 'gameCenterFound',
                                                'tvBroadcastsFound', 'playsFound', 'rosterSpotsFound',
                                                'teamGameStatsFound', 'seasonSeriesFound', 'linescoreByPeriodFound',
                                                'refereesFound', 'linesmenFound', 'scratchesFound', 'shiftsFound'])
@@ -33,31 +34,36 @@ class GamesImportLog:
                 return True
 
             if self.update_details['gameId'] != '':
-                cursor, db = nhlpd.db_import_login()
+                engine = nhlpd.dba_import_login()
                 sql = "insert into games_import_log (gameId, lastDateUpdated, gameFound, gameCenterFound, " \
                       "tvBroadcastsFound, playsFound, rosterSpotsFound, teamGameStatsFound, seasonSeriesFound, " \
                       "linescoreByPeriodFound, refereesFound, linesmenFound, scratchesFound, shiftsFound) " \
-                      "values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                val = (self.update_details['gameId'],
-                       np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")),
-                       self.update_details['gameFound'], self.update_details['gameCenterFound'],
-                       self.update_details['tvBroadcastsFound'], self.update_details['playsFound'],
-                       self.update_details['rosterSpotsFound'], self.update_details['teamGameStatsFound'],
-                       self.update_details['seasonSeriesFound'], self.update_details['linescoreByPeriodFound'],
-                       self.update_details['refereesFound'], self.update_details['linesmenFound'],
-                       self.update_details['scratchesFound'], self.update_details['shiftsFound'])
-                cursor.execute(sql, val)
-
-                db.commit()
-                cursor.close()
-                db.close()
+                      "values (:gameId, :lastDateUpdated, :gameFound, :gameCenterFound, :tvBroadcastsFound, " \
+                      ":playsFound, :rosterSpotsFound, :teamGameStats, :seasonSeriesFound, :linescoreByPeriodFound, " \
+                      ":refereesFound, :linesmenFound, :scratchesFound, :shiftsFound)"
+                params = {"gameId": self.update_details['gameId'],
+                       "lastDateUpdated": np.datetime64(datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")),
+                       "gameFound": self.update_details['gameFound'],
+                       "gameCenterFound": self.update_details['gameCenterFound'],
+                       "tvBroadcastsFound": self.update_details['tvBroadcastsFound'],
+                       "playsFound": self.update_details['playsFound'],
+                       "rosterSpotsFound": self.update_details['rosterSpotsFound'],
+                       "teamGameStats": self.update_details['teamGameStatsFound'],
+                       "seasonSeriesFound": self.update_details['seasonSeriesFound'],
+                       "linescoreByPeriodFound": self.update_details['linescoreByPeriodFound'],
+                       "refereesFound": self.update_details['refereesFound'],
+                       "linesmenFound": self.update_details['linesmenFound'],
+                       "scratchesFound": self.update_details['scratchesFound'],
+                       "shiftsFound": self.update_details['shiftsFound']}
+                with engine.connect() as conn:
+                    conn.execute(text(sql), parameters=params)
 
         return True
 
     def update_db(self):
         if self.update_details['gameId'] != '':
             if (len(self.update_details) > 0) and ('gameId' in self.update_details):
-                cursor, db = nhlpd.db_import_login()
+                engine = nhlpd.dba_import_login()
 
                 set_string = "set lastDateUpdated = '" + \
                              datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S") + "'"
@@ -88,11 +94,8 @@ class GamesImportLog:
                 sql_prefix = "update games_import_log "
                 sql_mid = " where gameId = "
                 sql = "{}{}{}{}".format(sql_prefix, set_string, sql_mid, self.update_details['gameId'])
-                cursor.execute(sql)
-
-                db.commit()
-                cursor.close()
-                db.close()
+                with engine.connect() as conn:
+                    conn.execute(text(sql))
 
         return True
 
@@ -100,14 +103,12 @@ class GamesImportLog:
     def query_db(game_id):
         last_update = ''
 
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select gameId, max(lastDateUpdated) as lastDateUpdated, gameFound, gameCenterFound from " \
               "games_import_log where gameId = " + str(game_id) + " group by gameId, " \
               "gameFound, gameCenterFound"
-        update_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        update_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         if len(update_df.index) != 0:
             last_update = update_df['lastDateUpdated'].iloc[0]
@@ -116,58 +117,48 @@ class GamesImportLog:
 
     @staticmethod
     def games_not_queried():
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select gameId from games_import_log where (gameCenterFound is Null or gameCenterFound = 0)"
-        games_open_work_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        games_open_work_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         return games_open_work_df
 
     @staticmethod
     def games_played_recently(start_date, stop_date):
-        cursor, db = nhlpd.db_import_login()
-        sql = ("select gameId from games_import where gameDate between '" + str(start_date) + "' and '" +
-               str(stop_date) + "'")
-        games_open_work_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        engine = nhlpd.dba_import_login()
+        sql = "select gameId from games_import where gameDate between '" + str(start_date) + "' and '" + \
+              str(stop_date) + "'"
+        games_open_work_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         return games_open_work_df
 
     @staticmethod
     def shifts_not_queried():
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select gameId from games_import_log where shiftsFound is Null"
-        shifts_open_work_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        shifts_open_work_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         return shifts_open_work_df
 
     @staticmethod
     def shifts_played_recently(start_date, stop_date):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = ("select a.gameId from games_import_log as a join games_import as b on a.gameId = b.gameId where "
                "a.shiftsFound = 0 and b.gameDate between '" + str(start_date) + "' and '" + str(stop_date) + "'")
-        shifts_open_work_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        shifts_open_work_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         return shifts_open_work_df
 
     @staticmethod
     def games_between_dates(begin_date, end_date):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select gameId from games_import where gameDate between '" + str(begin_date) + "' and '" \
               + str(end_date) + "'"
-        games = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        games = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
         return games
