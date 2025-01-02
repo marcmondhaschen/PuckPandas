@@ -349,7 +349,6 @@ class GoalieSeasonImport:
         sql = "delete from goalie_season_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
-        engine.dispose()
 
         return True
 
