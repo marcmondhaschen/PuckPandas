@@ -1,5 +1,6 @@
 import pandas as pd
 import nhlpd
+from sqlalchemy import text
 
 
 class RostersImport:
@@ -8,48 +9,42 @@ class RostersImport:
         self.season_id = season_id
         self.teams = nhlpd.TeamsImport()
         self.tri_code = self.teams.tri_code_from_team_id(self.team_id)
-        self.roster_df = pd.DataFrame(columns=['triCode', 'seasonId', 'playerId'])
+        self.table_columns = ['triCode', 'seasonId', 'playerId']
+        self.roster_df = pd.DataFrame()
+        self.query_db()
 
     def update_db(self):
         if self.roster_df.size > 0:
-            cursor, db = nhlpd.db_import_login()
-            for index, row in self.roster_df.iterrows():
-                if 'playerId' in row:
-                    sql = "insert into rosters_import (triCode, seasonId, playerId) " \
-                          "values (%s, %s, %s)"
-                    val = (row['triCode'], row['seasonId'], row['playerId'])
-                    cursor.execute(sql, val)
-            db.commit()
-            cursor.close()
-            db.close()
+            engine = nhlpd.dba_import_login()
+            sql = "insert into rosters_import (triCode, seasonId, playerId) " \
+                  "values (:triCode, :seasonId, :playerId)"
+            params = self.roster_df.to_dict('records')
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         return True
 
     def clear_db(self):
         if self.tri_code != '' and self.season_id != '':
-            cursor, db = nhlpd.db_import_login()
+            engine = nhlpd.dba_import_login()
             sql = "delete from rosters_import where triCode = '" + str(self.tri_code) + "' and seasonId = " + \
                   str(self.season_id)
-            cursor.execute(sql)
-            db.commit()
-            cursor.close()
-            db.close()
+            with engine.connect() as conn:
+                conn.execute(text(sql))
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
-        sql = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 and  triCode = " + \
-              self.tri_code + " and seasonId = " + self.season_id
-        query_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        engine = nhlpd.dba_import_login()
+        sql = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 and  triCode = '" + \
+              str(self.tri_code) + "' and seasonId = '" + str(self.season_id) + "'"
+        roster_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        roster_df = self.roster_df.head(0)
-        roster_df = pd.concat([roster_df, query_df])
-        roster_df.fillna('', inplace=True)
-        self.roster_df = roster_df
+        if roster_df.size > 0:
+            roster_df.fillna('', inplace=True)
+            self.roster_df = roster_df
+
 
         return self.roster_df
 
@@ -58,21 +53,20 @@ class RostersImport:
         query_string = "{}{}/{}".format(base_url, self.tri_code, self.season_id)
         json_data = nhlpd.fetch_json_data(query_string)
 
-        forwards_data = pd.json_normalize(json_data, record_path=['forwards'])
-        defensemen_data = pd.json_normalize(json_data, record_path=['defensemen'])
-        goalies_data = pd.json_normalize(json_data, record_path=['goalies'])
-        query_df = pd.concat([forwards_data, defensemen_data, goalies_data])
+        if len(json_data['forwards']) > 0:
+            forwards_data = pd.json_normalize(json_data, record_path=['forwards'])
+            defensemen_data = pd.json_normalize(json_data, record_path=['defensemen'])
+            goalies_data = pd.json_normalize(json_data, record_path=['goalies'])
+            roster_df = pd.concat([forwards_data, defensemen_data, goalies_data])
 
-        if 'id' in query_df:
-            query_df.rename(columns={"id": "playerId"}, inplace=True)
-            query_df = query_df[['playerId']]
-            query_df['triCode'] = self.tri_code
-            query_df['seasonId'] = self.season_id
-            query_df.fillna('', inplace=True)
+            if 'id' in roster_df:
+                roster_df.rename(columns={"id": "playerId"}, inplace=True)
+                roster_df = roster_df[['playerId']]
+                roster_df['triCode'] = self.tri_code
+                roster_df['seasonId'] = self.season_id
+                self.roster_df = roster_df
 
-        roster_df = self.roster_df.head(0)
-        roster_df = pd.concat([roster_df, query_df])
-        self.roster_df = roster_df
+        self.roster_df = self.roster_df.reindex(columns=self.table_columns)
 
         return self.roster_df
 
