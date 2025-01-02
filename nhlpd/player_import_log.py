@@ -8,7 +8,7 @@ class PlayerImportLog:
     def __init__(self, player_id='', player_found='', career_totals_found='',
                  season_totals_found='', awards_found=''):
         self.update_details = pd.Series(index=['playerId', 'lastDateUpdated', 'playerFound', 'careerTotalsFound',
-                                      'seasonTotalsFound', 'awardsFound'])
+                                      'seasonTotalsFound', 'awardsFound']).astype(object)
         self.update_details['playerId'] = player_id
         self.update_details['playerFound'] = player_found
         self.update_details['careerTotalsFound'] = career_totals_found
@@ -23,7 +23,7 @@ class PlayerImportLog:
 
             if self.update_details['playerId'] != '':
                 engine = nhlpd.dba_import_login()
-                sql = "insert into player_import_log (playerId, , playerFound, careerTotalsFound, " \
+                sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
                       "seasonTotalsFound, awardsFound) values (:playerId, :lastDateUpdated, :playerFound, " \
                       ":careerTotalsFound, :seasonTotalsFound, :awardsFound)"
                 params = {'playerId': self.update_details['playerId'],

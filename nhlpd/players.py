@@ -1,63 +1,58 @@
 import pandas as pd
 import nhlpd
+from sqlalchemy import text
 
 
 class SkaterCareerTotalsImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}
-        self.skater_career_totals_df = pd.DataFrame(columns=['playerId', 'regularSeason.gamesPlayed', 'regularSeason.goals',
-                                                    'regularSeason.assists', 'regularSeason.pim',
-                                                    'regularSeason.points', 'regularSeason.plusMinus',
-                                                    'regularSeason.powerPlayGoals', 'regularSeason.powerPlayPoints',
-                                                    'regularSeason.shorthandedPoints', 'regularSeason.gameWinningGoals',
-                                                    'regularSeason.otGoals', 'regularSeason.shots',
-                                                    'regularSeason.shootingPctg', 'regularSeason.faceoffWinningPctg',
-                                                    'regularSeason.avgToi', 'regularSeason.shorthandedGoals',
-                                                    'playoffs.gamesPlayed', 'playoffs.goals', 'playoffs.assists',
-                                                    'playoffs.pim', 'playoffs.points', 'playoffs.plusMinus',
-                                                    'playoffs.powerPlayGoals', 'playoffs.powerPlayPoints',
-                                                    'playoffs.shorthandedPoints', 'playoffs.gameWinningGoals',
-                                                    'playoffs.otGoals', 'playoffs.shots', 'playoffs.shootingPctg',
-                                                    'playoffs.faceoffWinningPctg', 'playoffs.avgToi',
-                                                    'playoffs.shorthandedGoals'])
+        self.table_columns = ['playerId', 'regularSeason.gamesPlayed', 'regularSeason.goals', 'regularSeason.assists',
+                              'regularSeason.pim', 'regularSeason.points', 'regularSeason.plusMinus',
+                              'regularSeason.powerPlayGoals', 'regularSeason.powerPlayPoints',
+                              'regularSeason.shorthandedPoints', 'regularSeason.gameWinningGoals',
+                              'regularSeason.otGoals', 'regularSeason.shots', 'regularSeason.shootingPctg',
+                              'regularSeason.faceoffWinningPctg', 'regularSeason.avgToi',
+                              'regularSeason.shorthandedGoals', 'playoffs.gamesPlayed', 'playoffs.goals',
+                              'playoffs.assists', 'playoffs.pim', 'playoffs.points', 'playoffs.plusMinus',
+                              'playoffs.powerPlayGoals', 'playoffs.powerPlayPoints', 'playoffs.shorthandedPoints',
+                              'playoffs.gameWinningGoals', 'playoffs.otGoals', 'playoffs.shots',
+                              'playoffs.shootingPctg', 'playoffs.faceoffWinningPctg', 'playoffs.avgToi',
+                              'playoffs.shorthandedGoals']
+        self.skater_career_totals_df = pd.DataFrame()
+        self.skater_career_totals_df = self.skater_career_totals_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         career_totals_found = 0
         if self.json != {}:
             career_totals_found = 1
-            cursor, db = nhlpd.db_import_login()
+            engine = nhlpd.dba_import_login()
+            sql = "insert into skater_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
+                  "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, `regularSeason.points`, " \
+                  "`regularSeason.plusMinus`, `regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, " \
+                  "`regularSeason.shorthandedPoints`, `regularSeason.gameWinningGoals`, `regularSeason.otGoals`, " \
+                  "`regularSeason.shots`, `regularSeason.shootingPctg`, `regularSeason.faceoffWinningPctg`, " \
+                  "`regularSeason.avgToi`, `regularSeason.shorthandedGoals`, `playoffs.gamesPlayed`, " \
+                  "`playoffs.goals`, `playoffs.assists`, `playoffs.pim`, `playoffs.points`, `playoffs.plusMinus`, " \
+                  "`playoffs.powerPlayGoals`, `playoffs.powerPlayPoints`, `playoffs.shorthandedPoints`, " \
+                  "`playoffs.gameWinningGoals`, `playoffs.otGoals`, `playoffs.shots`, `playoffs.shootingPctg`, " \
+                  "`playoffs.faceoffWinningPctg`, `playoffs.avgToi`, `playoffs.shorthandedGoals`) values " \
+                  "(:playerId, :regularSeasongamesPlayed, :regularSeasongoals, :regularSeasonassists, " \
+                  ":regularSeasonpim, :regularSeasonpoints, :regularSeasonplusMinus, " \
+                  ":regularSeasonpowerPlayGoals, :regularSeasonpowerPlayPoints, :regularSeasonshorthandedPoints, " \
+                  ":regularSeasongameWinningGoals, :regularSeasonotGoals, :regularSeasonshots, " \
+                  ":regularSeasonshootingPctg, :regularSeasonfaceoffWinningPctg, :regularSeasonavgToi, " \
+                  ":regularSeasonshorthandedGoals, :playoffsgamesPlayed, :playoffsgoals, :playoffsassists, " \
+                  ":playoffspim, :playoffspoints, :playoffsplusMinus, :playoffspowerPlayGoals, " \
+                  ":playoffspowerPlayPoints, :playoffsshorthandedPoints, :playoffsgameWinningGoals, " \
+                  ":playoffsotGoals, :playoffsshots, :playoffsshootingPctg, :playoffsfaceoffWinningPctg, " \
+                  ":playoffsavgToi, :playoffsshorthandedGoals)"
+            skater_career_transform_df = self.skater_career_totals_df
+            skater_career_transform_df.columns = skater_career_transform_df.columns.str.replace('.','')
+            params = skater_career_transform_df.to_dict('records')
 
-            for index, row in self.skater_career_totals_df.iterrows():
-                sql = "insert into skater_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
-                      "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, `regularSeason.points`, " \
-                      "`regularSeason.plusMinus`, `regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, " \
-                      "`regularSeason.shorthandedPoints`, `regularSeason.gameWinningGoals`, `regularSeason.otGoals`, " \
-                      "`regularSeason.shots`, `regularSeason.shootingPctg`, `regularSeason.faceoffWinningPctg`, " \
-                      "`regularSeason.avgToi`, `regularSeason.shorthandedGoals`, `playoffs.gamesPlayed`, " \
-                      "`playoffs.goals`, `playoffs.assists`, `playoffs.pim`, `playoffs.points`, `playoffs.plusMinus`, " \
-                      "`playoffs.powerPlayGoals`, `playoffs.powerPlayPoints`, `playoffs.shorthandedPoints`, " \
-                      "`playoffs.gameWinningGoals`, `playoffs.otGoals`, `playoffs.shots`, `playoffs.shootingPctg`, " \
-                      "`playoffs.faceoffWinningPctg`, `playoffs.avgToi`, `playoffs.shorthandedGoals`) values (%s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s)"
-                val = ([row['playerId'], row['regularSeason.gamesPlayed'], row['regularSeason.goals'],
-                        row['regularSeason.assists'], row['regularSeason.pim'], row['regularSeason.points'],
-                        row['regularSeason.plusMinus'], row['regularSeason.powerPlayGoals'],
-                        row['regularSeason.powerPlayPoints'], row['regularSeason.shorthandedPoints'],
-                        row['regularSeason.gameWinningGoals'], row['regularSeason.otGoals'], row['regularSeason.shots'],
-                        row['regularSeason.shootingPctg'], row['regularSeason.faceoffWinningPctg'],
-                        row['regularSeason.avgToi'], row['regularSeason.shorthandedGoals'], row['playoffs.gamesPlayed'],
-                        row['playoffs.goals'], row['playoffs.assists'], row['playoffs.pim'], row['playoffs.points'],
-                        row['playoffs.plusMinus'], row['playoffs.powerPlayGoals'], row['playoffs.powerPlayPoints'],
-                        row['playoffs.shorthandedPoints'], row['playoffs.gameWinningGoals'], row['playoffs.otGoals'],
-                        row['playoffs.shots'], row['playoffs.shootingPctg'], row['playoffs.faceoffWinningPctg'],
-                        row['playoffs.avgToi'], row['playoffs.shorthandedGoals']])
-                cursor.execute(sql, val)
-
-            db.commit()
-            cursor.close()
-            db.close()
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         log = nhlpd.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
         log.insert_db()
@@ -65,36 +60,34 @@ class SkaterCareerTotalsImport:
         return True
 
     def clear_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "delete from skater_career_totals_import where playerId = " + str(self.player_id)
-        cursor.execute(sql)
-        db.commit()
-        cursor.close()
-        db.close()
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
-        sql = ("select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, "
-               "`regularSeason.pim`, `regularSeason.points`, `regularSeason.plusMinus`, "
-               "`regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, `regularSeason.shorthandedPoints`, "
-               "`regularSeason.gameWinningGoals`, `regularSeason.otGoals`, `regularSeason.shots`, "
-               "`regularSeason.shootingPctg`, `regularSeason.faceoffWinningPctg`, `regularSeason.avgToi`, "
-               "`regularSeason.shorthandedGoals`, `playoffs.gamesPlayed`, `playoffs.goals`, `playoffs.assists`, "
-               "`playoffs.pim`, `playoffs.points`, `playoffs.plusMinus`, `playoffs.powerPlayGoals`, "
-               "`playoffs.powerPlayPoints`, `playoffs.shorthandedPoints`, `playoffs.gameWinningGoals`, "
-               "`playoffs.otGoals`, `playoffs.shots`, `playoffs.shootingPctg`, `playoffs.faceoffWinningPctg`, "
-               "`playoffs.avgToi`, `playoffs.shorthandedGoals` from skater_career_totals_import where playerId = "
-               "") + str(self.player_id)
-        skater_career_totals_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        engine = nhlpd.dba_import_login()
+        sql = "select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, " \
+              "`regularSeason.pim`, `regularSeason.points`, `regularSeason.plusMinus`, " \
+              "`regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, `regularSeason.shorthandedPoints`, " \
+              "`regularSeason.gameWinningGoals`, `regularSeason.otGoals`, `regularSeason.shots`, " \
+              "`regularSeason.shootingPctg`, `regularSeason.faceoffWinningPctg`, `regularSeason.avgToi`, " \
+              "`regularSeason.shorthandedGoals`, `playoffs.gamesPlayed`, `playoffs.goals`, `playoffs.assists`, " \
+              "`playoffs.pim`, `playoffs.points`, `playoffs.plusMinus`, `playoffs.powerPlayGoals`, " \
+              "`playoffs.powerPlayPoints`, `playoffs.shorthandedPoints`, `playoffs.gameWinningGoals`, " \
+              "`playoffs.otGoals`, `playoffs.shots`, `playoffs.shootingPctg`, `playoffs.faceoffWinningPctg`, " \
+              "`playoffs.avgToi`, `playoffs.shorthandedGoals` from skater_career_totals_import where playerId = " \
+              + str(self.player_id)
+        skater_career_totals_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        self.skater_career_totals_df = self.skater_career_totals_df.head(0)
-        self.skater_career_totals_df = pd.concat([self.skater_career_totals_df, skater_career_totals_df])
-        self.skater_career_totals_df.fillna('', inplace=True)
+        if skater_career_totals_df.size > 0:
+            skater_career_totals_df = skater_career_totals_df.reindex(columns=self.table_columns)
+            skater_career_totals_df.fillna('', inplace=True)
+            self.skater_career_totals_df = skater_career_totals_df
 
         return True
 
@@ -103,9 +96,11 @@ class SkaterCareerTotalsImport:
         skater_career_totals_df.rename(columns={"id": "playerId"}, inplace=True)
         skater_career_totals_df.insert(0, 'playerId', self.player_id)
 
-        self.skater_career_totals_df = self.skater_career_totals_df.head(0)
-        self.skater_career_totals_df = pd.concat([self.skater_career_totals_df, skater_career_totals_df])
-        self.skater_career_totals_df.fillna('', inplace=True)
+        if skater_career_totals_df.size > 0:
+            skater_career_totals_df = skater_career_totals_df.reindex(columns=self.table_columns)
+            skater_career_totals_df.fillna('', inplace=True)
+            self.skater_career_totals_df = skater_career_totals_df
+
 
         return True
 
@@ -121,31 +116,29 @@ class SkaterSeasonImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}
-        self.skater_season_df = pd.DataFrame(columns=['playerId', 'assists', 'gameTypeId', 'gamesPlayed', 'goals',
-                                                      'leagueAbbrev', 'pim', 'points', 'season', 'sequence',
-                                                      'teamName.default', 'gameWinningGoals', 'plusMinus',
-                                                      'powerPlayGoals', 'shorthandedGoals', 'shots',
-                                                      'faceoffWinningPctg'])
+        self.table_columns = ['playerId', 'assists', 'gameTypeId', 'gamesPlayed', 'goals', 'leagueAbbrev', 'pim',
+                              'points', 'season', 'sequence', 'teamName.default', 'gameWinningGoals', 'plusMinus',
+                              'powerPlayGoals', 'shorthandedGoals', 'shots', 'faceoffWinningPctg']
+        self.skater_season_df = pd.DataFrame()
+        self.skater_season_df = self.skater_season_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         season_totals_found = 0
         if self.json != {}:
             season_totals_found = 1
+            engine = nhlpd.dba_import_login()
+            sql = "insert into skater_season_import (playerId, assists, gameTypeId, gamesPlayed, goals, " \
+                  "leagueAbbrev, pim, points, season, sequence, `teamName.default`, gameWinningGoals, plusMinus, " \
+                  "powerPlayGoals, shorthandedGoals, shots, faceoffWinningPctg) values (:playerId, :assists, " \
+                  ":gameTypeId, :gamesPlayed, :goals, :leagueAbbrev, :pim, :points, :season, :sequence, " \
+                  ":teamNamedefault, :gameWinningGoals, :plusMinus, :powerPlayGoals, :shorthandedGoals, " \
+                  ":shots, :faceoffWinningPctg)"
+            skater_season_transform_df = self.skater_season_df
+            skater_season_transform_df.columns = skater_season_transform_df.columns.str.replace('.', '')
+            params = skater_season_transform_df.to_dict('records')
 
-            cursor, db = nhlpd.db_import_login()
-            for index, row in self.skater_season_df.iterrows():
-                sql = "insert into skater_season_import (playerId, assists, gameTypeId, gamesPlayed, goals, " \
-                      "leagueAbbrev, pim, points, season, sequence, `teamName.default`, gameWinningGoals, plusMinus, " \
-                      "powerPlayGoals, shorthandedGoals, shots, faceoffWinningPctg) values (%s, %s, %s, %s, %s, %s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                val = ([row['playerId'], row['assists'], row['gameTypeId'], row['gamesPlayed'], row['goals'],
-                        row['leagueAbbrev'], row['pim'], row['points'], row['season'], row['sequence'],
-                        row['teamName.default'], row['gameWinningGoals'], row['plusMinus'], row['powerPlayGoals'],
-                        row['shorthandedGoals'], row['shots'], row['faceoffWinningPctg']])
-                cursor.execute(sql, val)
-            db.commit()
-            cursor.close()
-            db.close()
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         log = nhlpd.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
         log.insert_db()
@@ -153,28 +146,26 @@ class SkaterSeasonImport:
         return True
 
     def clear_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "delete from skater_season_import where playerId = " + str(self.player_id)
-        cursor.execute(sql)
-        db.commit()
-        cursor.close()
-        db.close()
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select playerId, assists, gameTypeId, gamesPlayed, goals, leagueAbbrev, pim, points, season, " \
               "sequence, `teamName.default`, gameWinningGoals, plusMinus, powerPlayGoals, shorthandedGoals, " \
-              "shots, faceoffWinningPctg from skater_career_totals_import where playerId = " + str(self.player_id)
-        skater_season_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+              "shots, faceoffWinningPctg from skater_season_import where playerId = " + str(self.player_id)
+        skater_season_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        self.skater_season_df = self.skater_season_df.head(0)
-        self.skater_season_df = pd.concat([self.skater_season_df, skater_season_df])
-        self.skater_season_df.fillna('', inplace=True)
+        if skater_season_df.size > 0:
+            skater_season_df = skater_season_df.reindex(columns=self.table_columns)
+            skater_season_df.fillna('', inplace=True)
+            self.skater_season_df = skater_season_df
 
         return True
 
@@ -182,9 +173,10 @@ class SkaterSeasonImport:
         skater_season_df = pd.json_normalize(self.json)
         skater_season_df.insert(0, 'playerId', self.player_id)
 
-        self.skater_season_df = self.skater_season_df.head(0)
-        self.skater_season_df = pd.concat([self.skater_season_df, skater_season_df])
-        self.skater_season_df.fillna('', inplace=True)
+        if skater_season_df.size > 0:
+            skater_season_df = skater_season_df.reindex(columns=self.table_columns)
+            skater_season_df.fillna('', inplace=True)
+            self.skater_season_df = skater_season_df
 
         return True
 
@@ -200,60 +192,53 @@ class GoalieCareerTotalsImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}
-        self.goalie_career_totals_df = pd.DataFrame(columns=['playerId', 'regularSeason.gamesPlayed',
-                                                             'regularSeason.goals', 'regularSeason.assists',
-                                                             'regularSeason.pim', 'regularSeason.gamesStarted',
-                                                             'regularSeason.points', 'regularSeason.wins',
-                                                             'regularSeason.losses', 'regularSeason.otLosses',
-                                                             'regularSeason.shotsAgainst', 'regularSeason.goalsAgainst',
-                                                             'regularSeason.goalsAgainstAvg', 'regularSeason.savePctg',
-                                                             'regularSeason.shutouts', 'regularSeason.timeOnIce',
-                                                             'regularSeason.timeOnIceMinutes',
-                                                             'regularSeason.timeOnIceSeconds', 'playoffs.gamesPlayed',
-                                                             'playoffs.goals', 'playoffs.assists', 'playoffs.pim',
-                                                             'playoffs.gamesStarted', 'playoffs.points',
-                                                             'playoffs.wins', 'playoffs.losses', 'playoffs.otLosses',
-                                                             'playoffs.shotsAgainst', 'playoffs.goalsAgainst',
-                                                             'playoffs.goalsAgainstAvg', 'playoffs.savePctg',
-                                                             'playoffs.shutouts', 'playoffs.timeOnIce',
-                                                             'playoffs.timeOnIceMinutes', 'playoffs.timeOnIceSeconds'])
+        self.table_columns = ['playerId', 'regularSeason.gamesPlayed', 'regularSeason.goals', 'regularSeason.assists',
+                              'regularSeason.pim', 'regularSeason.gamesStarted', 'regularSeason.points',
+                              'regularSeason.wins', 'regularSeason.losses', 'regularSeason.otLosses',
+                              'regularSeason.shotsAgainst', 'regularSeason.goalsAgainst',
+                              'regularSeason.goalsAgainstAvg', 'regularSeason.savePctg', 'regularSeason.shutouts',
+                              'regularSeason.timeOnIce', 'regularSeason.timeOnIceMinutes',
+                              'regularSeason.timeOnIceSeconds', 'playoffs.gamesPlayed', 'playoffs.goals',
+                              'playoffs.assists', 'playoffs.pim', 'playoffs.gamesStarted', 'playoffs.points',
+                              'playoffs.wins', 'playoffs.losses', 'playoffs.otLosses', 'playoffs.shotsAgainst',
+                              'playoffs.goalsAgainst', 'playoffs.goalsAgainstAvg', 'playoffs.savePctg',
+                              'playoffs.shutouts', 'playoffs.timeOnIce', 'playoffs.timeOnIceMinutes',
+                              'playoffs.timeOnIceSeconds']
+        self.goalie_career_totals_df = pd.DataFrame()
+        self.goalie_career_totals_df = self.goalie_career_totals_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         career_totals_found = 0
         if self.json != {}:
             career_totals_found = 1
+            engine = nhlpd.dba_import_login()
+            sql = "insert into goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
+                  "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, " \
+                  "`regularSeason.gamesStarted`, `regularSeason.points`, `regularSeason.wins`, " \
+                  "`regularSeason.losses`, `regularSeason.otLosses`, `regularSeason.shotsAgainst`, " \
+                  "`regularSeason.goalsAgainst`, `regularSeason.goalsAgainstAvg`, " \
+                  "`regularSeason.savePctg`, `regularSeason.shutouts`, `regularSeason.timeOnIce`, " \
+                  "`regularSeason.timeOnIceMinutes`, `regularSeason.timeOnIceSeconds`, `playoffs.gamesPlayed`, " \
+                  "`playoffs.goals`, `playoffs.assists`, `playoffs.pim`, `playoffs.gamesStarted`, `playoffs.points`, " \
+                  "`playoffs.wins`, `playoffs.losses`, `playoffs.otLosses`, `playoffs.shotsAgainst`, " \
+                  "`playoffs.goalsAgainst`, `playoffs.goalsAgainstAvg`, `playoffs.savePctg`, `playoffs.shutouts`, " \
+                  "`playoffs.timeOnIce`, `playoffs.timeOnIceMinutes`, `playoffs.timeOnIceSeconds`) values " \
+                  "(playerId, :regularSeasongamesPlayed, :regularSeasongoals, :regularSeasonassists, " \
+                  ":regularSeasonpim, :regularSeasongamesStarted, :regularSeasonpoints, :regularSeasonwins, " \
+                  ":regularSeasonlosses, :regularSeasonotLosses, :regularSeasonshotsAgainst, " \
+                  ":regularSeasongoalsAgainst, :regularSeasongoalsAgainstAvg, :regularSeasonsavePctg, " \
+                  ":regularSeasonshutouts, :regularSeasontimeOnIce, :regularSeasontimeOnIceMinutes, " \
+                  ":regularSeasontimeOnIceSeconds, :playoffsgamesPlayed, :playoffsgoals, :playoffsassists, " \
+                  ":playoffspim, :playoffsgamesStarted, :playoffspoints, :playoffswins, :playoffslosses, " \
+                  ":playoffsotLosses, :playoffsshotsAgainst, :playoffsgoalsAgainst, :playoffsgoalsAgainstAvg, " \
+                  ":playoffssavePctg, :playoffsshutouts, :playoffstimeOnIce, :playoffstimeOnIceMinutes, " \
+                  ":playoffstimeOnIceSeconds)"
+            goalie_career_transform_df = self.goalie_career_totals_df
+            goalie_career_transform_df.columns = goalie_career_transform_df.columns.str.replace('.', '')
+            params = goalie_career_transform_df.to_dict('records')
 
-            cursor, db = nhlpd.db_import_login()
-            for index, row in self.goalie_career_totals_df.iterrows():
-                sql = "insert into goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
-                      "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, " \
-                      "`regularSeason.gamesStarted`, `regularSeason.points`, `regularSeason.wins`, " \
-                      "`regularSeason.losses`, `regularSeason.otLosses`, `regularSeason.shotsAgainst`, " \
-                      "`regularSeason.goalsAgainst`, `regularSeason.goalsAgainstAvg`, " \
-                      "`regularSeason.savePctg`, `regularSeason.shutouts`, `regularSeason.timeOnIce`, " \
-                      "`regularSeason.timeOnIceMinutes`, `regularSeason.timeOnIceSeconds`, `playoffs.gamesPlayed`, " \
-                      "`playoffs.goals`, `playoffs.assists`, `playoffs.pim`, `playoffs.gamesStarted`, `playoffs.points`, " \
-                      "`playoffs.wins`, `playoffs.losses`, `playoffs.otLosses`, `playoffs.shotsAgainst`, " \
-                      "`playoffs.goalsAgainst`, `playoffs.goalsAgainstAvg`, `playoffs.savePctg`, `playoffs.shutouts`, " \
-                      "`playoffs.timeOnIce`, `playoffs.timeOnIceMinutes`, `playoffs.timeOnIceSeconds`) values (%s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                      "%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-                val = ([row['playerId'], row['regularSeason.gamesPlayed'], row['regularSeason.goals'],
-                        row['regularSeason.assists'], row['regularSeason.pim'], row['regularSeason.gamesStarted'],
-                        row['regularSeason.points'], row['regularSeason.wins'], row['regularSeason.losses'],
-                        row['regularSeason.otLosses'], row['regularSeason.shotsAgainst'], row['regularSeason.goalsAgainst'],
-                        row['regularSeason.goalsAgainstAvg'], row['regularSeason.savePctg'], row['regularSeason.shutouts'],
-                        row['regularSeason.timeOnIce'], row['regularSeason.timeOnIceMinutes'],
-                        row['regularSeason.timeOnIceSeconds'], row['playoffs.gamesPlayed'], row['playoffs.goals'],
-                        row['playoffs.assists'], row['playoffs.pim'], row['playoffs.gamesStarted'], row['playoffs.points'],
-                        row['playoffs.wins'], row['playoffs.losses'], row['playoffs.otLosses'],
-                        row['playoffs.shotsAgainst'], row['playoffs.goalsAgainst'], row['playoffs.goalsAgainstAvg'],
-                        row['playoffs.savePctg'], row['playoffs.shutouts'], row['playoffs.timeOnIce'],
-                        row['playoffs.timeOnIceMinutes'], row['playoffs.timeOnIceSeconds']])
-                cursor.execute(sql, val)
-            db.commit()
-            cursor.close()
-            db.close()
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         log = nhlpd.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
         log.insert_db()
@@ -261,17 +246,16 @@ class GoalieCareerTotalsImport:
         return True
 
     def clear_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "delete from goalie_career_totals_import where playerId = " + str(self.player_id)
-        cursor.execute(sql)
-        db.commit()
-        cursor.close()
-        db.close()
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql= "select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, " \
               "`regularSeason.pim`, `regularSeason.gamesStarted`, `regularSeason.points`, `regularSeason.wins`, " \
               "`regularSeason.losses`, `regularSeason.otLosses`, `regularSeason.shotsAgainst`, " \
@@ -282,14 +266,13 @@ class GoalieCareerTotalsImport:
               "`playoffs.otLosses`, `playoffs.shotsAgainst`, `playoffs.goalsAgainst`, `playoffs.goalsAgainstAvg`, " \
               "`playoffs.savePctg`, `playoffs.shutouts`, `playoffs.timeOnIce`, `playoffs.timeOnIceMinutes`, " \
               "`playoffs.timeOnIceSeconds` from goalie_career_totals_import where playerId = " + str(self.player_id)
-        goalie_career_totals_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        goalie_career_totals_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        self.goalie_career_totals_df = self.goalie_career_totals_df.head(0)
-        self.goalie_career_totals_df = pd.concat([self.goalie_career_totals_df, goalie_career_totals_df])
-        self.goalie_career_totals_df.fillna('', inplace=True)
+        if goalie_career_totals_df.size > 0:
+            goalie_career_totals_df = goalie_career_totals_df.reindex(columns=self.table_columns)
+            goalie_career_totals_df.fillna('', inplace=True)
+            self.goalie_career_totals_df = goalie_career_totals_df
 
         return True
 
@@ -298,9 +281,10 @@ class GoalieCareerTotalsImport:
         goalie_career_totals_df.rename(columns={"id": "playerId"}, inplace=True)
         goalie_career_totals_df.insert(0, 'playerId', self.player_id)
 
-        self.goalie_career_totals_df = self.goalie_career_totals_df.head(0)
-        self.goalie_career_totals_df = pd.concat([self.goalie_career_totals_df, goalie_career_totals_df])
-        self.goalie_career_totals_df.fillna('', inplace=True)
+        if goalie_career_totals_df.size > 0:
+            goalie_career_totals_df = goalie_career_totals_df.reindex(columns=self.table_columns)
+            goalie_career_totals_df.fillna('', inplace=True)
+            self.goalie_career_totals_df = goalie_career_totals_df
 
         if self.goalie_career_totals_df.loc[0, 'regularSeason.timeOnIce'] != '':
             self.goalie_career_totals_df[['regularSeason.timeOnIceMinutes', 'regularSeason.timeOnIceSeconds']] = \
@@ -329,36 +313,31 @@ class GoalieSeasonImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}
-        self.goalie_season_df = pd.DataFrame(columns=['playerId', 'gameTypeId', 'gamesPlayed', 'goalsAgainst',
-                                                      'goalsAgainstAvg', 'leagueAbbrev', 'losses', 'season', 'sequence',
-                                                      'shutouts', 'ties', 'timeOnIce', 'timeOnIceMinutes',
-                                                      'timeOnIceSeconds', 'wins', 'teamName.default', 'savePctg',
-                                                      'shotsAgainst', 'otLosses', 'assists', 'gamesStarted', 'goals',
-                                                      'pim'])
+        self.table_columns = ['playerId', 'gameTypeId', 'gamesPlayed', 'goalsAgainst', 'goalsAgainstAvg',
+                              'leagueAbbrev', 'losses', 'season', 'sequence', 'shutouts', 'ties', 'timeOnIce',
+                              'timeOnIceMinutes', 'timeOnIceSeconds', 'wins', 'teamName.default', 'savePctg',
+                              'shotsAgainst', 'otLosses', 'assists', 'gamesStarted', 'goals', 'pim']
+        self.goalie_season_df = pd.DataFrame()
+        self.goalie_season_df = self.goalie_season_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         season_totals_found = 0
-
         if self.json != {}:
             season_totals_found = 1
+            engine = nhlpd.dba_import_login()
+            sql = "insert into goalie_season_import (playerId, gameTypeId, gamesPlayed, goalsAgainst, " \
+                  "goalsAgainstAvg, leagueAbbrev, losses, season, sequence, shutouts, ties, timeOnIce, " \
+                  "timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, savePctg, shotsAgainst, " \
+                  "otLosses, assists, gamesStarted, goals, pim) values (:playerId, :gameTypeId, :gamesPlayed, " \
+                  ":goalsAgainst, :goalsAgainstAvg, :leagueAbbrev, :losses, :season, :sequence, :shutouts, :ties, " \
+                  ":timeOnIce, :timeOnIceMinutes, :timeOnIceSeconds, :wins, :teamNamedefault, :savePctg, " \
+                  ":shotsAgainst, :otLosses, :assists, :gamesStarted, :goals, :pim)"
+            goalie_season_transform_df = self.goalie_season_df
+            goalie_season_transform_df.columns = goalie_season_transform_df.columns.str.replace('.', '')
+            params = goalie_season_transform_df.to_dict('records')
 
-            cursor, db = nhlpd.db_import_login()
-            for index, row in self.goalie_season_df.iterrows():
-                sql = ("insert into goalie_season_import (playerId, gameTypeId, gamesPlayed, goalsAgainst, "
-                       "goalsAgainstAvg, leagueAbbrev, losses, season, sequence, shutouts, ties, timeOnIce, "
-                       "timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, savePctg, shotsAgainst, "
-                       "otLosses, assists, gamesStarted, goals, pim) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, "
-                       "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-                val = ([row['playerId'], row['gameTypeId'], row['gamesPlayed'], row['goalsAgainst'],
-                        row['goalsAgainstAvg'], row['leagueAbbrev'], row['losses'], row['season'], row['sequence'],
-                        row['shutouts'], row['ties'], row['timeOnIce'], row['timeOnIceMinutes'],
-                        row['timeOnIceSeconds'], row['wins'], row['teamName.default'], row['savePctg'],
-                        row['shotsAgainst'], row['otLosses'], row['assists'], row['gamesStarted'], row['goals'],
-                        row['pim']])
-                cursor.execute(sql, val)
-            db.commit()
-            cursor.close()
-            db.close()
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         log = nhlpd.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
         log.insert_db()
@@ -366,29 +345,27 @@ class GoalieSeasonImport:
         return True
 
     def clear_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "delete from goalie_season_import where playerId = " + str(self.player_id)
-        cursor.execute(sql)
-        db.commit()
-        cursor.close()
-        db.close()
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
-        sql = ("select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, season, "
-               "sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, "
-               "savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, pim from goalie_season_import where "
-               "playerId = ") + str(self.player_id)
-        goalie_season_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        engine = nhlpd.dba_import_login()
+        sql = "select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, season, "\
+              "sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, "\
+              "savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, pim from goalie_season_import where "\
+              "playerId = " + str(self.player_id)
+        goalie_season_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        self.goalie_season_df = self.goalie_season_df.head(0)
-        self.goalie_season_df = pd.concat([self.goalie_season_df, goalie_season_df])
-        self.goalie_season_df.fillna('', inplace=True)
+        if goalie_season_df.size > 0:
+            goalie_season_df = goalie_season_df.reindex(columns=self.table_columns)
+            goalie_season_df.fillna('', inplace=True)
+            self.goalie_season_df = goalie_season_df
 
         return True
 
@@ -397,9 +374,10 @@ class GoalieSeasonImport:
         goalie_season_df.rename(columns={"id": "playerId"}, inplace=True)
         goalie_season_df.insert(0, 'playerId', self.player_id)
 
-        self.goalie_season_df = self.goalie_season_df.head(0)
-        self.goalie_season_df = pd.concat([self.goalie_season_df, goalie_season_df])
-        self.goalie_season_df.fillna('', inplace=True)
+        if goalie_season_df.size > 0:
+            goalie_season_df = goalie_season_df.reindex(columns=self.table_columns)
+            goalie_season_df.fillna('', inplace=True)
+            self.goalie_season_df = goalie_season_df
 
         if not self.goalie_season_df.empty:
             self.goalie_season_df.fillna('', inplace=True)
@@ -425,22 +403,23 @@ class PlayerAwardsImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}
-        self.player_awards_df = pd.DataFrame(columns=['playerId', 'seasonId', 'trophy.default'])
+        self.table_columns = ['playerId', 'seasonId', 'trophy.default']
+        self.player_awards_df = pd.DataFrame()
+        self.player_awards_df = self.player_awards_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         awards_found = 0
         if self.json != {}:
             awards_found = 1
-            cursor, db = nhlpd.db_import_login()
+            engine = nhlpd.dba_import_login()
+            sql = "insert into player_award_import (playerId, seasonId, `trophy.default`) values " \
+                  "(:playerId, :seasonId, :trophydefault)"
+            player_awards_transform_df = self.player_awards_df
+            player_awards_transform_df.columns = player_awards_transform_df.columns.str.replace('.', '')
+            params = player_awards_transform_df.to_dict('records')
 
-            for index, row in self.player_awards_df.iterrows():
-                sql = 'insert into player_award_import (playerId, seasonId, `trophy.default`) values (%s, %s, %s)'
-                val = [row['playerId'], row['seasonId'], row['trophy.default']]
-                cursor.execute(sql, val)
-
-            db.commit()
-            cursor.close()
-            db.close()
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
         log = nhlpd.PlayerImportLog(player_id=self.player_id, awards_found=awards_found)
         log.insert_db()
@@ -448,33 +427,27 @@ class PlayerAwardsImport:
         return True
 
     def clear_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "delete from player_award_import where playerId = " + str(self.player_id)
-        cursor.execute(sql)
-        db.commit()
-        cursor.close()
-        db.close()
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, " \
                      "season, sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, " \
                      "`teamName.default`, savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, " \
                      "pim from goalie_season_import where playerId = " + str(self.player_id)
-        player_awards_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        player_awards_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        self.player_awards_df = self.player_awards_df.head(0)
-        self.player_awards_df = pd.concat([self.player_awards_df, player_awards_df])
-        self.player_awards_df.fillna('', inplace=True)
-
-        db.commit()
-        cursor.close()
-        db.close()
+        if player_awards_df.size > 0:
+            player_awards_df = player_awards_df.reindex(columns=self.table_columns)
+            player_awards_df.fillna('', inplace=True)
+            self.player_awards_df = player_awards_df
 
         return True
 
@@ -483,9 +456,10 @@ class PlayerAwardsImport:
         player_awards_df.rename(columns={"id": "playerId"}, inplace=True)
         player_awards_df.insert(0, 'playerId', self.player_id)
 
-        self.player_awards_df = self.player_awards_df.head(0)
-        self.player_awards_df = pd.concat([self.player_awards_df, player_awards_df])
-        self.player_awards_df.fillna('', inplace=True)
+        if player_awards_df.size > 0:
+            player_awards_df = player_awards_df.reindex(columns=self.table_columns)
+            player_awards_df.fillna('', inplace=True)
+            self.player_awards_df = player_awards_df
 
         return True
 
@@ -501,53 +475,51 @@ class PlayersImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}
-        self.player_bios_df = pd.DataFrame(columns=['playerId', 'isActive', 'currentTeamId', 'currentTeamAbbrev',
-                                           'sweaterNumber', 'position', 'heightInInches', 'heightInCentimeters',
-                                           'weightInPounds', 'weightInKilograms', 'birthDate', 'birthCountry',
-                                           'shootsCatches', 'inTop100AllTime', 'inHHOF', 'firstName.default',
-                                           'lastName.default', 'birthCity.default', 'birthStateProvince.default',
-                                           'draftDetails.year', 'draftDetails.teamAbbrev', 'draftDetails.round',
-                                           'draftDetails.pickInRound', 'draftDetails.overallPick'])
+        self.table_columns = ['playerId', 'isActive', 'currentTeamId', 'currentTeamAbbrev', 'sweaterNumber', 'position',
+                              'heightInInches', 'heightInCentimeters', 'weightInPounds', 'weightInKilograms',
+                              'birthDate', 'birthCountry', 'shootsCatches', 'inTop100AllTime', 'inHHOF',
+                              'firstName.default', 'lastName.default', 'birthCity.default',
+                              'birthStateProvince.default', 'draftDetails.year', 'draftDetails.teamAbbrev',
+                              'draftDetails.round', 'draftDetails.pickInRound', 'draftDetails.overallPick']
+        self.player_bios_df = pd.DataFrame()
         self.position = ''
-        self.goalie_seasons = GoalieSeasonImport(self.player_id)
-        self.goalie_career_totals = GoalieCareerTotalsImport(self.player_id)
-        self.skater_seasons = SkaterSeasonImport(self.player_id)
-        self.skater_career_totals = SkaterCareerTotalsImport(self.player_id)
-        self.player_awards = PlayerAwardsImport(self.player_id)
+        self.goalie_seasons = GoalieSeasonImport(player_id)
+        self.goalie_career_totals = GoalieCareerTotalsImport(player_id)
+        self.skater_seasons = SkaterSeasonImport(player_id)
+        self.skater_career_totals = SkaterCareerTotalsImport(player_id)
+        self.player_awards = PlayerAwardsImport(player_id)
+        self.query_db()
+        self.player_bios_df = self.player_bios_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         player_found = 0
         if self.json != {}:
             player_found = 1
-            row = self.player_bios_df.iloc[0]
-            row = row.fillna('')
 
-            cursor, db = nhlpd.db_import_login()
-
+            engine = nhlpd.dba_import_login()
             sql = "insert into player_bios_import (playerId, isActive, currentTeamId, currentTeamAbbrev, " \
                   "sweaterNumber, position, heightInInches, heightInCentimeters, weightInPounds, weightInKilograms, " \
                   "birthDate, birthCountry, shootsCatches, inTop100AllTime, inHHOF, `firstName.default`, " \
                   "`lastName.default`, `birthCity.default`, `birthStateProvince.default`, `draftDetails.year`, " \
                   "`draftDetails.teamAbbrev`, `draftDetails.round`, `draftDetails.pickInRound`, " \
-                  "`draftDetails.overallPick`) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                  "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            val = (row['playerId'], row['isActive'], row['currentTeamId'], row['currentTeamAbbrev'],
-                   row['sweaterNumber'], row['position'], row['heightInInches'], row['heightInCentimeters'],
-                   row['weightInPounds'], row['weightInKilograms'], row['birthDate'], row['birthCountry'],
-                   row['shootsCatches'], row['inTop100AllTime'], row['inHHOF'], row['firstName.default'],
-                   row['lastName.default'], row['birthCity.default'], row['birthStateProvince.default'],
-                   row['draftDetails.year'], row['draftDetails.teamAbbrev'], row['draftDetails.round'],
-                   row['draftDetails.pickInRound'], row['draftDetails.overallPick'])
-            cursor.execute(sql, val)
+                  "`draftDetails.overallPick`) values (:playerId, :isActive, :currentTeamId, :currentTeamAbbrev, " \
+                  ":sweaterNumber, :position, :heightInInches, :heightInCentimeters, :weightInPounds, " \
+                  ":weightInKilograms, :birthDate, :birthCountry, :shootsCatches, :inTop100AllTime, :inHHOF, " \
+                  ":firstNamedefault, :lastNamedefault, :birthCitydefault, :birthStateProvincedefault, " \
+                  ":draftDetailsyear, :draftDetailsteamAbbrev, :draftDetailsround, :draftDetailspickInRound, " \
+                  ":draftDetailsoverallPick)"
+            player_transform_df = self.player_bios_df
+            player_transform_df.columns = player_transform_df.columns.str.replace('.', '')
+            params = player_transform_df.to_dict('records')
+            with engine.connect() as conn:
+                conn.execute(text(sql), parameters=params)
 
-            db.commit()
-            cursor.close()
-            db.close()
-
-            self.goalie_seasons.update_db()
-            self.goalie_career_totals.update_db()
-            self.skater_seasons.update_db()
-            self.skater_career_totals.update_db()
+            if self.position == 'G':
+                self.goalie_seasons.update_db()
+                self.goalie_career_totals.update_db()
+            else:
+                self.skater_seasons.update_db()
+                self.skater_career_totals.update_db()
             self.player_awards.update_db()
 
         log = nhlpd.PlayerImportLog(player_id=self.player_id, player_found=player_found)
@@ -556,46 +528,45 @@ class PlayersImport:
         return True
 
     def clear_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "delete from player_bios_import where playerId = " + str(self.player_id)
-        cursor.execute(sql)
-        db.commit()
-        cursor.close()
-        db.close()
+        with engine.connect() as conn:
+            conn.execute(text(sql))
+        engine.dispose()
 
-        self.goalie_seasons.clear_db()
-        self.goalie_career_totals.clear_db()
-        self.skater_seasons.clear_db()
-        self.skater_career_totals.clear_db()
+        if self.position == 'G':
+            self.goalie_seasons.clear_db()
+            self.goalie_career_totals.clear_db()
+        else:
+            self.skater_seasons.clear_db()
+            self.skater_career_totals.clear_db()
         self.player_awards.clear_db()
 
         return True
 
     def query_db(self):
-        cursor, db = nhlpd.db_import_login()
+        engine = nhlpd.dba_import_login()
         sql = "select id, playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, " \
               "heightInInches, heightInCentimeters, weightInPounds, weightInKilograms, birthDate, birthCountry, " \
               "shootsCatches, inTop100AllTime, inHHOF, `firstName.default`, `lastName.default`, `birthCity.default`, " \
               "`birthStateProvince.default`, `draftDetails.year`, `draftDetails.teamAbbrev`, `draftDetails.round`, " \
               "`draftDetails.pickInRound`, `draftDetails.overallPick` from player_bios_import where " \
               "playerId = " + str(self.player_id)
-        player_bios_df = pd.read_sql(sql, db)
-        db.commit()
-        cursor.close()
-        db.close()
+        player_bios_df = pd.read_sql_query(sql, engine)
+        engine.dispose()
 
-        player_bios_df.fillna('', inplace=True)
+        if player_bios_df.size > 0:
+            player_bios_df = player_bios_df.reindex(columns=self.table_columns)
+            player_bios_df.fillna('', inplace=True)
+            self.player_bios_df = player_bios_df
+            self.position = self.player_bios_df.at[0, 'position']
 
-        self.player_bios_df = self.player_bios_df.head(0)
-        self.player_bios_df = pd.concat([self.player_bios_df, player_bios_df])
-        self.player_bios_df.fillna('', inplace=True)
-
-        self.position = self.player_bios_df.at[0, 'position']
-
-        self.goalie_seasons.query_db()
-        self.goalie_career_totals.query_db()
-        self.skater_seasons.query_db()
-        self.skater_career_totals.query_db()
+        if self.position == 'G':
+            self.goalie_seasons.query_db()
+            self.goalie_career_totals.query_db()
+        else:
+            self.skater_seasons.query_db()
+            self.skater_career_totals.query_db()
         self.player_awards.query_db()
 
         return True
@@ -605,11 +576,12 @@ class PlayersImport:
         url_suffix = '/landing'
         url_string = "{}{}{}".format(url_prefix, self.player_id, url_suffix)
         self.json = nhlpd.fetch_json_data(url_string)
-
-        self.player_bios_df = self.player_bios_df.head(0)
         player_bios_df = pd.json_normalize(self.json)
-        self.player_bios_df = pd.concat([self.player_bios_df, player_bios_df])
-        self.player_bios_df.fillna('', inplace=True)
+
+        if player_bios_df.size > 0:
+            player_bios_df = player_bios_df.reindex(columns=self.table_columns)
+            player_bios_df.fillna('', inplace=True)
+            self.player_bios_df = player_bios_df
 
         self.position = self.player_bios_df.at[0, 'position']
 
