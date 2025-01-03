@@ -45,8 +45,6 @@ class TeamsImport:
         teams_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
-        teams_df = teams_df.fillna('')
-
         return teams_df
 
     def query_nhl(self, tri_code=''):
@@ -54,7 +52,7 @@ class TeamsImport:
         if json_data != {}:
             teams_df = pd.json_normalize(json_data, record_path=['data'])
             teams_df.rename(columns={'id': 'teamId'}, inplace=True)
-            teams_df.fillna(0, inplace=True)
+            # teams_df.fillna(0, inplace=True)
             self.teams_df = teams_df.reindex(columns=self.table_columns)
 
         if tri_code != '':
