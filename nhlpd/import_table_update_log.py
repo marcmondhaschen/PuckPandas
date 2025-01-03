@@ -30,9 +30,6 @@ class ImportTableUpdateLog:
         update_details = pd.read_sql_query(sql, engine)
         engine.dispose()
 
-        if update_details.size > 0:
-            update_details.fillna('', inplace=True)
-
         return update_details
 
     def last_update(self, table_name):
