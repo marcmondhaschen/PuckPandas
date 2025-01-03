@@ -52,7 +52,6 @@ class TeamsImport:
         if json_data != {}:
             teams_df = pd.json_normalize(json_data, record_path=['data'])
             teams_df.rename(columns={'id': 'teamId'}, inplace=True)
-            # teams_df.fillna(0, inplace=True)
             self.teams_df = teams_df.reindex(columns=self.table_columns)
 
         if tri_code != '':
