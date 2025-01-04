@@ -42,7 +42,7 @@ class RostersImport:
         engine.dispose()
 
         if roster_df.size > 0:
-            roster_df.fillna('', inplace=True)
+            roster_df.infer_objects().fillna('', inplace=True)
             self.roster_df = roster_df
 
 
