@@ -20,7 +20,9 @@ class GamesImport:
         self.games_df = self.games_df.reindex(columns=self.table_columns)
 
     def update_db(self):
+        games_found = 0
         if self.games_df.size > 0:
+            games_found = 1
             engine = nhlpd.dba_import_login()
             sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, " \
                   "startTimeUTC, venueUTCOffset, venueTimezone, gameState, gameScheduleState, awayTeam, " \
@@ -45,7 +47,7 @@ class GamesImport:
                 game_log = nhlpd.GamesImportLog(row['gameId'], game_found=1)
                 game_log.insert_db()
 
-            season_log = nhlpd.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id)
+            season_log = nhlpd.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id, games_found=games_found)
             season_log.insert_db()
 
             engine.dispose()
@@ -78,7 +80,7 @@ class GamesImport:
 
         if games_df.size > 0:
             games_df = games_df.reindex(columns=self.table_columns)
-            games_df.fillna('', inplace=True)
+            games_df.infer_objects().fillna('', inplace=True)
             games_df.drop_duplicates(inplace=True)
             self.games_df = games_df
 
@@ -104,8 +106,8 @@ class GamesImport:
                                      'periodDescriptor.periodType': 'periodType',
                                      'gameOutcome.lastPeriodType': 'gameOutcome'}, inplace=True)
             games_df = games_df.reindex(columns=self.table_columns)
-            games_df.fillna('', inplace=True)
-            games_df.dropna(axis=1, inplace=True)
+            games_df.drop(columns=['homeTeam.commonName.fr', 'awayTeam.commonName.fr'], errors='ignore')
+            games_df.fillna(0, inplace=True)
 
             if games_df.size > 0:
                 self.games_df = games_df
@@ -113,7 +115,7 @@ class GamesImport:
         return self.games_df
 
     def query_nhl_update_db(self):
-        # For this object, this pattern has the side-effect of deleting duplicate gameIds in the games_import table.
+        # For this object, this pattern has the side effect of deleting duplicate gameIds in the games_import table.
         # Each game is presented twice by the API - once for each opposing team. the
         # clear method will drop games from a team about to be imported, removing their impending duplication on import
         # but leaving behind all the previous competitors' matches that didn't involve them.
