@@ -1,28 +1,4 @@
 OPEN ITEMS
-    FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a
-        future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior,
-        set `pd.set_option('future.no_silent_downcasting', True)` self.goalie_season_df =
-        self.goalie_season_df.fillna(0)
-
-    FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
-        of pandas. Value '' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-
-    FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future
-        version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the
-        old behavior, exclude the relevant entries before the concat operation.
-
-    UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3
-        DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-        swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
-
-    Google says iterrows is slow and that seems to be the case - maybe try factoring it out?
-        * 24 uses so far, and it looks like they're all used exactly the same way
-        * for index, row in [some DataFrame].iterrows():
-
-    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
-        need a second sub folder for database normalization controllers
-        need a third sub for any needed visualization controllers
-
 	build normalized database schema from the imported data
 	    * code which controls these transformations will
 		* assign import tables to an import database schema
@@ -30,6 +6,14 @@ OPEN ITEMS
 		reduce each import table to normalized components
 			build tables to store these normalized components
 			write objects to update and control these normalized components
+
+	build a set of controller objects that transforms import data into prod/normalized data
+
+	add to the scheduler so that it
+
+    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
+        need a second sub folder for database normalization controllers
+        need a third sub for any needed visualization controllers
 
 	DRP - backup code & database plan
 
@@ -56,6 +40,28 @@ OPEN ITEMS
         contracts?
 
 ********************************************************************************
+    FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
+        of pandas. Value '' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+        [some_dataframe].fillna('', inplace=True)
+
+    FutureWarning: Downcasting object dtype arrays on .fillna, .ffill, .bfill is deprecated and will change in a
+        future version. Call result.infer_objects(copy=False) instead. To opt-in to the future behavior,
+        set `pd.set_option('future.no_silent_downcasting', True)` self.goalie_season_df =
+        self.goalie_season_df.fillna(0)
+
+    Google says iterrows is slow and that seems to be the case - maybe try factoring it out?
+        * 22 uses so far, and it looks like they're all used exactly the same way
+        * for index, row in [some DataFrame].iterrows():
+        * down to 5 that i think I want to keep
+
+    FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future
+        version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the
+        old behavior, exclude the relevant entries before the concat operation.
+
+    UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3
+        DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+        swap the mysql db connector for the sqlalchemy db connector and remove the mysql connector's file
+
     * there's a bunch of cruft in the check* functions for Scheduler.py that should probably be broken out into its own
         set of helper functions - particularly each of the DB calls
 
