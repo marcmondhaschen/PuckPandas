@@ -9,10 +9,11 @@ class GamesImportLog:
     def __init__(self, game_id = '', game_found='', game_center_found='', tv_broadcasts_found='',
                  plays_found='', roster_spots_found='', team_game_stats_found='', season_series_found='',
                  referees_found='', linesmen_found='', scratches_found='', shifts_found=''):
-        self.update_details = pd.Series(dtype=str, index=['gameId', 'lastDateUpdated', 'gameFound', 'gameCenterFound',
-                                               'tvBroadcastsFound', 'playsFound', 'rosterSpotsFound',
-                                               'teamGameStatsFound', 'seasonSeriesFound', 'linescoreByPeriodFound',
-                                               'refereesFound', 'linesmenFound', 'scratchesFound', 'shiftsFound'])
+        self.update_details = (
+            pd.Series(dtype=str, index=['gameId', 'lastDateUpdated', 'gameFound', 'gameCenterFound',
+                                        'tvBroadcastsFound', 'playsFound', 'rosterSpotsFound', 'teamGameStatsFound',
+                                        'seasonSeriesFound', 'refereesFound', 'linesmenFound', 'scratchesFound',
+                                        'shiftsFound']))
         self.update_details['gameId'] = game_id
         self.update_details['gameFound'] = game_found
         self.update_details['gameCenterFound'] = game_center_found
@@ -37,10 +38,10 @@ class GamesImportLog:
                 engine = nhlpd.dba_import_login()
                 sql = "insert into games_import_log (gameId, lastDateUpdated, gameFound, gameCenterFound, " \
                       "tvBroadcastsFound, playsFound, rosterSpotsFound, teamGameStatsFound, seasonSeriesFound, " \
-                      "linescoreByPeriodFound, refereesFound, linesmenFound, scratchesFound, shiftsFound) " \
-                      "values (:gameId, :lastDateUpdated, :gameFound, :gameCenterFound, :tvBroadcastsFound, " \
-                      ":playsFound, :rosterSpotsFound, :teamGameStats, :seasonSeriesFound, :linescoreByPeriodFound, " \
-                      ":refereesFound, :linesmenFound, :scratchesFound, :shiftsFound)"
+                      "refereesFound, linesmenFound, scratchesFound, shiftsFound) values (:gameId, "\
+                      ":lastDateUpdated, :gameFound, :gameCenterFound, :tvBroadcastsFound, :playsFound, "\
+                      ":rosterSpotsFound, :teamGameStats, :seasonSeriesFound, :refereesFound, :linesmenFound, "\
+                      ":scratchesFound, :shiftsFound)"
                 params = {"gameId": self.update_details['gameId'],
                        "lastDateUpdated": np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
                        "gameFound": self.update_details['gameFound'],
@@ -50,7 +51,6 @@ class GamesImportLog:
                        "rosterSpotsFound": self.update_details['rosterSpotsFound'],
                        "teamGameStats": self.update_details['teamGameStatsFound'],
                        "seasonSeriesFound": self.update_details['seasonSeriesFound'],
-                       "linescoreByPeriodFound": self.update_details['linescoreByPeriodFound'],
                        "refereesFound": self.update_details['refereesFound'],
                        "linesmenFound": self.update_details['linesmenFound'],
                        "scratchesFound": self.update_details['scratchesFound'],
