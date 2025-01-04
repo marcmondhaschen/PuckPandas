@@ -46,8 +46,6 @@ class Scheduler:
 
     def check_seasons_import(self):
         last_update = self.table_log.last_update(table_name="team_seasons_import")
-        max_season_start_year = int(self.max_season_id[0:4])
-        max_season_end_year = int(self.max_season_id[4:8])
 
         # if there's no record in the log
         if last_update is None:
@@ -56,6 +54,9 @@ class Scheduler:
             return check_bool
 
         # if we are in a play season & our database has the current season we pass, otherwise run
+        max_season_start_year = int(self.max_season_id[0:4])
+        max_season_end_year = int(self.max_season_id[4:8])
+
         if self.current_month >= 9 and self.current_year == max_season_start_year:
             check_bool = False
         elif self.current_month < 6 and self.current_year == max_season_end_year:
@@ -103,7 +104,7 @@ class Scheduler:
         last_update = self.table_log.last_update(table_name="game_center_import")
         import_log = nhlpd.GamesImportLog()
         last_minus_two_weeks = ''
-        if last_update != '':
+        if last_update is not None:
             last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
 
         # if there are unchecked games in the games_import_log table
@@ -113,6 +114,7 @@ class Scheduler:
         recent_games = import_log.games_played_recently(last_minus_two_weeks, self.current_time)
 
         games = pd.concat([unpolled_games, recent_games])
+        games.drop_duplicates(inplace=True)
 
         if games.size > 0:
             check_bool = True

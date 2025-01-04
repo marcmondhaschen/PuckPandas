@@ -48,7 +48,7 @@ class ScratchesImport:
 
         if scratches_df.size > 0:
             scratches_df = scratches_df.reindex(columns=self.table_columns)
-            scratches_df.fillna('', inplace=True)
+            scratches_df.infer_objects().fillna('', inplace=True)
             self.scratches_df = scratches_df
 
         return True
@@ -60,7 +60,7 @@ class ScratchesImport:
 
         if scratches_df.size > 0:
             scratches_df = scratches_df.reindex(columns=self.table_columns)
-            scratches_df.fillna('', inplace=True)
+            scratches_df.infer_objects().fillna('', inplace=True)
             self.scratches_df = scratches_df
 
         return True
@@ -115,7 +115,7 @@ class LinesmenImport:
 
         if linesmen_df.size > 0:
             linesmen_df = linesmen_df.reindex(columns=self.table_columns)
-            linesmen_df.fillna('', inplace=True)
+            linesmen_df.infer_objects().fillna('', inplace=True)
             self.linesmen_df = linesmen_df
 
         return True
@@ -126,7 +126,7 @@ class LinesmenImport:
 
         if linesmen_df.size > 0:
             linesmen_df = linesmen_df.reindex(columns=self.table_columns)
-            linesmen_df.fillna('', inplace=True)
+            linesmen_df.infer_objects().fillna('', inplace=True)
             self.linesmen_df = linesmen_df
 
         return True
@@ -180,7 +180,7 @@ class RefereesImport:
 
         if referees_df.size > 0:
             referees_df = referees_df.reindex(columns=self.table_columns)
-            referees_df.fillna('', inplace=True)
+            referees_df.infer_objects().fillna('', inplace=True)
             self.referees_df = referees_df
 
         return True
@@ -191,7 +191,7 @@ class RefereesImport:
 
         if referees_df.size > 0:
             referees_df = referees_df.reindex(columns=self.table_columns)
-            referees_df.fillna('', inplace=True)
+            referees_df.infer_objects().fillna('', inplace=True)
             self.referees_df = referees_df
 
         return True
@@ -246,7 +246,7 @@ class SeasonSeriesImport:
 
         if season_series_df.size > 0:
             season_series_df = season_series_df.reindex(columns=self.table_columns)
-            season_series_df.fillna('', inplace=True)
+            season_series_df.infer_objects().fillna('', inplace=True)
             self.season_series_df = season_series_df
 
         return True
@@ -260,7 +260,7 @@ class SeasonSeriesImport:
 
         if season_series_df.size > 0:
             season_series_df = season_series_df.reindex(columns=self.table_columns)
-            season_series_df.fillna('', inplace=True)
+            season_series_df.infer_objects().fillna('', inplace=True)
             self.season_series_df = season_series_df
 
         return True
@@ -316,7 +316,7 @@ class TeamGameStatsImport:
 
         if team_game_stats_df.size > 0:
             team_game_stats_df = team_game_stats_df.reindex(columns=self.table_columns)
-            team_game_stats_df.fillna('', inplace=True)
+            team_game_stats_df.infer_objects().fillna('', inplace=True)
             self.team_game_stats_df = team_game_stats_df
 
         return True
@@ -327,7 +327,7 @@ class TeamGameStatsImport:
 
         if team_game_stats_df.size > 0:
             team_game_stats_df = team_game_stats_df.reindex(columns=self.table_columns)
-            team_game_stats_df.fillna('', inplace=True)
+            team_game_stats_df.infer_objects().fillna('', inplace=True)
             self.team_game_stats_df = team_game_stats_df
 
         return True
@@ -361,6 +361,7 @@ class RosterSpotsImport:
                   ":positionCode, :headshot, :firstNamedefault, :lastNamedefault)"
             roster_spots_df = self.roster_spots_df
             roster_spots_df.columns = roster_spots_df.columns.str.replace('.', '')
+            roster_spots_df.fillna(0, inplace=True)
             params = roster_spots_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -387,7 +388,7 @@ class RosterSpotsImport:
 
         if roster_spots_df.size > 0:
             roster_spots_df = roster_spots_df.reindex(columns=self.table_columns)
-            roster_spots_df.fillna('', inplace=True)
+            roster_spots_df.infer_objects().fillna('', inplace=True)
             self.roster_spots_df = roster_spots_df
 
         return True
@@ -398,7 +399,7 @@ class RosterSpotsImport:
 
         if roster_spots_df.size > 0:
             roster_spots_df = roster_spots_df.reindex(columns=self.table_columns)
-            roster_spots_df.fillna('', inplace=True)
+            roster_spots_df.fillna(0, inplace=True)
             self.roster_spots_df = roster_spots_df
 
         return True
@@ -499,7 +500,7 @@ class PlaysImport:
 
         if plays_df.size > 0:
             plays_df = plays_df.reindex(columns=self.table_columns)
-            plays_df.fillna('', inplace=True)
+            plays_df.infer_objects().fillna('', inplace=True)
             self.plays_df = plays_df
 
         return True
@@ -510,7 +511,7 @@ class PlaysImport:
 
         if plays_df.size > 0:
             plays_df = plays_df.reindex(columns=self.table_columns)
-            plays_df.fillna('', inplace=True)
+            plays_df.fillna(0, inplace=True)
             self.plays_df = plays_df
 
         return True
@@ -566,7 +567,7 @@ class TvBroadcastsImport:
 
         if tv_broadcasts_df.size > 0:
             tv_broadcasts_df = tv_broadcasts_df.reindex(columns=self.table_columns)
-            tv_broadcasts_df.fillna('', inplace=True)
+            tv_broadcasts_df.infer_objects().fillna('', inplace=True)
             self.tv_broadcasts_df = tv_broadcasts_df
 
         return True
@@ -578,7 +579,7 @@ class TvBroadcastsImport:
 
         if tv_broadcasts_df.size > 0:
             tv_broadcasts_df = tv_broadcasts_df.reindex(columns=self.table_columns)
-            tv_broadcasts_df.fillna('', inplace=True)
+            tv_broadcasts_df.infer_objects().fillna('', inplace=True)
             self.tv_broadcasts_df = tv_broadcasts_df
 
         return True
@@ -656,6 +657,7 @@ class GameCenterImport:
                   ":gameOutcomelastPeriodType, :regPeriods)"
             game_center_pbp_df = self.game_center_pbp_df
             game_center_pbp_df.columns = game_center_pbp_df.columns.str.replace('.', '')
+            game_center_pbp_df.fillna(0, inplace=True)
             params = game_center_pbp_df.to_dict('records')
 
             with engine.connect() as conn:
@@ -676,6 +678,7 @@ class GameCenterImport:
                   ":linescoretotalshome)"
             game_center_rr_df = self.game_center_rr_df
             game_center_rr_df.columns = game_center_rr_df.columns.str.replace('.', '')
+            game_center_rr_df.fillna(0, inplace=True)
             params = game_center_rr_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -731,7 +734,7 @@ class GameCenterImport:
 
         if game_center_pbp_df.size > 0:
             game_center_pbp_df = game_center_pbp_df.reindex(columns=self.pbp_table_columns)
-            game_center_pbp_df.fillna('', inplace=True)
+            game_center_pbp_df.infer_objects().fillna('', inplace=True)
             self.game_center_pbp_df = game_center_pbp_df
 
         rr_sql = "select gameId, `seasonSeriesWins.awayTeamWins`, `seasonSeriesWins.homeTeamWins`, " \
@@ -743,7 +746,7 @@ class GameCenterImport:
 
         if game_center_rr_df.size > 0:
             game_center_rr_df = game_center_rr_df.reindex(columns=self.pbp_table_columns)
-            game_center_rr_df.fillna('', inplace=True)
+            game_center_rr_df.fillna(0, inplace=True)
             self.game_center_rr_df = game_center_rr_df
 
         self.tv_broadcasts.query_db()
@@ -769,7 +772,7 @@ class GameCenterImport:
 
             if game_center_pbp_df.size > 0:
                 game_center_pbp_df = game_center_pbp_df.reindex(columns=self.pbp_table_columns)
-                game_center_pbp_df.fillna('', inplace=True)
+                game_center_pbp_df.fillna(0, inplace=True)
                 self.game_center_pbp_df = game_center_pbp_df
 
             rr_suffix = '/right-rail'
@@ -780,7 +783,7 @@ class GameCenterImport:
 
             if game_center_rr_df.size > 0:
                 game_center_rr_df = game_center_rr_df.reindex(columns=self.rr_table_columns)
-                game_center_rr_df.fillna('', inplace=True)
+                game_center_rr_df.fillna(0, inplace=True)
                 self.game_center_rr_df = game_center_rr_df
 
             # in play-by-play
