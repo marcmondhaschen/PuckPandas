@@ -5,7 +5,7 @@ from sqlalchemy import text
 
 class SeasonsImport:
     def __init__(self):
-        self.table_columns = ['triCode', 'seasonId']
+        self.table_columns = ['triCode', 'teamId', 'seasonId']
         self.seasons_df = self.query_db()
 
     def update_db(self, tri_code=''):
@@ -14,7 +14,7 @@ class SeasonsImport:
                 self.seasons_df = self.seasons_df[self.seasons_df['triCode'] == tri_code]
 
             engine = nhlpd.dba_import_login()
-            sql = "insert into team_seasons_import (triCode, seasonId) values (:triCode, :seasonId)"
+            sql = "insert into team_seasons_import (triCode, teamId, seasonId) values (:triCode, :teamId, :seasonId)"
             params = self.seasons_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -36,8 +36,7 @@ class SeasonsImport:
 
     def query_db(self, tri_code='', season_id=''):
         engine = nhlpd.dba_import_login()
-        sql_prefix = "select a.triCode, b.teamId, a.seasonId from team_seasons_import as a join teams_import as b " \
-                     "on a.triCode = b.triCode where b.teamId is not null"
+        sql_prefix = "select a.triCode, a.teamId, a.seasonId from team_seasons_import as a where a.teamId is not null"
         sql_suffix = ""
         if tri_code != '':
             sql_suffix += " and a.triCode = " + tri_code
@@ -48,7 +47,7 @@ class SeasonsImport:
         engine.dispose()
 
         seasons_df = seasons_df.reindex(columns=self.table_columns)
-        seasons_df.fillna('', inplace=True)
+        seasons_df.infer_objects().fillna('', inplace=True)
 
         return seasons_df
 
@@ -65,6 +64,7 @@ class SeasonsImport:
 
             seasons_df = pd.DataFrame(json_data)
             seasons_df.rename(columns={0: "seasonId"}, inplace=True)
+            seasons_df['teamId'] = row['teamId']
             seasons_df['triCode'] = row['triCode']
 
             if team_seasons_df.size > 0:
