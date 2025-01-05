@@ -22,7 +22,7 @@ class SeasonsImport:
         return True
 
     @staticmethod
-    def clear_db(tri_code):
+    def clear_db(tri_code=''):
         engine = nhlpd.dba_import_login()
         if tri_code == '':
             sql = "truncate table team_seasons_import"
