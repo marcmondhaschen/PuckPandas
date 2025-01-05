@@ -388,7 +388,7 @@ class RosterSpotsImport:
 
         if roster_spots_df.size > 0:
             roster_spots_df = roster_spots_df.reindex(columns=self.table_columns)
-            roster_spots_df.infer_objects().fillna('', inplace=True)
+            roster_spots_df.fillna(0, inplace=True)
             self.roster_spots_df = roster_spots_df
 
         return True
