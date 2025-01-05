@@ -105,7 +105,7 @@ class Scheduler:
         import_log = nhlpd.GamesImportLog()
         last_minus_two_weeks = ''
         if last_update is not None:
-            last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
+            last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(4, 'D'), unit='D')
 
         # if there are unchecked games in the games_import_log table
         unpolled_games = import_log.games_not_queried()
@@ -128,7 +128,7 @@ class Scheduler:
         import_log = nhlpd.GamesImportLog()
         last_minus_two_weeks = ''
         if last_update != '':
-            last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
+            last_minus_two_weeks = last_update - np.timedelta64(4, 'D')
 
         # if there are games where we haven't checked for shift data
         unpolled_games = import_log.shifts_not_queried()
@@ -186,7 +186,7 @@ class Scheduler:
         import_log = nhlpd.PlayerImportLog()
         last_minus_two_weeks = ''
         if last_update != '':
-            last_minus_two_weeks = last_update - np.timedelta64(14, 'D')
+            last_minus_two_weeks = last_update - np.timedelta64(4, 'D')
 
         # update the player_import_log table for any new players
         import_log.insert_untracked_players()
