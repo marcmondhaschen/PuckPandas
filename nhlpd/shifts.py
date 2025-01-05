@@ -49,7 +49,7 @@ class ShiftsImport:
         engine.dispose()
 
         if shifts_df.size > 0:
-            shifts_df.fillna('', inplace=True)
+            shifts_df.infer_objects().fillna('', inplace=True)
             self.shifts_df = shifts_df
 
         self.shifts_df.reindex(columns=self.table_columns)
@@ -64,7 +64,7 @@ class ShiftsImport:
         if len(json_data['data']) > 0:
             shifts_df = pd.json_normalize(json_data, record_path=['data'])
             shifts_df.reindex(columns=self.table_columns)
-            shifts_df.fillna('', inplace=True)
+            shifts_df.infer_objects().fillna('', inplace=True)
             self.shifts_df = shifts_df
 
         return True
