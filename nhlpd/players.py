@@ -204,8 +204,8 @@ class GoalieCareerTotalsImport:
                               'playoffs.goalsAgainst', 'playoffs.goalsAgainstAvg', 'playoffs.savePctg',
                               'playoffs.shutouts', 'playoffs.timeOnIce', 'playoffs.timeOnIceMinutes',
                               'playoffs.timeOnIceSeconds']
-        self.goalie_career_totals_df = pd.DataFrame()
-        self.goalie_career_totals_df = self.goalie_career_totals_df.reindex(columns=self.table_columns)
+        self.goalie_career_df = pd.DataFrame()
+        self.goalie_career_df = self.goalie_career_df.reindex(columns=self.table_columns)
 
     def update_db(self):
         career_totals_found = 0
@@ -233,7 +233,7 @@ class GoalieCareerTotalsImport:
                   ":playoffsotLosses, :playoffsshotsAgainst, :playoffsgoalsAgainst, :playoffsgoalsAgainstAvg, " \
                   ":playoffssavePctg, :playoffsshutouts, :playoffstimeOnIce, :playoffstimeOnIceMinutes, " \
                   ":playoffstimeOnIceSeconds)"
-            goalie_career_transform_df = self.goalie_career_totals_df
+            goalie_career_transform_df = self.goalie_career_df
             goalie_career_transform_df.columns = goalie_career_transform_df.columns.str.replace('.', '')
             params = goalie_career_transform_df.to_dict('records')
 
@@ -272,7 +272,7 @@ class GoalieCareerTotalsImport:
         if goalie_career_totals_df.size > 0:
             goalie_career_totals_df = goalie_career_totals_df.reindex(columns=self.table_columns)
             goalie_career_totals_df.infer_objects().fillna('', inplace=True)
-            self.goalie_career_totals_df = goalie_career_totals_df
+            self.goalie_career_df = goalie_career_totals_df
 
         return True
 
@@ -283,21 +283,21 @@ class GoalieCareerTotalsImport:
 
         if goalie_career_totals_df.size > 0:
             goalie_career_totals_df = goalie_career_totals_df.reindex(columns=self.table_columns)
-            goalie_career_totals_df.infer_objects().fillna('', inplace=True)
-            self.goalie_career_totals_df = goalie_career_totals_df
+            goalie_career_totals_df.fillna(0, inplace=True)
+            self.goalie_career_df = goalie_career_totals_df
 
-        if self.goalie_career_totals_df.loc[0, 'regularSeason.timeOnIce'] != '':
-            self.goalie_career_totals_df[['regularSeason.timeOnIceMinutes', 'regularSeason.timeOnIceSeconds']] = \
-                self.goalie_career_totals_df['regularSeason.timeOnIce'].str.split(":", expand=True)
-            self.goalie_career_totals_df['regularSeason.timeOnIceSeconds'] = \
-                int(self.goalie_career_totals_df['regularSeason.timeOnIceMinutes'].iloc[0]) * 60 + \
-                int(self.goalie_career_totals_df['regularSeason.timeOnIceSeconds'].iloc[0])
-        if self.goalie_career_totals_df.loc[0, 'playoffs.timeOnIce'] != '':
-            self.goalie_career_totals_df[['playoffs.timeOnIceMinutes', 'playoffs.timeOnIceSeconds']] = \
-                self.goalie_career_totals_df['playoffs.timeOnIce'].str.split(":", expand=True)
-            self.goalie_career_totals_df['playoffs.timeOnIceSeconds'] = \
-                int(self.goalie_career_totals_df['playoffs.timeOnIceMinutes'].iloc[0]) * 60 + \
-                int(self.goalie_career_totals_df['playoffs.timeOnIceSeconds'].iloc[0])
+        if self.goalie_career_df.loc[0, 'regularSeason.timeOnIce'] != 0:
+            self.goalie_career_df[['regularSeason.timeOnIceMinutes', 'regularSeason.timeOnIceSeconds']] = (
+                self.goalie_career_df['regularSeason.timeOnIce'].str.split(":", expand=True))
+            self.goalie_career_df['regularSeason.timeOnIceSeconds'] = (
+                    int(self.goalie_career_df['regularSeason.timeOnIceMinutes'].iloc[0]) * 60 +
+                    int(self.goalie_career_df['regularSeason.timeOnIceSeconds'].iloc[0]))
+        if self.goalie_career_df.loc[0, 'playoffs.timeOnIce'] != 0:
+            self.goalie_career_df[['playoffs.timeOnIceMinutes', 'playoffs.timeOnIceSeconds']] = (
+                self.goalie_career_df['playoffs.timeOnIce'].str.split(":", expand=True))
+            self.goalie_career_df['playoffs.timeOnIceSeconds'] = (
+                    int(self.goalie_career_df['playoffs.timeOnIceMinutes'].iloc[0]) * 60 +
+                    int(self.goalie_career_df['playoffs.timeOnIceSeconds'].iloc[0]))
 
         return True
 
@@ -375,18 +375,16 @@ class GoalieSeasonImport:
 
         if goalie_season_df.size > 0:
             goalie_season_df = goalie_season_df.reindex(columns=self.table_columns)
-            goalie_season_df.infer_objects().fillna('', inplace=True)
+            goalie_season_df.fillna(0, inplace=True)
             self.goalie_season_df = goalie_season_df
 
         if not self.goalie_season_df.empty:
-            self.goalie_season_df.infer_objects().fillna('', inplace=True)
-            self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == '', 'timeOnIce'] = '0:00'
+            # self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == '', 'timeOnIce'] = '0:00'
             self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == 0, 'timeOnIce'] = '0:00'
-            self.goalie_season_df[['timeOnIceMinutes', 'timeOnIceSeconds']] = \
-                self.goalie_season_df['timeOnIce'].str.split(":", expand=True)
-            self.goalie_season_df['timeOnIceSeconds'] = \
-                self.goalie_season_df['timeOnIceMinutes'].astype(int) * 60 + \
-                self.goalie_season_df['timeOnIceSeconds'].astype(int)
+            self.goalie_season_df[['timeOnIceMinutes', 'timeOnIceSeconds']] = (
+                self.goalie_season_df['timeOnIce'].str.split(":", expand=True))
+            self.goalie_season_df['timeOnIceSeconds'] = (self.goalie_season_df['timeOnIceMinutes'].astype(int) * 60 +
+                                                         self.goalie_season_df['timeOnIceSeconds'].astype(int))
 
         return True
 
