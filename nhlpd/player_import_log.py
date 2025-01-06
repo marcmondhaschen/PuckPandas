@@ -87,8 +87,8 @@ class PlayerImportLog:
 
         if untracked_players_df.size > 0:
             engine = nhlpd.dba_import_login()
-            sql = "insert into player_import_log (playerId) values (%s)"
-            params = {'playerId': untracked_players_df['playerId']}
+            sql = "insert into player_import_log (playerId) values (:playerId)"
+            params = untracked_players_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 

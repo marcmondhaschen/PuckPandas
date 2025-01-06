@@ -86,7 +86,7 @@ class SkaterCareerTotalsImport:
 
         if skater_career_totals_df.size > 0:
             skater_career_totals_df = skater_career_totals_df.reindex(columns=self.table_columns)
-            skater_career_totals_df.fillna('', inplace=True)
+            skater_career_totals_df.infer_objects().fillna('', inplace=True)
             self.skater_career_totals_df = skater_career_totals_df
 
         return True
@@ -98,7 +98,7 @@ class SkaterCareerTotalsImport:
 
         if skater_career_totals_df.size > 0:
             skater_career_totals_df = skater_career_totals_df.reindex(columns=self.table_columns)
-            skater_career_totals_df.fillna('', inplace=True)
+            skater_career_totals_df.fillna(0, inplace=True)
             self.skater_career_totals_df = skater_career_totals_df
 
 
@@ -164,7 +164,7 @@ class SkaterSeasonImport:
 
         if skater_season_df.size > 0:
             skater_season_df = skater_season_df.reindex(columns=self.table_columns)
-            skater_season_df.fillna('', inplace=True)
+            skater_season_df.infer_objects().fillna('', inplace=True)
             self.skater_season_df = skater_season_df
 
         return True
@@ -175,7 +175,7 @@ class SkaterSeasonImport:
 
         if skater_season_df.size > 0:
             skater_season_df = skater_season_df.reindex(columns=self.table_columns)
-            skater_season_df.fillna('', inplace=True)
+            skater_season_df.fillna(0, inplace=True)
             self.skater_season_df = skater_season_df
 
         return True
@@ -271,7 +271,7 @@ class GoalieCareerTotalsImport:
 
         if goalie_career_totals_df.size > 0:
             goalie_career_totals_df = goalie_career_totals_df.reindex(columns=self.table_columns)
-            goalie_career_totals_df.fillna('', inplace=True)
+            goalie_career_totals_df.infer_objects().fillna('', inplace=True)
             self.goalie_career_totals_df = goalie_career_totals_df
 
         return True
@@ -283,7 +283,7 @@ class GoalieCareerTotalsImport:
 
         if goalie_career_totals_df.size > 0:
             goalie_career_totals_df = goalie_career_totals_df.reindex(columns=self.table_columns)
-            goalie_career_totals_df.fillna('', inplace=True)
+            goalie_career_totals_df.infer_objects().fillna('', inplace=True)
             self.goalie_career_totals_df = goalie_career_totals_df
 
         if self.goalie_career_totals_df.loc[0, 'regularSeason.timeOnIce'] != '':
@@ -363,7 +363,7 @@ class GoalieSeasonImport:
 
         if goalie_season_df.size > 0:
             goalie_season_df = goalie_season_df.reindex(columns=self.table_columns)
-            goalie_season_df.fillna('', inplace=True)
+            goalie_season_df.infer_objects().fillna('', inplace=True)
             self.goalie_season_df = goalie_season_df
 
         return True
@@ -375,11 +375,11 @@ class GoalieSeasonImport:
 
         if goalie_season_df.size > 0:
             goalie_season_df = goalie_season_df.reindex(columns=self.table_columns)
-            goalie_season_df.fillna('', inplace=True)
+            goalie_season_df.infer_objects().fillna('', inplace=True)
             self.goalie_season_df = goalie_season_df
 
         if not self.goalie_season_df.empty:
-            self.goalie_season_df.fillna('', inplace=True)
+            self.goalie_season_df.infer_objects().fillna('', inplace=True)
             self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == '', 'timeOnIce'] = '0:00'
             self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == 0, 'timeOnIce'] = '0:00'
             self.goalie_season_df[['timeOnIceMinutes', 'timeOnIceSeconds']] = \
@@ -445,19 +445,18 @@ class PlayerAwardsImport:
 
         if player_awards_df.size > 0:
             player_awards_df = player_awards_df.reindex(columns=self.table_columns)
-            player_awards_df.fillna('', inplace=True)
+            player_awards_df.infer_objects().fillna('', inplace=True)
             self.player_awards_df = player_awards_df
 
         return True
 
     def query_nhl(self):
-        player_awards_df = pd.json_normalize(self.json)
-        player_awards_df.rename(columns={"id": "playerId"}, inplace=True)
+        player_awards_df = pd.json_normalize(self.json, record_path=["seasons"], meta=[["trophy", "default"]])
         player_awards_df.insert(0, 'playerId', self.player_id)
 
         if player_awards_df.size > 0:
             player_awards_df = player_awards_df.reindex(columns=self.table_columns)
-            player_awards_df.fillna('', inplace=True)
+            player_awards_df.infer_objects().fillna('', inplace=True)
             self.player_awards_df = player_awards_df
 
         return True
@@ -509,6 +508,7 @@ class PlayersImport:
                   ":draftDetailsoverallPick)"
             player_transform_df = self.player_bios_df
             player_transform_df.columns = player_transform_df.columns.str.replace('.', '')
+            player_transform_df.fillna(0, inplace=True)
             params = player_transform_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -556,7 +556,7 @@ class PlayersImport:
 
         if player_bios_df.size > 0:
             player_bios_df = player_bios_df.reindex(columns=self.table_columns)
-            player_bios_df.fillna('', inplace=True)
+            player_bios_df.infer_objects().fillna('', inplace=True)
             self.player_bios_df = player_bios_df
             self.position = self.player_bios_df.at[0, 'position']
 
@@ -577,10 +577,12 @@ class PlayersImport:
         self.json = nhlpd.fetch_json_data(url_string)
         player_bios_df = pd.json_normalize(self.json)
 
-        if player_bios_df.size > 0:
-            player_bios_df = player_bios_df.reindex(columns=self.table_columns)
-            player_bios_df.fillna('', inplace=True)
-            self.player_bios_df = player_bios_df
+        if player_bios_df.size == 0:
+            return False
+
+        player_bios_df = player_bios_df.reindex(columns=self.table_columns)
+        player_bios_df.fillna(0, inplace=True)
+        self.player_bios_df = player_bios_df
 
         self.position = self.player_bios_df.at[0, 'position']
 
