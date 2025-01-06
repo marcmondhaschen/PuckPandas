@@ -86,7 +86,7 @@
 # import pandas as pd
 # from alchemy_db import nhlpandas_dba_login
 # from sqlalchemy import insert, select, and_, or_
-# import nhlpd as nhlpd
+# import puckpandas as puckpandas
 #
 # engine = nhlpandas_dba_login()
 #
@@ -122,7 +122,7 @@
 # print(df)
 
 
-from nhlpd.alchemy_db import dba_import_login
+from puckpandas.alchemy_db import dba_import_login
 from sqlalchemy import MetaData, Table
 from sqlalchemy.orm import Session
 import pandas as pd
@@ -145,6 +145,6 @@ print(my_table)
 
 # this code didn't work as expected
 # it failed to insert rows into the target table
-# engine = nhlpd.dba_import_login()
+# engine = puckpandas.dba_import_login()
 # df = pd.read_sql("select * from shifts_import", engine)
 # self.shifts_df.to_sql(name='shifts_import', con=engine, if_exists='append', index=False)

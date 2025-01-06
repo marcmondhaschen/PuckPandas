@@ -89,8 +89,6 @@ CREATE TABLE `nhl_pandas_import`.`games_import` (
   `homeTeamScore` int DEFAULT NULL,
   `periodType` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `gameOutcome` varchar(3) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `datePBPChecked` date DEFAULT NULL,
-  `PBPCheckSuccess` tinyint DEFAULT NULL,
   `seriesStatus.round` int DEFAULT NULL,
   `seriesStatus.seriesAbbrev` varchar(8) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `seriesStatus.seriesTitle` varchar(25) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

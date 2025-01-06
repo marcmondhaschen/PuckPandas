@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
-import nhlpd
+import puckpandas
 
 
 class Scheduler:
@@ -11,11 +11,11 @@ class Scheduler:
         self.current_year = pd.Timestamp(self.current_time).year
         self.max_season_id = self.set_max_season()
 
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
     @staticmethod
     def set_max_season():
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "select max(seasonId) as seasonId from team_seasons_import"
         max_df = pd.read_sql_query(sql, engine)
         engine.dispose()
@@ -78,13 +78,13 @@ class Scheduler:
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if there's a new season (new seasons)
-        seasons = nhlpd.SeasonsImportLog.seasons_without_games()
+        seasons = puckpandas.SeasonsImportLog.seasons_without_games()
         if seasons.size > 0:
             check_bool = True
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if games this season have been played since the last_update (current season)
-        games = nhlpd.GamesImportLog.games_between_dates(last_update, self.current_time)
+        games = puckpandas.GamesImportLog.games_between_dates(last_update, self.current_time)
         if games.size > 0:
             data = {'seasonId': [self.max_season_id]}
             seasons = pd.DataFrame.from_dict(data)
@@ -102,7 +102,7 @@ class Scheduler:
     def check_game_centers_import(self):
         check_bool = False
         last_update = self.table_log.last_update(table_name="game_center_import")
-        import_log = nhlpd.GamesImportLog()
+        import_log = puckpandas.GamesImportLog()
         last_minus_two_weeks = ''
         if last_update is not None:
             last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(1, 'D'), unit='D')
@@ -125,7 +125,7 @@ class Scheduler:
         # shift records don't start until 20102011 season
         check_bool = False
         last_update = self.table_log.last_update(table_name="game_center_import")
-        import_log = nhlpd.GamesImportLog()
+        import_log = puckpandas.GamesImportLog()
         last_minus_two_weeks = ''
         if last_update is not None:
             last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(1, 'D'), unit='D')
@@ -158,7 +158,7 @@ class Scheduler:
             return {"check_bool": check_bool, "seasons": seasons}
 
         # if there are seasons we haven't logged rosters from (new seasons)
-        seasons = nhlpd.SeasonsImportLog.seasons_without_rosters()
+        seasons = puckpandas.SeasonsImportLog.seasons_without_rosters()
 
         if seasons.size > 0:
             check_bool = True
@@ -184,7 +184,7 @@ class Scheduler:
     def check_players_import(self):
         check_bool = False
         last_update = self.table_log.last_update(table_name="player_bios_import")
-        import_log = nhlpd.PlayerImportLog()
+        import_log = puckpandas.PlayerImportLog()
         last_minus_two_weeks = ''
         if last_update is not None:
             last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(1, 'D'), unit='D')
@@ -207,27 +207,27 @@ class Scheduler:
         return {"check_bool": check_bool, "players": players}
 
     def update_teams_import(self):
-        teams = nhlpd.TeamsImport()
+        teams = puckpandas.TeamsImport()
         teams.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("teams_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 
     def update_seasons_import(self):
-        seasons = nhlpd.SeasonsImport()
+        seasons = puckpandas.SeasonsImport()
         seasons.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("team_seasons_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 
     def update_games_import(self, seasons):
-        update_seasons = nhlpd.SeasonsImport().seasons_df
+        update_seasons = puckpandas.SeasonsImport().seasons_df
         update_seasons.sort_values(by=['seasonId', 'teamId'], inplace=True)
 
         if seasons['seasonId'].values[0] != '99999999':
@@ -235,39 +235,39 @@ class Scheduler:
             update_seasons = update_seasons[bool_mask]
 
         for index, row in update_seasons.iterrows():
-            team_season = nhlpd.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
+            team_season = puckpandas.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
             team_season.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("games_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 
     def update_game_centers_import(self, games):
         for index, row in games.iterrows():
-            game_center = nhlpd.GameCenterImport(row['gameId'])
+            game_center = puckpandas.GameCenterImport(row['gameId'])
             game_center.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("game_center_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 
     def update_shifts_import(self, games):
         for index, row in games.iterrows():
-            shifts = nhlpd.ShiftsImport(row['gameId'])
+            shifts = puckpandas.ShiftsImport(row['gameId'])
             shifts.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("shifts_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 
     def update_rosters_import(self, seasons):
-        update_seasons = nhlpd.SeasonsImport().seasons_df
+        update_seasons = puckpandas.SeasonsImport().seasons_df
         update_seasons.sort_values(by=['seasonId', 'teamId'], inplace=True)
 
         if seasons['seasonId'].values[0] != '99999999':
@@ -275,23 +275,23 @@ class Scheduler:
             update_seasons = update_seasons[bool_mask]
 
         for index, row in update_seasons.iterrows():
-            team_season = nhlpd.RostersImport(team_id=row['teamId'], season_id=row['seasonId'])
+            team_season = puckpandas.RostersImport(team_id=row['teamId'], season_id=row['seasonId'])
             team_season.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("rosters_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 
     def update_players_import(self, players):
         for idx, player_id in players['playerId'].items():
-            player = nhlpd.PlayersImport(player_id=player_id)
+            player = puckpandas.PlayersImport(player_id=player_id)
             player.query_nhl_update_db()
 
-        log_object = nhlpd.ImportTableUpdateLog()
+        log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("player_bios_import", 1)
-        self.table_log = nhlpd.ImportTableUpdateLog()
+        self.table_log = puckpandas.ImportTableUpdateLog()
 
         return True
 

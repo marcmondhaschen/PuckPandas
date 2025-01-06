@@ -1,5 +1,5 @@
 import pandas as pd
-import nhlpd
+import puckpandas
 from sqlalchemy import text
 
 class TeamsImport:
@@ -12,7 +12,7 @@ class TeamsImport:
             if tri_code != '':
                 self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
 
-            engine = nhlpd.dba_import_login()
+            engine = puckpandas.dba_import_login()
             sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) values (:teamId, " \
                   ":franchiseId, :fullName, :leagueId, :triCode)"
             params = self.teams_df.to_dict('records')
@@ -23,7 +23,7 @@ class TeamsImport:
 
     @staticmethod
     def clear_db(tri_code=''):
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         if tri_code == '':
             sql = "truncate table teams_import"
         else:
@@ -36,7 +36,7 @@ class TeamsImport:
 
     @staticmethod
     def query_db(tri_code=''):
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql_prefix = "select teamId, franchiseId, fullName, leagueId, triCode from teams_import "
         sql_suffix = ""
         if tri_code != '':
@@ -48,7 +48,7 @@ class TeamsImport:
         return teams_df
 
     def query_nhl(self, tri_code=''):
-        json_data = nhlpd.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
+        json_data = puckpandas.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         if json_data != {}:
             teams_df = pd.json_normalize(json_data, record_path=['data'])
             teams_df.rename(columns={'id': 'teamId'}, inplace=True)
