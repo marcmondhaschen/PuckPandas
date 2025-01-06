@@ -23,7 +23,8 @@ class ShiftsImport:
                   'teamAbbrev, teamId, teamName, typeCode) values (:id, :detailCode, :duration, :endTime, ' \
                   ':eventDescription, :eventDetails, :eventNumber, :firstName, :gameId, :hexValue, :lastName, ' \
                   ':period, :playerId, :shiftNumber, :startTime, :teamAbbrev, :teamId, :teamName, :typeCode)'
-            params = self.shifts_df.to_dict('records')
+            shifts_df = self.shifts_df.fillna('')
+            params = shifts_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
@@ -49,7 +50,7 @@ class ShiftsImport:
         engine.dispose()
 
         if shifts_df.size > 0:
-            shifts_df.infer_objects().fillna('', inplace=True)
+            shifts_df.fillna(0, inplace=True)
             self.shifts_df = shifts_df
 
         self.shifts_df.reindex(columns=self.table_columns)
@@ -64,7 +65,6 @@ class ShiftsImport:
         if len(json_data['data']) > 0:
             shifts_df = pd.json_normalize(json_data, record_path=['data'])
             shifts_df.reindex(columns=self.table_columns)
-            shifts_df.infer_objects().fillna('', inplace=True)
             self.shifts_df = shifts_df
 
         return True
