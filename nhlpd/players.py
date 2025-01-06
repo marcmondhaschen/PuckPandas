@@ -584,7 +584,7 @@ class PlayersImport:
 
         self.position = self.player_bios_df.at[0, 'position']
 
-        if 'careerTotals' in self.json:
+        if 'careerTotals' in self.json and len(self.json['careerTotals']) > 0:
             if self.position == 'G':
                 self.goalie_career_totals.json = self.json['careerTotals']
                 self.goalie_career_totals.query_nhl()
@@ -592,7 +592,7 @@ class PlayersImport:
                 self.skater_career_totals.json = self.json['careerTotals']
                 self.skater_career_totals.query_nhl()
 
-        if 'seasonTotals' in self.json:
+        if 'seasonTotals' in self.json and len(self.json['seasonTotals']) > 0:
             if self.position == 'G':
                 self.goalie_seasons.json = self.json['seasonTotals']
                 self.goalie_seasons.query_nhl()
@@ -600,7 +600,7 @@ class PlayersImport:
                 self.skater_seasons.json = self.json['seasonTotals']
                 self.skater_seasons.query_nhl()
 
-        if 'awards' in self.json:
+        if 'awards' in self.json and len(self.json['awards']) > 0:
             self.player_awards.json = self.json['awards']
             self.player_awards.query_nhl()
 
