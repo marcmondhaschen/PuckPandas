@@ -4,4 +4,4 @@ import nhlpd
 if __name__ == "__main__":
     scheduler = nhlpd.Scheduler()
     scheduler.poll_nhl()
-    print("the end?")
+    print("the end!")
