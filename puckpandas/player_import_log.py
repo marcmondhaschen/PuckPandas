@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
-import nhlpd
+import puckpandas
 from sqlalchemy import text
 
 class PlayerImportLog:
@@ -22,7 +22,7 @@ class PlayerImportLog:
                 return True
 
             if self.update_details['playerId'] != '':
-                engine = nhlpd.dba_import_login()
+                engine = puckpandas.dba_import_login()
                 sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
                       "seasonTotalsFound, awardsFound) values (:playerId, :lastDateUpdated, :playerFound, " \
                       ":careerTotalsFound, :seasonTotalsFound, :awardsFound)"
@@ -39,7 +39,7 @@ class PlayerImportLog:
 
     def update_db(self):
         if (len(self.update_details) > 0) and ('playerId' in self.update_details):
-            engine = nhlpd.dba_import_login()
+            engine = puckpandas.dba_import_login()
 
             set_string = ("set lastDateUpdated = '" +
                           np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str) + "'")
@@ -66,7 +66,7 @@ class PlayerImportLog:
     def query_db(player_id):
         last_update = ''
 
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "select playerId, max(lastDateUpdated) as lastDateUpdated from player_import_log where playerId = " \
               + str(player_id) + " group by playerId"
         update_df = pd.read_sql_query(sql, engine)
@@ -79,14 +79,14 @@ class PlayerImportLog:
 
     @staticmethod
     def insert_untracked_players():
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         untracked_players_sql = "select distinct a.playerId as playerId from roster_spots_import as a left join " \
                                 "player_import_log as b on a.playerId = b.playerId where b.playerId is Null"
         untracked_players_df = pd.read_sql_query(untracked_players_sql, engine)
         engine.dispose()
 
         if untracked_players_df.size > 0:
-            engine = nhlpd.dba_import_login()
+            engine = puckpandas.dba_import_login()
             sql = "insert into player_import_log (playerId) values (:playerId)"
             params = untracked_players_df.to_dict('records')
             with engine.connect() as conn:
@@ -96,7 +96,7 @@ class PlayerImportLog:
 
     @staticmethod
     def players_not_queried():
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "select playerId from player_import_log where playerFound is NULL"
         player_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
@@ -105,7 +105,7 @@ class PlayerImportLog:
 
     @staticmethod
     def players_played_recently(start_date, end_date):
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "select distinct b.playerId as playerId from roster_spots_import as b join (select gameId from " \
               "games_import where gameDate between '" + str(start_date) + "' and '" + str(end_date) + \
               "') as a on a.gameId = b.gameId"

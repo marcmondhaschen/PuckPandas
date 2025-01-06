@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
-import nhlpd
+import puckpandas
 from sqlalchemy import text
 
 
@@ -12,7 +12,7 @@ class ImportTableUpdateLog:
 
     @staticmethod
     def update_db(table_name, update_found=1):
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values " \
               "(:tableName, :lastDateUpdated, :updateFound)"
         param = {'tableName': table_name,
@@ -25,7 +25,7 @@ class ImportTableUpdateLog:
 
     @staticmethod
     def query_db():
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log group by tableName"
         update_details = pd.read_sql_query(sql, engine)
         engine.dispose()

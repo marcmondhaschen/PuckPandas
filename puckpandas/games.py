@@ -1,5 +1,5 @@
 import pandas as pd
-import nhlpd
+import puckpandas
 from sqlalchemy import text
 
 
@@ -7,7 +7,7 @@ class GamesImport:
     def __init__(self, team_id, season_id):
         self.team_id = team_id
         self.season_id = season_id
-        self.teams = nhlpd.TeamsImport()
+        self.teams = puckpandas.TeamsImport()
         self.table_columns = ['gameId', 'seasonId', 'gameType', 'gameDate', 'venue', 'neutralSite', 'startTimeUTC',
                               'venueUTCOffset', 'venueTimezone', 'gameState', 'gameScheduleState', 'awayTeam',
                               'awayTeamSplitSquad', 'awayTeamScore', 'homeTeam', 'homeTeamSplitSquad', 'homeTeamScore',
@@ -23,7 +23,7 @@ class GamesImport:
         games_found = 0
         if self.games_df.size > 0:
             games_found = 1
-            engine = nhlpd.dba_import_login()
+            engine = puckpandas.dba_import_login()
             sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, " \
                   "startTimeUTC, venueUTCOffset, venueTimezone, gameState, gameScheduleState, awayTeam, " \
                   "awayTeamSplitSquad, awayTeamScore, homeTeam, homeTeamSplitSquad, homeTeamScore, " \
@@ -44,10 +44,10 @@ class GamesImport:
                 conn.execute(text(sql), parameters=params)
 
             for index, row in games_transform_df.iterrows():
-                game_log = nhlpd.GamesImportLog(row['gameId'], game_found=1)
+                game_log = puckpandas.GamesImportLog(row['gameId'], game_found=1)
                 game_log.insert_db()
 
-            season_log = nhlpd.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id, games_found=games_found)
+            season_log = puckpandas.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id, games_found=games_found)
             season_log.insert_db()
 
             engine.dispose()
@@ -56,7 +56,7 @@ class GamesImport:
 
     def clear_db(self):
         if self.team_id != '' and self.season_id != '':
-            engine = nhlpd.dba_import_login()
+            engine = puckpandas.dba_import_login()
             sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + str(self.team_id) + \
                   " or awayTeam = " + str(self.team_id) + ")" + " and seasonId = '" + str(self.season_id) + "'"
             with engine.connect() as conn:
@@ -66,7 +66,7 @@ class GamesImport:
         return True
 
     def query_db(self):
-        engine = nhlpd.dba_import_login()
+        engine = puckpandas.dba_import_login()
         sql = "select gameId, seasonId, gameType, gameDate, venue, neutralSite, startTimeUTC, venueUTCOffset, " \
               "venueTimezone, gameState, gameScheduleState, awayTeam, awayTeamSplitSquad, awayTeamScore, homeTeam, " \
               "homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, " \
@@ -92,7 +92,7 @@ class GamesImport:
 
         base_url = 'https://api-web.nhle.com/v1/club-schedule-season/'
         query_string = "{}{}/{}".format(base_url, tri_code, self.season_id)
-        json_data = nhlpd.fetch_json_data(query_string)
+        json_data = puckpandas.fetch_json_data(query_string)
 
         if 'games' in json_data:
             games_df = pd.json_normalize(json_data, record_path=['games'])
