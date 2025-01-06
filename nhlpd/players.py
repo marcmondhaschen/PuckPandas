@@ -443,7 +443,7 @@ class PlayerAwardsImport:
 
         if player_awards_df.size > 0:
             player_awards_df = player_awards_df.reindex(columns=self.table_columns)
-            player_awards_df.infer_objects().fillna('', inplace=True)
+            player_awards_df.fillna(0, inplace=True)
             self.player_awards_df = player_awards_df
 
         return True
