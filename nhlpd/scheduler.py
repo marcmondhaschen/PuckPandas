@@ -105,7 +105,7 @@ class Scheduler:
         import_log = nhlpd.GamesImportLog()
         last_minus_two_weeks = ''
         if last_update is not None:
-            last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(4, 'D'), unit='D')
+            last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(1, 'D'), unit='D')
 
         # if there are unchecked games in the games_import_log table
         unpolled_games = import_log.games_not_queried()
@@ -127,8 +127,8 @@ class Scheduler:
         last_update = self.table_log.last_update(table_name="game_center_import")
         import_log = nhlpd.GamesImportLog()
         last_minus_two_weeks = ''
-        if last_update != '':
-            last_minus_two_weeks = last_update - np.timedelta64(4, 'D')
+        if last_update is not None:
+            last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(1, 'D'), unit='D')
 
         # if there are games where we haven't checked for shift data
         unpolled_games = import_log.shifts_not_queried()
@@ -137,6 +137,7 @@ class Scheduler:
         recent_games = import_log.games_played_recently(last_minus_two_weeks, self.current_time)
 
         games = pd.concat([unpolled_games, recent_games])
+        games.drop_duplicates(inplace=True)
 
         if games.size > 0:
             check_bool = True
@@ -185,8 +186,8 @@ class Scheduler:
         last_update = self.table_log.last_update(table_name="player_bios_import")
         import_log = nhlpd.PlayerImportLog()
         last_minus_two_weeks = ''
-        if last_update != '':
-            last_minus_two_weeks = last_update - np.timedelta64(4, 'D')
+        if last_update is not None:
+            last_minus_two_weeks = np.datetime_as_string(last_update - np.timedelta64(1, 'D'), unit='D')
 
         # update the player_import_log table for any new players
         import_log.insert_untracked_players()
@@ -198,6 +199,7 @@ class Scheduler:
         recently_played = import_log.players_played_recently(last_minus_two_weeks, self.current_time)
 
         players = pd.concat([unpolled_players, recently_played])
+        players.drop_duplicates(inplace=True)
 
         if players.size > 0:
             check_bool = True
