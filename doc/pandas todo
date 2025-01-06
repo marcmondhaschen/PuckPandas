@@ -9,7 +9,7 @@ OPEN ITEMS
 
 	build a set of controller objects that transforms import data into prod/normalized data
 
-	add to the scheduler so that it
+	add the second controller's functions to the scheduler, such that the import and production schema stay in step
 
     start breaking the init into subfolders, then clean up import blocks in class files so that they just import
         need a second sub folder for database normalization controllers
