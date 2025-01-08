@@ -7,7 +7,8 @@ ________________________________________
 #### Requirements
 
 As the name suggests, PuckPandas makes heavy use of the Pandas library to manage and store data. Further Python library requirements are described in the _‘..\PuckPandas\requirements.txt’_.  PuckPandas stores its data to a MySQL database which will need to be configured and running before PuckPandas is run.
-MySQL Database
+
+#### MySQL Database
 To properly use this release as distributed, users will need to configure and run a MySQL database. 
 
 SQL scripts required to create all the of the application’s database schemas, users, tables, and indices are included in ‘..\PuckPandas\sql\mysql_localhost_create_statements.sql’. As the name implies, the script assumes users will use a server addressed as ‘localhost’ but is easily rewritten to suit users’ differing specifications. Users should overwrite the “YOURPASSWORDGOESHERE” text blocks with their own, intended passwords before attempting to use these scripts. 
