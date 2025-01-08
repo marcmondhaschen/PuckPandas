@@ -23,9 +23,9 @@ class PlayerImportLog:
 
             if self.update_details['playerId'] != '':
                 engine = puckpandas.dba_import_login()
-                sql = "insert into player_import_log (playerId, lastDateUpdated, playerFound, careerTotalsFound, " \
-                      "seasonTotalsFound, awardsFound) values (:playerId, :lastDateUpdated, :playerFound, " \
-                      ":careerTotalsFound, :seasonTotalsFound, :awardsFound)"
+                sql = "insert into puckpandas_import.player_import_log (playerId, lastDateUpdated, playerFound, " \
+                      "careerTotalsFound, seasonTotalsFound, awardsFound) values (:playerId, :lastDateUpdated, " \
+                      ":playerFound, :careerTotalsFound, :seasonTotalsFound, :awardsFound)"
                 params = {'playerId': self.update_details['playerId'],
                           'lastDateUpdated': np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
                           'playerFound': self.update_details['playerFound'],
@@ -67,8 +67,8 @@ class PlayerImportLog:
         last_update = ''
 
         engine = puckpandas.dba_import_login()
-        sql = "select playerId, max(lastDateUpdated) as lastDateUpdated from player_import_log where playerId = " \
-              + str(player_id) + " group by playerId"
+        sql = "select playerId, max(lastDateUpdated) as lastDateUpdated from puckpandas_import.player_import_log " \
+              "where playerId = " + str(player_id) + " group by playerId"
         update_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -80,14 +80,15 @@ class PlayerImportLog:
     @staticmethod
     def insert_untracked_players():
         engine = puckpandas.dba_import_login()
-        untracked_players_sql = "select distinct a.playerId as playerId from roster_spots_import as a left join " \
-                                "player_import_log as b on a.playerId = b.playerId where b.playerId is Null"
+        untracked_players_sql = "select distinct a.playerId as playerId from puckpandas_import.roster_spots_import " \
+                                "as a left join puckpandas_import.player_import_log as b on a.playerId = b.playerId " \
+                                "where b.playerId is Null"
         untracked_players_df = pd.read_sql_query(untracked_players_sql, engine)
         engine.dispose()
 
         if untracked_players_df.size > 0:
             engine = puckpandas.dba_import_login()
-            sql = "insert into player_import_log (playerId) values (:playerId)"
+            sql = "insert into puckpandas_import.player_import_log (playerId) values (:playerId)"
             params = untracked_players_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -97,7 +98,7 @@ class PlayerImportLog:
     @staticmethod
     def players_not_queried():
         engine = puckpandas.dba_import_login()
-        sql = "select playerId from player_import_log where playerFound is NULL"
+        sql = "select playerId from puckpandas_import.player_import_log where playerFound is NULL"
         player_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -106,9 +107,9 @@ class PlayerImportLog:
     @staticmethod
     def players_played_recently(start_date, end_date):
         engine = puckpandas.dba_import_login()
-        sql = "select distinct b.playerId as playerId from roster_spots_import as b join (select gameId from " \
-              "games_import where gameDate between '" + str(start_date) + "' and '" + str(end_date) + \
-              "') as a on a.gameId = b.gameId"
+        sql = "select distinct b.playerId as playerId from puckpandas_import.roster_spots_import as b join (select " \
+              "gameId from puckpandas_import.games_import where gameDate between '" + str(start_date) + "' and '" + \
+              str(end_date) + "') as a on a.gameId = b.gameId"
         player_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

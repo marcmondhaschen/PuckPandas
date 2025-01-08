@@ -16,7 +16,7 @@ class Scheduler:
     @staticmethod
     def set_max_season():
         engine = puckpandas.dba_import_login()
-        sql = "select max(seasonId) as seasonId from team_seasons_import"
+        sql = "select max(seasonId) as seasonId from puckpandas_import.team_seasons_import"
         max_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

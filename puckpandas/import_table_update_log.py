@@ -13,7 +13,7 @@ class ImportTableUpdateLog:
     @staticmethod
     def update_db(table_name, update_found=1):
         engine = puckpandas.dba_import_login()
-        sql = "insert into table_update_log (tableName, lastDateUpdated, updateFound) values " \
+        sql = "insert into puckpandas_import.table_update_log (tableName, lastDateUpdated, updateFound) values " \
               "(:tableName, :lastDateUpdated, :updateFound)"
         param = {'tableName': table_name,
                  'lastDateUpdated': np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
@@ -26,7 +26,8 @@ class ImportTableUpdateLog:
     @staticmethod
     def query_db():
         engine = puckpandas.dba_import_login()
-        sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from table_update_log group by tableName"
+        sql = "select tableName, max(lastDateUpdated) as lastDateUpdated from puckpandas_import.table_update_log " \
+              "group by tableName"
         update_details = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -13,8 +13,8 @@ class TeamsImport:
                 self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into teams_import (teamId, franchiseId, fullName, leagueId, triCode) values (:teamId, " \
-                  ":franchiseId, :fullName, :leagueId, :triCode)"
+            sql = "insert into puckpandas_import.teams_import (teamId, franchiseId, fullName, leagueId, triCode) " \
+                  "values (:teamId, :franchiseId, :fullName, :leagueId, :triCode)"
             params = self.teams_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -25,9 +25,9 @@ class TeamsImport:
     def clear_db(tri_code=''):
         engine = puckpandas.dba_import_login()
         if tri_code == '':
-            sql = "truncate table teams_import"
+            sql = "truncate table puckpandas_import.teams_import"
         else:
-            sql = "delete from teams_import where triCode = '" + tri_code + "'"
+            sql = "delete from puckpandas_import.teams_import where triCode = '" + tri_code + "'"
         with engine.connect() as conn:
             conn.execute(text(sql))
         engine.dispose()
@@ -37,7 +37,7 @@ class TeamsImport:
     @staticmethod
     def query_db(tri_code=''):
         engine = puckpandas.dba_import_login()
-        sql_prefix = "select teamId, franchiseId, fullName, leagueId, triCode from teams_import "
+        sql_prefix = "select teamId, franchiseId, fullName, leagueId, triCode from puckpandas_import.teams_import "
         sql_suffix = ""
         if tri_code != '':
             sql_suffix = "where triCode = " + tri_code

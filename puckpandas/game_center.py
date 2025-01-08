@@ -18,8 +18,8 @@ class ScratchesImport:
             scratches_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into scratches_import (gameId, playerId, `firstName.default`, `lastName.default`) " \
-                  "values (:gameId, :playerId, :firstNamedefault, :lastNamedefault)"
+            sql = "insert into puckpandas_import.scratches_import (gameId, playerId, `firstName.default`, " \
+                  "`lastName.default`) values (:gameId, :playerId, :firstNamedefault, :lastNamedefault)"
             scratches_df = self.scratches_df
             scratches_df.columns = scratches_df.columns.str.replace('.', '')
             params = scratches_df.to_dict('records')
@@ -33,7 +33,7 @@ class ScratchesImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from scratches_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.scratches_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -41,8 +41,8 @@ class ScratchesImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId, playerId, `firstName.default`, `lastName.default` from scratches_import where " \
-              "gameId = " + str(self.game_id)
+        sql = "select gameId, playerId, `firstName.default`, `lastName.default` from " \
+              "puckpandas_import.scratches_import where gameId = " + str(self.game_id)
         scratches_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -88,7 +88,7 @@ class LinesmenImport:
             linesmen_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into linesmen_import (gameId, `default`) values (:gameId, :default)"
+            sql = "insert into puckpandas_import.linesmen_import (gameId, `default`) values (:gameId, :default)"
             params = self.linesmen_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -101,7 +101,7 @@ class LinesmenImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from linesmen_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.linesmen_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -109,7 +109,7 @@ class LinesmenImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId, `default` from linesmen_import where gameId = " + str(self.game_id)
+        sql = "select gameId, `default` from puckpandas_import.linesmen_import where gameId = " + str(self.game_id)
         linesmen_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -154,7 +154,7 @@ class RefereesImport:
             referees_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into referees_import (gameId, `default`) values (:gameId, :default)"
+            sql = "insert into puckpandas_import.referees_import (gameId, `default`) values (:gameId, :default)"
             params = self.referees_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -166,7 +166,7 @@ class RefereesImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from referees_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.referees_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -174,7 +174,7 @@ class RefereesImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId, `default` from referees_import where gameId = " + str(self.game_id)
+        sql = "select gameId, `default` from puckpandas_import.referees_import where gameId = " + str(self.game_id)
         referees_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -219,8 +219,8 @@ class SeasonSeriesImport:
             season_series_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into season_series_import (gameId, seriesNumber, refGameId) values (:gameId, " \
-                  ":seriesNumber, :refGameId)"
+            sql = "insert into puckpandas_import.season_series_import (gameId, seriesNumber, refGameId) values " \
+                  "(:gameId, :seriesNumber, :refGameId)"
             params = self.season_series_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -232,7 +232,7 @@ class SeasonSeriesImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from season_series_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.season_series_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -240,7 +240,8 @@ class SeasonSeriesImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId, seriesNumber, refGameId from season_series_import where gameId = " + str(self.game_id)
+        sql = "select gameId, seriesNumber, refGameId from puckpandas_import.season_series_import where gameId = " + \
+              str(self.game_id)
         season_series_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -288,8 +289,8 @@ class TeamGameStatsImport:
             team_game_stats_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into team_game_stats_import (gameId, category, awayValue, homeValue) values " \
-                  "(:gameId, :category, :awayValue, :homeValue)"
+            sql = "insert into puckpandas_import.team_game_stats_import (gameId, category, awayValue, homeValue) " \
+                  "values (:gameId, :category, :awayValue, :homeValue)"
             params = self.team_game_stats_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -301,7 +302,7 @@ class TeamGameStatsImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from team_game_stats_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.team_game_stats_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -309,8 +310,8 @@ class TeamGameStatsImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId, category, awayValue, homeValue from team_game_stats_import where gameId = " + \
-              str(self.game_id)
+        sql = "select gameId, category, awayValue, homeValue from puckpandas_import.team_game_stats_import " \
+              "where gameId = " + str(self.game_id)
         team_game_stats_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -356,9 +357,9 @@ class RosterSpotsImport:
             roster_spots_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into roster_spots_import (gameId, teamId, playerId, sweaterNumber, positionCode, " \
-                  "headshot,`firstName`,`lastName`) values (:gameId, :teamId, :playerId, :sweaterNumber, " \
-                  ":positionCode, :headshot, :firstNamedefault, :lastNamedefault)"
+            sql = "insert into puckpandas_import.roster_spots_import (gameId, teamId, playerId, sweaterNumber, " \
+                  "positionCode, headshot,`firstName`,`lastName`) values (:gameId, :teamId, :playerId, " \
+                  ":sweaterNumber, :positionCode, :headshot, :firstNamedefault, :lastNamedefault)"
             roster_spots_df = self.roster_spots_df
             roster_spots_df.columns = roster_spots_df.columns.str.replace('.', '')
             roster_spots_df.fillna(0, inplace=True)
@@ -373,7 +374,7 @@ class RosterSpotsImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from roster_spots_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.roster_spots_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -382,7 +383,7 @@ class RosterSpotsImport:
     def query_db(self):
         engine = puckpandas.dba_import_login()
         sql = "select gameId, teamId, playerId, sweaterNumber, positionCode, headshot, `firstName`, `lastName` from " \
-              "roster_spots_import where gameId = " + str(self.game_id)
+              "puckpandas_import.roster_spots_import where gameId = " + str(self.game_id)
         roster_spots_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -439,7 +440,7 @@ class PlaysImport:
             plays_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into plays_import (gameId, eventId, `periodDescriptor.number`, " \
+            sql = "insert into puckpandas_import.plays_import (gameId, eventId, `periodDescriptor.number`, " \
                   "`periodDescriptor.periodType`, `periodDescriptor.maxRegulationPeriods`, timeInPeriod, " \
                   "timeRemaining, situationCode, homeTeamDefendingSide, typeCode, typeDescKey, sortOrder, " \
                   "`details.eventOwnerTeamId`, `details.losingPlayerId`, `details.winningPlayerId`, `details.xCoord`, "\
@@ -475,7 +476,7 @@ class PlaysImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from plays_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.plays_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -494,7 +495,7 @@ class PlaysImport:
               "`details.committedByPlayerId`, `details.drawnByPlayerId`, `details.scoringPlayerId`, " \
               "`details.scoringPlayerTotal`, `details.assist1PlayerId`, `details.assist1PlayerTotal`, " \
               "`details.assist2PlayerId`, `details.assist2PlayerTotal`, `details.awayScore`, `details.homeScore` " \
-              "from plays_import where gameId = " + str(self.game_id)
+              "from puckpandas_import.plays_import where gameId = " + str(self.game_id)
         plays_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -539,8 +540,9 @@ class TvBroadcastsImport:
             tv_broadcasts_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into tv_broadcasts_import (gameId, broadcastId, market, countryCode, network, " \
-                  "sequenceNumber) values (:gameId, :broadcastId, :market, :countryCode, :network, :sequenceNumber)"
+            sql = "insert into puckpandas_import.tv_broadcasts_import (gameId, broadcastId, market, countryCode, " \
+                  "network, sequenceNumber) values (:gameId, :broadcastId, :market, :countryCode, :network, " \
+                  ":sequenceNumber)"
             params = self.tv_broadcasts_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), params)
@@ -552,7 +554,7 @@ class TvBroadcastsImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from tv_broadcasts_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.tv_broadcasts_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -560,8 +562,8 @@ class TvBroadcastsImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId, broadcastId, market, countryCode, network, sequenceNumber from tv_broadcasts_import " \
-              "where gameId = " + str(self.game_id)
+        sql = "select gameId, broadcastId, market, countryCode, network, sequenceNumber from " \
+              "puckpandas_import.tv_broadcasts_import where gameId = " + str(self.game_id)
         tv_broadcasts_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -635,13 +637,13 @@ class GameCenterImport:
         if self.game_center_pbp_df.size > 0:
             game_center_found = 1
             engine = puckpandas.dba_import_login()
-            sql = "insert into game_center_import (gameId, season, gameType, limitedScoring, gameDate, " \
-                  "`venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, venueUTCOffset, " \
-                  "gameState, gameScheduleState, `periodDescriptor.number`, `periodDescriptor.periodType`, " \
-                  "`periodDescriptor.maxRegulationPeriods`, `awayTeam.id`, `awayTeam.commonName.default`, " \
-                  "`awayTeam.abbrev`, `awayTeam.score`, `awayTeam.sog`, `awayTeam.logo`, " \
-                  "`awayTeam.placeName.default`, `awayTeam.placeNameWithPreposition.default`, `homeTeam.id`, " \
-                  "`homeTeam.commonName.default`, `homeTeam.abbrev`, `homeTeam.score`, `homeTeam.sog`, " \
+            sql = "insert into puckpandas_import.game_center_import (gameId, season, gameType, limitedScoring, " \
+                  "gameDate, `venue.default`, `venueLocation.default`, startTimeUTC, easternUTCOffset, " \
+                  "venueUTCOffset, gameState, gameScheduleState, `periodDescriptor.number`, " \
+                  "`periodDescriptor.periodType`, `periodDescriptor.maxRegulationPeriods`, `awayTeam.id`, " \
+                  "`awayTeam.commonName.default`, `awayTeam.abbrev`, `awayTeam.score`, `awayTeam.sog`, " \
+                  "`awayTeam.logo`, `awayTeam.placeName.default`, `awayTeam.placeNameWithPreposition.default`, " \
+                  "`homeTeam.id`, `homeTeam.commonName.default`, `homeTeam.abbrev`, `homeTeam.score`, `homeTeam.sog`, "\
                   "`homeTeam.logo`, `homeTeam.placeName.default`, `homeTeam.placeNameWithPreposition.default`, " \
                   "shootoutInUse, otInUse, `clock.timeRemaining`, `clock.secondsRemaining`, `clock.running`, " \
                   "`clock.inIntermission`, displayPeriod, maxPeriods, `gameOutcome.lastPeriodType`, regPeriods) " \
@@ -668,7 +670,8 @@ class GameCenterImport:
 
         if len(self.game_center_rr_df.index) > 0:
             engine = puckpandas.dba_import_login()
-            sql = "insert into game_center_right_rail_import (gameId, `seasonSeriesWins.awayTeamWins`, " \
+            sql = "insert into puckpandas_import.game_center_right_rail_import (gameId, " \
+                  "`seasonSeriesWins.awayTeamWins`, " \
                   "`seasonSeriesWins.homeTeamWins`, `seasonSeriesWins.neededToWin`, " \
                   "`gameInfo.awayTeam.headCoach.default`, `gameInfo.homeTeam.headCoach.default`, " \
                   "`gameVideo.threeMinRecap`, `linescore.totals.away`, `linescore.totals.home`) " \
@@ -696,12 +699,12 @@ class GameCenterImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from game_center_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.game_center_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
         engine = puckpandas.dba_import_login()
-        sql = "delete from game_center_right_rail_import where gameId = " + str(self.game_id)
+        sql = "delete from puckpandas_import.game_center_right_rail_import where gameId = " + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -728,7 +731,7 @@ class GameCenterImport:
                   "`homeTeam.logo`, `homeTeam.placeName.default`, `homeTeam.placeNameWithPreposition.default`, " \
                   "shootoutInUse, otInUse, `clock.timeRemaining`, `clock.secondsRemaining`, `clock.running`, " \
                   "`clock.inIntermission`, displayPeriod, maxPeriods, `gameOutcome.lastPeriodType`, regPeriods " \
-                  "from game_center_import where gameId = " + str(self.game_id)
+                  "from puckpandas_import.game_center_import where gameId = " + str(self.game_id)
         game_center_pbp_df = pd.read_sql_query(pbp_sql, engine)
         engine.dispose()
 
@@ -740,7 +743,8 @@ class GameCenterImport:
         rr_sql = "select gameId, `seasonSeriesWins.awayTeamWins`, `seasonSeriesWins.homeTeamWins`, " \
                  "`seasonSeriesWins.neededToWin`, `gameInfo.awayTeam.headCoach.default`, " \
                  "`gameInfo.homeTeam.headCoach.default`, `gameVideo.threeMinRecap`, `linescore.totals.away`, " \
-                 "`linescore.totals.home` from game_center_right_rail_import where gameId = " + str(self.game_id)
+                 "`linescore.totals.home` from puckpandas_import.game_center_right_rail_import where gameId = " \
+                 + str(self.game_id)
         game_center_rr_df = pd.read_sql_query(rr_sql, engine)
         engine.dispose()
 

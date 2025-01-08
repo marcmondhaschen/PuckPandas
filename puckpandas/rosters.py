@@ -16,7 +16,7 @@ class RostersImport:
     def update_db(self):
         if self.roster_df.size > 0:
             engine = puckpandas.dba_import_login()
-            sql = "insert into rosters_import (triCode, seasonId, playerId) " \
+            sql = "insert into puckpandas_import.puckpandas_import.rosters_import (triCode, seasonId, playerId) " \
                   "values (:triCode, :seasonId, :playerId)"
             params = self.roster_df.to_dict('records')
             with engine.connect() as conn:
@@ -27,8 +27,8 @@ class RostersImport:
     def clear_db(self):
         if self.tri_code != '' and self.season_id != '':
             engine = puckpandas.dba_import_login()
-            sql = "delete from rosters_import where triCode = '" + str(self.tri_code) + "' and seasonId = " + \
-                  str(self.season_id)
+            sql = "delete from puckpandas_import.rosters_import where triCode = '" + str(self.tri_code) + "' and " \
+                  "seasonId = " + str(self.season_id)
             with engine.connect() as conn:
                 conn.execute(text(sql))
 
@@ -36,8 +36,8 @@ class RostersImport:
 
     def query_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "select triCode, seasonId, playerId from rosters_import where seasonId > 0 and  triCode = '" + \
-              str(self.tri_code) + "' and seasonId = '" + str(self.season_id) + "'"
+        sql = "select triCode, seasonId, playerId from puckpandas_import.rosters_import where seasonId > 0 and " \
+              "triCode = '" + str(self.tri_code) + "' and seasonId = '" + str(self.season_id) + "'"
         roster_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -18,11 +18,12 @@ class ShiftsImport:
             shifts_found = 1
 
             engine = puckpandas.dba_import_login()
-            sql = 'insert into shifts_import (id, detailCode, duration, endTime, eventDescription, eventDetails, ' \
-                  'eventNumber, firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, ' \
-                  'teamAbbrev, teamId, teamName, typeCode) values (:id, :detailCode, :duration, :endTime, ' \
-                  ':eventDescription, :eventDetails, :eventNumber, :firstName, :gameId, :hexValue, :lastName, ' \
-                  ':period, :playerId, :shiftNumber, :startTime, :teamAbbrev, :teamId, :teamName, :typeCode)'
+            sql = "insert into puckpandas_import.shifts_import (id, detailCode, duration, endTime, eventDescription, " \
+                  "eventDetails, " \
+                  "eventNumber, firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, " \
+                  "teamAbbrev, teamId, teamName, typeCode) values (:id, :detailCode, :duration, :endTime, " \
+                  ":eventDescription, :eventDetails, :eventNumber, :firstName, :gameId, :hexValue, :lastName, " \
+                  ":period, :playerId, :shiftNumber, :startTime, :teamAbbrev, :teamId, :teamName, :typeCode)"
             shifts_df = self.shifts_df.fillna('')
             params = shifts_df.to_dict('records')
             with engine.connect() as conn:
@@ -35,7 +36,7 @@ class ShiftsImport:
 
     def clear_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "delete from shifts_import where gameId =" + str(self.game_id)
+        sql = "delete from puckpandas_import.shifts_import where gameId =" + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
 
@@ -45,7 +46,7 @@ class ShiftsImport:
         engine = puckpandas.dba_import_login()
         sql = "select id, detailCode, duration, endTime, eventDescription, eventDetails, eventNumber, firstName, " \
               "gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, teamAbbrev, teamId, teamName, " \
-              "typeCode from shifts_import where gameId = " + str(self.game_id)
+              "typeCode from puckpandas_import.shifts_import where gameId = " + str(self.game_id)
         shifts_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -36,7 +36,8 @@ class GamesImportLog:
 
             if self.update_details['gameId'] != '':
                 engine = puckpandas.dba_import_login()
-                sql = "insert into games_import_log (gameId, lastDateUpdated, gameFound, gameCenterFound, " \
+                sql = "insert into puckpandas_import.games_import_log (gameId, lastDateUpdated, gameFound, " \
+                      "gameCenterFound, " \
                       "tvBroadcastsFound, playsFound, rosterSpotsFound, teamGameStatsFound, seasonSeriesFound, " \
                       "refereesFound, linesmenFound, scratchesFound, shiftsFound) values (:gameId, "\
                       ":lastDateUpdated, :gameFound, :gameCenterFound, :tvBroadcastsFound, :playsFound, "\
@@ -105,7 +106,7 @@ class GamesImportLog:
 
         engine = puckpandas.dba_import_login()
         sql = "select gameId, max(lastDateUpdated) as lastDateUpdated, gameFound, gameCenterFound from " \
-              "games_import_log where gameId = " + str(game_id) + " group by gameId, " \
+              "puckpandas_import.games_import_log where gameId = " + str(game_id) + " group by gameId, " \
               "gameFound, gameCenterFound"
         update_df = pd.read_sql_query(sql, engine)
         engine.dispose()
@@ -118,7 +119,8 @@ class GamesImportLog:
     @staticmethod
     def games_not_queried():
         engine = puckpandas.dba_import_login()
-        sql = "select gameId from games_import_log where (gameCenterFound is Null or gameCenterFound = 0)"
+        sql = "select gameId from puckpandas_import.games_import_log where (gameCenterFound is Null or " \
+              "gameCenterFound = 0)"
         games_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -127,8 +129,8 @@ class GamesImportLog:
     @staticmethod
     def games_played_recently(start_date, stop_date):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId from games_import where gameDate between '" + str(start_date) + "' and '" + \
-              str(stop_date) + "'"
+        sql = "select gameId from puckpandas_import.games_import where gameDate between '" + str(start_date) + \
+              "' and '" + str(stop_date) + "'"
         games_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -137,7 +139,7 @@ class GamesImportLog:
     @staticmethod
     def shifts_not_queried():
         engine = puckpandas.dba_import_login()
-        sql = "select gameId from games_import_log where shiftsFound is Null"
+        sql = "select gameId from puckpandas_import.games_import_log where shiftsFound is Null"
         shifts_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -146,8 +148,9 @@ class GamesImportLog:
     @staticmethod
     def shifts_played_recently(start_date, stop_date):
         engine = puckpandas.dba_import_login()
-        sql = ("select a.gameId from games_import_log as a join games_import as b on a.gameId = b.gameId where "
-               "a.shiftsFound = 0 and b.gameDate between '" + str(start_date) + "' and '" + str(stop_date) + "'")
+        sql = ("select a.gameId from puckpandas_import.games_import_log as a join puckpandas_import.games_import " \
+               "as b on a.gameId = b.gameId where a.shiftsFound = 0 and b.gameDate between '" + str(start_date) + \
+               "' and '" + str(stop_date) + "'")
         shifts_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -156,8 +159,8 @@ class GamesImportLog:
     @staticmethod
     def games_between_dates(begin_date, end_date):
         engine = puckpandas.dba_import_login()
-        sql = "select gameId from games_import where gameDate between '" + str(begin_date) + "' and '" \
-              + str(end_date) + "'"
+        sql = "select gameId from puckpandas_import.games_import where gameDate between '" + str(begin_date) + \
+              "' and '" + str(end_date) + "'"
         games = pd.read_sql_query(sql, engine)
         engine.dispose()
 

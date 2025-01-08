@@ -13,7 +13,7 @@ class SeasonsImportLog:
 
     def insert_db(self):
         engine = puckpandas.dba_import_login()
-        sql = "insert into team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
+        sql = "insert into puckpandas_import.team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
               "values (:teamId, :seasonId, :lastDateUpdated, :gamesFound)"
         params = {'teamId': self.team_id, 'seasonId': self.season_id,
                   'lastDateUpdated': np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str),
@@ -28,7 +28,7 @@ class SeasonsImportLog:
 
         engine = puckpandas.dba_import_login()
         prefix_sql = "select teamId, seasonId, max(lastDateUpdated) as lastDateUpdated from " \
-                     "team_seasons_import_log where teamId = "
+                     "puckpandas_import.team_seasons_import_log where teamId = "
         mid_sql = " and seasonId = '"
         suffix_sql = "' group by teamId, seasonId"
         update_log_sql = "{}{}{}{}{}".format(prefix_sql, self.team_id, mid_sql, self.season_id, suffix_sql)
@@ -43,8 +43,9 @@ class SeasonsImportLog:
     @staticmethod
     def seasons_without_games():
         engine = puckpandas.dba_import_login()
-        sql = "select a.seasonId, count(b.gameId) as gameCount from team_seasons_import as a left join games_import " \
-              "as b on a.seasonId = b.seasonId group by a.seasonId having gameCount = 0"
+        sql = "select a.seasonId, count(b.gameId) as gameCount from puckpandas_import.team_seasons_import as a left " \
+              "join puckpandas_import.games_import as b on a.seasonId = b.seasonId group by a.seasonId having " \
+              "gameCount = 0"
         seasons = pd.read_sql_query(sql, engine)
         engine.dispose()
 
@@ -53,8 +54,8 @@ class SeasonsImportLog:
     @staticmethod
     def seasons_without_rosters():
         engine = puckpandas.dba_import_login()
-        sql = "select a.seasonId, count(b.playerId) as playerCount from team_seasons_import as a left join " \
-              "rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
+        sql = "select a.seasonId, count(b.playerId) as playerCount from puckpandas_import.team_seasons_import as a " \
+              "left join rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
         seasons = pd.read_sql_query(sql, engine)
         engine.dispose()
 

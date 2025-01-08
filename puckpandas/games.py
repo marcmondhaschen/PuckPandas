@@ -24,7 +24,8 @@ class GamesImport:
         if self.games_df.size > 0:
             games_found = 1
             engine = puckpandas.dba_import_login()
-            sql = "insert into games_import (gameId, seasonId, gameType, gameDate, venue, neutralSite, " \
+            sql = "insert into puckpandas_import.games_import (gameId, seasonId, gameType, gameDate, venue, " \
+                  "neutralSite, " \
                   "startTimeUTC, venueUTCOffset, venueTimezone, gameState, gameScheduleState, awayTeam, " \
                   "awayTeamSplitSquad, awayTeamScore, homeTeam, homeTeamSplitSquad, homeTeamScore, " \
                   "periodType, gameOutcome, `seriesStatus.round`, `seriesStatus.seriesAbbrev`, " \
@@ -57,8 +58,9 @@ class GamesImport:
     def clear_db(self):
         if self.team_id != '' and self.season_id != '':
             engine = puckpandas.dba_import_login()
-            sql = "delete from games_import where gameId > 0" + " and (homeTeam = " + str(self.team_id) + \
-                  " or awayTeam = " + str(self.team_id) + ")" + " and seasonId = '" + str(self.season_id) + "'"
+            sql = "delete from puckpandas_import.games_import where gameId > 0" + " and (homeTeam = " + \
+                  str(self.team_id) + " or awayTeam = " + str(self.team_id) + ")" + " and seasonId = '" + \
+                  str(self.season_id) + "'"
             with engine.connect() as conn:
                 conn.execute(text(sql))
             engine.dispose()
@@ -72,8 +74,8 @@ class GamesImport:
               "homeTeamSplitSquad, homeTeamScore, periodType, gameOutcome, `seriesStatus.round`, " \
               "`seriesStatus.seriesAbbrev`, `seriesStatus.seriesTitle`, `seriesStatus.seriesLetter`, " \
               "`seriesStatus.neededToWin`, `seriesStatus.topSeedWins`, `seriesStatus.bottomSeedWins`, " \
-              "`seriesStatus.gameNumberOfSeries` from games_import where gameId > 0 and (homeTeam = " + \
-               str(self.team_id) + " or awayTeam = " + str(self.team_id) + ") and seasonId = '" + \
+              "`seriesStatus.gameNumberOfSeries` from puckpandas_import.games_import where gameId > 0 and " \
+              "(homeTeam = " + str(self.team_id) + " or awayTeam = " + str(self.team_id) + ") and seasonId = '" + \
                str(self.season_id) + "'"
         games_df = pd.read_sql_query(sql, engine)
         engine.dispose()

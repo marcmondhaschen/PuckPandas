@@ -14,7 +14,8 @@ class SeasonsImport:
                 self.seasons_df = self.seasons_df[self.seasons_df['triCode'] == tri_code]
 
             engine = puckpandas.dba_import_login()
-            sql = "insert into team_seasons_import (triCode, teamId, seasonId) values (:triCode, :teamId, :seasonId)"
+            sql = "insert into puckpandas_import.team_seasons_import (triCode, teamId, seasonId) values (:triCode, " \
+                  ":teamId, :seasonId)"
             params = self.seasons_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
@@ -25,9 +26,9 @@ class SeasonsImport:
     def clear_db(tri_code=''):
         engine = puckpandas.dba_import_login()
         if tri_code == '':
-            sql = "truncate table team_seasons_import"
+            sql = "truncate table puckpandas_import.team_seasons_import"
         else:
-            sql = "delete from team_seasons_import where triCode = " + tri_code
+            sql = "delete from puckpandas_import.team_seasons_import where triCode = " + tri_code
         with engine.connect() as conn:
             conn.execute(text(sql))
         engine.dispose()
@@ -36,7 +37,8 @@ class SeasonsImport:
 
     def query_db(self, tri_code='', season_id=''):
         engine = puckpandas.dba_import_login()
-        sql_prefix = "select a.triCode, a.teamId, a.seasonId from team_seasons_import as a where a.teamId is not null"
+        sql_prefix = "select a.triCode, a.teamId, a.seasonId from puckpandas_import.team_seasons_import as a where " \
+                     "a.teamId is not null"
         sql_suffix = ""
         if tri_code != '':
             sql_suffix += " and a.triCode = " + tri_code
