@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-"NHL" is registered mark of and belongs to the National Hockey League (NHL). Use of "NHL"
-or any other National Hockey League owned marks within this software is not
-in any way an indication of affiliation with the authors of this software and the League,
-nor endorsement by the League.
+"NHL" is registered mark of and belongs to the National Hockey League (NHL).
+Use of "NHL" or any other National Hockey League owned marks within this software
+and its documentation is not in any way an indication of the authors or this
+software’s affiliation with nor endorsement by the NHL.
