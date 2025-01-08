@@ -1,6 +1,3 @@
-# SQL scrap file for dev/testing
-sql/scrap*.sql
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
