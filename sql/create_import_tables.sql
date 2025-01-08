@@ -4,14 +4,14 @@ create schema if not exists `puckpandas`
   default collate = utf8mb4_unicode_ci;
 
 # create prod analysis user
-create user `puckpandas`@`puckpandas` identified by "YOURPASSWORDHERE";
-grant select on `puckpandas`.* to `puckpandas`@`puckpandas`;
+create user `puckpandas`@`localhost` identified by "YOURPASSWORDGOESHERE";
+grant select on `puckpandas`.* to `puckpandas`@`localhost`;
 
 
 # create prod transform user
-create user `puckpandas_tx`@`puckpandas` identified by "YOURPASSWORDHERE";
-grant select, insert, update, delete on `puckpandas`.* to `puckpandas_tx`@`puckpandas`;
-
+create user `puckpandas_tx`@`localhost` identified by "YOURPASSWORDGOESHERE";
+grant select, insert, update, delete on `puckpandas`.* to `puckpandas_tx`@`localhost`;
+grant select on `puckpandas_import`.* to `puckpandas_tx`@`localhost`;
 
 # create import schema
 create schema if not exists `puckpandas_import`
@@ -20,8 +20,8 @@ create schema if not exists `puckpandas_import`
 
 
 # create import user
-create user `puckpandas_import`@`puckpandas_import` identified by "YOURPASSWORDHERE";
-grant select, insert, update, delete on `puckpandas_import`.* to `puckpandas_import`@`puckpandas_import`;
+create user `puckpandas_import`@`localhost` identified by "YOURPASSWORDGOESHERE";
+grant select, insert, update, delete on `puckpandas_import`.* to `puckpandas_import`@`localhost`;
 
 
 # create import tables
