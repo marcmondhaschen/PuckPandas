@@ -148,9 +148,9 @@ class GamesImportLog:
     @staticmethod
     def shifts_played_recently(start_date, stop_date):
         engine = puckpandas.dba_import_login()
-        sql = ("select a.gameId from puckpandas_import.games_import_log as a join puckpandas_import.games_import " \
-               "as b on a.gameId = b.gameId where a.shiftsFound = 0 and b.gameDate between '" + str(start_date) + \
-               "' and '" + str(stop_date) + "'")
+        sql = "select a.gameId from puckpandas_import.games_import_log as a join puckpandas_import.games_import as b " \
+              "on a.gameId = b.gameId where a.shiftsFound = 0 and b.gameDate between '" + str(start_date) + "' and '" \
+              + str(stop_date) + "'"
         shifts_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
