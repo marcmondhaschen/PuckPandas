@@ -48,10 +48,8 @@ class GamesImport:
                 game_log = puckpandas.GamesImportLog(row['gameId'], game_found=1)
                 game_log.insert_db()
 
-            season_log = puckpandas.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id, games_found=games_found)
-            season_log.insert_db()
-
-            engine.dispose()
+        season_log = puckpandas.SeasonsImportLog(team_id=self.team_id, season_id=self.season_id, games_found=games_found)
+        season_log.insert_db()
 
         return True
 
