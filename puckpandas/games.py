@@ -86,7 +86,7 @@ class GamesImport:
 
         return self.games_df
 
-    def query_nhl(self):
+    def query_api(self):
         # each page call is a complete season for a given team
         tri_code = self.teams.tri_code_from_team_id(team_id=self.team_id)
 
@@ -114,12 +114,12 @@ class GamesImport:
 
         return self.games_df
 
-    def query_nhl_update_db(self):
+    def query_api_update_db(self):
         # For this object, this pattern has the side effect of deleting duplicate gameIds in the games_import table.
         # Each game is presented twice by the API - once for each opposing team. the
         # clear method will drop games from a team about to be imported, removing their impending duplication on import
         # but leaving behind all the previous competitors' matches that didn't involve them.
-        self.query_nhl()
+        self.query_api()
         self.clear_db()
         self.update_db()
 

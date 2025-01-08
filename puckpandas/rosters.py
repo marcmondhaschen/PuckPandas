@@ -45,10 +45,9 @@ class RostersImport:
             roster_df.infer_objects().fillna('', inplace=True)
             self.roster_df = roster_df
 
-
         return self.roster_df
 
-    def query_nhl(self):
+    def query_api(self):
         base_url = 'https://api-web.nhle.com/v1/roster/'
         query_string = "{}{}/{}".format(base_url, self.tri_code, self.season_id)
         json_data = puckpandas.fetch_json_data(query_string)
@@ -70,8 +69,8 @@ class RostersImport:
 
         return self.roster_df
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
         return True

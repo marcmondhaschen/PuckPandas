@@ -47,7 +47,7 @@ class TeamsImport:
 
         return teams_df
 
-    def query_nhl(self, tri_code=''):
+    def query_api(self, tri_code=''):
         json_data = puckpandas.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         if json_data != {}:
             teams_df = pd.json_normalize(json_data, record_path=['data'])
@@ -61,8 +61,8 @@ class TeamsImport:
 
         return True
 
-    def query_nhl_update_db(self, tri_code=''):
-        self.query_nhl(tri_code)
+    def query_api_update_db(self, tri_code=''):
+        self.query_api(tri_code)
         self.clear_db(tri_code)
         self.update_db(tri_code)
 

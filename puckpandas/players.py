@@ -91,7 +91,7 @@ class SkaterCareerTotalsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         skater_career_totals_df = pd.json_normalize(self.json)
         skater_career_totals_df.rename(columns={"id": "playerId"}, inplace=True)
         skater_career_totals_df.insert(0, 'playerId', self.player_id)
@@ -104,8 +104,8 @@ class SkaterCareerTotalsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -170,7 +170,7 @@ class SkaterSeasonImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         skater_season_df = pd.json_normalize(self.json)
         skater_season_df.insert(0, 'playerId', self.player_id)
 
@@ -181,8 +181,8 @@ class SkaterSeasonImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -278,7 +278,7 @@ class GoalieCareerTotalsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         goalie_career_totals_df = pd.json_normalize(self.json)
         goalie_career_totals_df.rename(columns={"id": "playerId"}, inplace=True)
         goalie_career_totals_df.insert(0, 'playerId', self.player_id)
@@ -303,8 +303,8 @@ class GoalieCareerTotalsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -370,7 +370,7 @@ class GoalieSeasonImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         goalie_season_df = pd.json_normalize(self.json)
         goalie_season_df.rename(columns={"id": "playerId"}, inplace=True)
         goalie_season_df.insert(0, 'playerId', self.player_id)
@@ -390,8 +390,8 @@ class GoalieSeasonImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -450,7 +450,7 @@ class PlayerAwardsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         player_awards_df = pd.json_normalize(self.json, record_path=["seasons"], meta=[["trophy", "default"]])
         player_awards_df.insert(0, 'playerId', self.player_id)
 
@@ -461,8 +461,8 @@ class PlayerAwardsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -571,7 +571,7 @@ class PlayersImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         url_prefix = 'https://api-web.nhle.com/v1/player/'
         url_suffix = '/landing'
         url_string = "{}{}{}".format(url_prefix, self.player_id, url_suffix)
@@ -590,27 +590,27 @@ class PlayersImport:
         if 'careerTotals' in self.json and len(self.json['careerTotals']) > 0:
             if self.position == 'G':
                 self.goalie_career_totals.json = self.json['careerTotals']
-                self.goalie_career_totals.query_nhl()
+                self.goalie_career_totals.query_api()
             else:
                 self.skater_career_totals.json = self.json['careerTotals']
-                self.skater_career_totals.query_nhl()
+                self.skater_career_totals.query_api()
 
         if 'seasonTotals' in self.json and len(self.json['seasonTotals']) > 0:
             if self.position == 'G':
                 self.goalie_seasons.json = self.json['seasonTotals']
-                self.goalie_seasons.query_nhl()
+                self.goalie_seasons.query_api()
             else:
                 self.skater_seasons.json = self.json['seasonTotals']
-                self.skater_seasons.query_nhl()
+                self.skater_seasons.query_api()
 
         if 'awards' in self.json and len(self.json['awards']) > 0:
             self.player_awards.json = self.json['awards']
-            self.player_awards.query_nhl()
+            self.player_awards.query_api()
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 

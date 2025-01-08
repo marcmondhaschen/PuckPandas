@@ -58,7 +58,7 @@ class ShiftsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         url_prefix = 'https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId='
         url_string = "{}{}".format(url_prefix, self.game_id)
         json_data = puckpandas.fetch_json_data(url_string)
@@ -70,8 +70,8 @@ class ShiftsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 

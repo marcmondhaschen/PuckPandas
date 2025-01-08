@@ -53,7 +53,7 @@ class ScratchesImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         scratches_df = pd.json_normalize(self.json)
         scratches_df.insert(0, 'gameId', self.game_id)
         scratches_df.rename(columns={"id": "playerId"}, inplace=True)
@@ -65,8 +65,8 @@ class ScratchesImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -120,7 +120,7 @@ class LinesmenImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         linesmen_df = pd.json_normalize(self.json)
         linesmen_df.insert(0, 'gameId', self.game_id)
 
@@ -131,8 +131,8 @@ class LinesmenImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -185,7 +185,7 @@ class RefereesImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         referees_df = pd.json_normalize(self.json)
         referees_df.insert(0, 'gameId', self.game_id)
 
@@ -196,8 +196,8 @@ class RefereesImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -252,7 +252,7 @@ class SeasonSeriesImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         season_series_df = pd.json_normalize(self.json)
         # noinspection PyTypeChecker
         season_series_df.insert(0, 'seriesNumber', range(len(season_series_df)))
@@ -266,8 +266,8 @@ class SeasonSeriesImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -322,7 +322,7 @@ class TeamGameStatsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         team_game_stats_df = pd.json_normalize(self.json)
         team_game_stats_df.insert(0, 'gameId', self.game_id)
 
@@ -333,8 +333,8 @@ class TeamGameStatsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -394,7 +394,7 @@ class RosterSpotsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         roster_spots_df = pd.json_normalize(self.json)
         roster_spots_df.insert(0, 'gameId', self.game_id)
 
@@ -405,8 +405,8 @@ class RosterSpotsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -506,7 +506,7 @@ class PlaysImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         plays_df = pd.json_normalize(self.json)
         plays_df.insert(0, 'gameId', self.game_id)
 
@@ -517,8 +517,8 @@ class PlaysImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -574,7 +574,7 @@ class TvBroadcastsImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         tv_broadcasts_df = pd.json_normalize(self.json)
         tv_broadcasts_df.rename(columns={"id": "broadcastId"}, inplace=True)
         tv_broadcasts_df.insert(0, 'gameId', self.game_id)
@@ -586,8 +586,8 @@ class TvBroadcastsImport:
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 
@@ -764,7 +764,7 @@ class GameCenterImport:
 
         return True
 
-    def query_nhl(self):
+    def query_api(self):
         if self.game_id != '':
             url_prefix = 'https://api-web.nhle.com/v1/gamecenter/'
 
@@ -793,42 +793,42 @@ class GameCenterImport:
             # in play-by-play
             if 'tvBroadcasts' in self.pbp_json:
                 self.tv_broadcasts.json = self.pbp_json['tvBroadcasts']
-                self.tv_broadcasts.query_nhl()
+                self.tv_broadcasts.query_api()
 
             if 'plays' in self.pbp_json:
                 self.plays.json = self.pbp_json['plays']
-                self.plays.query_nhl()
+                self.plays.query_api()
 
             if 'rosterSpots' in self.pbp_json:
                 self.roster_spots.json = self.pbp_json['rosterSpots']
-                self.roster_spots.query_nhl()
+                self.roster_spots.query_api()
 
             # in right-rail
             if "teamGameStats" in self.rr_json:
                 self.team_game_stats.json = self.rr_json['teamGameStats']
-                self.team_game_stats.query_nhl()
+                self.team_game_stats.query_api()
 
             if "seasonSeries" in self.rr_json:
                 self.season_series.json = self.rr_json['seasonSeries']
-                self.season_series.query_nhl()
+                self.season_series.query_api()
 
             if "referees" in self.rr_json['gameInfo']:
                 self.referees.json = self.rr_json['gameInfo']['referees']
-                self.referees.query_nhl()
+                self.referees.query_api()
 
             if "linesmen" in self.rr_json['gameInfo']:
                 self.linesmen.json = self.rr_json['gameInfo']['linesmen']
-                self.linesmen.query_nhl()
+                self.linesmen.query_api()
 
             if "scratches" in self.rr_json['gameInfo']['awayTeam']:
                 self.scratches.json = self.rr_json['gameInfo']['awayTeam']['scratches'] + \
                                       self.rr_json['gameInfo']['homeTeam']['scratches']
-                self.scratches.query_nhl()
+                self.scratches.query_api()
 
         return True
 
-    def query_nhl_update_db(self):
-        self.query_nhl()
+    def query_api_update_db(self):
+        self.query_api()
         self.clear_db()
         self.update_db()
 

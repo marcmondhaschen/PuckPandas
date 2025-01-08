@@ -53,7 +53,7 @@ class SeasonsImport:
 
         return seasons_df
 
-    def query_nhl(self, tri_code=''):
+    def query_api(self, tri_code=''):
         teams = puckpandas.TeamsImport()
         teams.query_db()
 
@@ -81,8 +81,8 @@ class SeasonsImport:
 
         return True
 
-    def query_nhl_update_db(self, tri_code=''):
-        self.query_nhl(tri_code)
+    def query_api_update_db(self, tri_code=''):
+        self.query_api(tri_code)
         self.clear_db(tri_code)
         self.update_db(tri_code)
 

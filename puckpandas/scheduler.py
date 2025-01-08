@@ -208,7 +208,7 @@ class Scheduler:
 
     def update_teams_import(self):
         teams = puckpandas.TeamsImport()
-        teams.query_nhl_update_db()
+        teams.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("teams_import", 1)
@@ -218,7 +218,7 @@ class Scheduler:
 
     def update_seasons_import(self):
         seasons = puckpandas.SeasonsImport()
-        seasons.query_nhl_update_db()
+        seasons.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("team_seasons_import", 1)
@@ -236,7 +236,7 @@ class Scheduler:
 
         for index, row in update_seasons.iterrows():
             team_season = puckpandas.GamesImport(team_id=row['teamId'], season_id=row['seasonId'])
-            team_season.query_nhl_update_db()
+            team_season.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("games_import", 1)
@@ -247,7 +247,7 @@ class Scheduler:
     def update_game_centers_import(self, games):
         for index, row in games.iterrows():
             game_center = puckpandas.GameCenterImport(row['gameId'])
-            game_center.query_nhl_update_db()
+            game_center.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("game_center_import", 1)
@@ -258,7 +258,7 @@ class Scheduler:
     def update_shifts_import(self, games):
         for index, row in games.iterrows():
             shifts = puckpandas.ShiftsImport(row['gameId'])
-            shifts.query_nhl_update_db()
+            shifts.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("shifts_import", 1)
@@ -276,7 +276,7 @@ class Scheduler:
 
         for index, row in update_seasons.iterrows():
             team_season = puckpandas.RostersImport(team_id=row['teamId'], season_id=row['seasonId'])
-            team_season.query_nhl_update_db()
+            team_season.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("rosters_import", 1)
@@ -287,7 +287,7 @@ class Scheduler:
     def update_players_import(self, players):
         for idx, player_id in players['playerId'].items():
             player = puckpandas.PlayersImport(player_id=player_id)
-            player.query_nhl_update_db()
+            player.query_api_update_db()
 
         log_object = puckpandas.ImportTableUpdateLog()
         log_object.update_db("player_bios_import", 1)
