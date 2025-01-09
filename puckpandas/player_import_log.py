@@ -80,9 +80,11 @@ class PlayerImportLog:
     @staticmethod
     def insert_untracked_players():
         engine = puckpandas.dba_import_login()
-        untracked_players_sql = "select distinct a.playerId as playerId from puckpandas_import.roster_spots_import " \
-                                "as a left join puckpandas_import.player_import_log as b on a.playerId = b.playerId " \
-                                "where b.playerId is Null"
+        untracked_players_sql = "select distinct a.playerId as playerId from (select distinct playerId " \
+                                "from puckpandas_import.roster_spots_import union select playerId from " \
+                                "puckpandas_import.scratches_import) as a left join " \
+                                "puckpandas_import.player_import_log as b on a.playerId = b.playerId where " \
+                                "b.playerId is Null"
         untracked_players_df = pd.read_sql_query(untracked_players_sql, engine)
         engine.dispose()
 
