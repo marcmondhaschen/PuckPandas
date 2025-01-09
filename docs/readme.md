@@ -21,7 +21,8 @@ ________________________________________
 
 Once configured, running PuckPandas is exceedingly simple.
 As distributed, the project’s ‘main’ script will query its way through the history of games and players offered by the NHL in chronological order. Should the application’s connection be interrupted, it can safely be restarted at a minimum risk to data loss and obligation to re-query the API. 
-Object Model
+
+#### Object Model
 Underneath the covers, PuckPandas includes objects whose data attributes represent a single API call’s data (i.e. TeamsImport) or a sub-table nested within a single call’s data (i.e. RefereesImport). Methods given to these objects provide standard CRUD functionality. Most objects offer update_db , clear_db, query_db, query_api, and query_api_update_db (which runs query_api, clear_db, and update_db in succession) to query data from the API and log it to the local database. 
 
 These API-querying methods are called in specific order, where the information in each call provides serializing information for the next set of calls. 
