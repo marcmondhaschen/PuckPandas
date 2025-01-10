@@ -381,7 +381,7 @@ class GoalieSeasonImport:
             self.goalie_season_df = goalie_season_df
 
         if not self.goalie_season_df.empty:
-            # self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == '', 'timeOnIce'] = '0:00'
+            self.goalie_season_df['timeOnIce'] = self.goalie_season_df['timeOnIce'].astype(object)
             self.goalie_season_df.loc[self.goalie_season_df.timeOnIce == 0, 'timeOnIce'] = '00:00'
             self.goalie_season_df[['timeOnIceMinutes', 'timeOnIceSeconds']] = (
                 self.goalie_season_df['timeOnIce'].str.split(":", expand=True))
