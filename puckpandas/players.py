@@ -224,7 +224,7 @@ class GoalieCareerTotalsImport:
                   "`playoffs.wins`, `playoffs.losses`, `playoffs.otLosses`, `playoffs.shotsAgainst`, " \
                   "`playoffs.goalsAgainst`, `playoffs.goalsAgainstAvg`, `playoffs.savePctg`, `playoffs.shutouts`, " \
                   "`playoffs.timeOnIce`, `playoffs.timeOnIceMinutes`, `playoffs.timeOnIceSeconds`) values " \
-                  "(playerId, :regularSeasongamesPlayed, :regularSeasongoals, :regularSeasonassists, " \
+                  "(:playerId, :regularSeasongamesPlayed, :regularSeasongoals, :regularSeasonassists, " \
                   ":regularSeasonpim, :regularSeasongamesStarted, :regularSeasonpoints, :regularSeasonwins, " \
                   ":regularSeasonlosses, :regularSeasonotLosses, :regularSeasonshotsAgainst, " \
                   ":regularSeasongoalsAgainst, :regularSeasongoalsAgainstAvg, :regularSeasonsavePctg, " \
