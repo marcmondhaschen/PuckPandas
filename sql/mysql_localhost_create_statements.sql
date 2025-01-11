@@ -478,23 +478,29 @@ create table `puckpandas_import`.`skater_season_import` (
   `gameTypeId` int DEFAULT NULL,
   `gamesPlayed` int DEFAULT NULL,
   `goals` int DEFAULT NULL,
-  `leagueAbbrev` varchar(12) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `leagueAbbrev` varchar(12) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `pim` int DEFAULT '0',
   `points` int DEFAULT NULL,
   `season` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `sequence` int DEFAULT NULL,
-  `teamName.default` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `gameWinningGoals` int DEFAULT NULL,
+  `teamName.default` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `plusMinus` int DEFAULT NULL,
+  `avgToi` varchar(12) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `faceoffWinningPctg` decimal(10,8) DEFAULT NULL,
+  `gameWinningGoals` int DEFAULT NULL,
+  `otGoals` int DEFAULT NULL,
   `powerPlayGoals` int DEFAULT NULL,
+  `shootingPctg` decimal(10,8) DEFAULT NULL,
   `shorthandedGoals` int DEFAULT NULL,
+  `shorthandedPoints` int DEFAULT NULL,
   `shots` int DEFAULT NULL,
-  `faceoffWinningPctg` decimal(10,8) DEFAULT '0.00000000',
+  `teamCommonName.default` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `teamPlaceNameWithPreposition.default` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`),
   KEY `playerId` (`playerId`),
   KEY `gameTypeId` (`gameTypeId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 
 
 CREATE TABLE `puckpandas_import`.`table_update_log` (
