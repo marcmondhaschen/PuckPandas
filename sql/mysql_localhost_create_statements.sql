@@ -3,26 +3,23 @@ create schema if not exists `puckpandas`
   default character set = utf8mb4
   default collate = utf8mb4_unicode_ci;
 
-# create prod analysis user
-create user `puckpandas`@`localhost` identified by "YOURPASSWORDGOESHERE";
-grant select on `puckpandas`.* to `puckpandas`@`localhost`;
+# create import schema
+create schema if not exists `puckpandas_import`
+  default character set = utf8mb4
+  default collate = utf8mb4_unicode_ci;
 
+# create import user
+create user `puckpandas_import`@`localhost` identified by "YOURPASSWORDGOESHERE";
+grant select, insert, update, delete on `puckpandas_import`.* to `puckpandas_import`@`localhost`;
 
 # create prod transform user
 create user `puckpandas_tx`@`localhost` identified by "YOURPASSWORDGOESHERE";
 grant select, insert, update, delete on `puckpandas`.* to `puckpandas_tx`@`localhost`;
 grant select on `puckpandas_import`.* to `puckpandas_tx`@`localhost`;
 
-# create import schema
-create schema if not exists `puckpandas_import`
-  default character set = utf8mb4
-  default collate = utf8mb4_unicode_ci;
-
-
-# create import user
-create user `puckpandas_import`@`localhost` identified by "YOURPASSWORDGOESHERE";
-grant select, insert, update, delete on `puckpandas_import`.* to `puckpandas_import`@`localhost`;
-
+# create prod analysis user
+create user `puckpandas`@`localhost` identified by "YOURPASSWORDGOESHERE";
+grant select on `puckpandas`.* to `puckpandas`@`localhost`;
 
 # create import tables
 create table `puckpandas_import`.`game_center_import` (
