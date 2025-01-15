@@ -332,8 +332,7 @@ CREATE TABLE `puckpandas_import`.`plays_import` (
   `details.awayScore` int DEFAULT NULL,
   `details.homeScore` int DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `gameId_index` (`gameId`),
-  KEY `eventId` (`eventId`),
+  KEY `gameIdeventId` (`gameId`, `eventId`),
   KEY `typeCode_index` (`typeCode`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

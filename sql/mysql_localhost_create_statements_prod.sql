@@ -230,21 +230,106 @@ select a.gameId, b.refereeId
 
 
 ### GAME RULES ###
+create table `puckpandas`.`game_rules` (
+	`gameId` int not null,
+    `neutralSite` tinyInt default 0,
+    `awayTeamSplitSquad` tinyInt default 0,
+    `homeTeamSplitSquad` tinyInt default 0,
+    `maxRegulationPeriods` int default 0,
+    `maxPeriods` int default 0,
+    `regPeriods` int default 3,
+    primary key (`gameId`),
+    unique key `gameId` (`gameId`)
+) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+insert into `puckpandas`.`game_rules` (gameId, neutralSite, awayTeamSplitSquad, homeTeamSplitSquad, maxRegulationPeriods, maxPeriods, regPeriods)
+select a.gameId, a.neutralSite, a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`periodDescriptor.maxRegulationPeriods` as maxRegulationPeriods, 
+       b.maxPeriods, b.regPeriods
+  from puckpandas_import.games_import as a
+  join puckpandas_import.game_center_import as b on a.gameId = b.gameId;
 
 
-# create game_series
-# create game_series_groups
-# create game_tv_broadcasts
+### GAME SERIES ### 
+create table `puckpandas`.`game_series` (
+    `gameId` int not null,
+    `seriesLetter` varchar(3) default null,
+    `neededToWin` int default 0,
+    `topSeedWins` int default 0,
+    `bottomSeedWins` int default 0,
+    `gameNumberOfSeries` int default 0,
+    `awayTeam` int not null,
+    `awayTeamWins` int default 0,
+    `homeTeam` int not null,
+    `homeTeamWins` int default 0,
+    key `gameId` (`gameId`),
+    key `awayTeam` (`awayTeam`),
+    key `homeTeam` (`homeTeam`)
+) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+insert into `puckpandas`.`game_series` (gameId, seriesLetter, neededToWin, topSeedWins, bottomSeedWins, gameNumberOfSeries, awayTeam, awayTeamWins, homeTeam, homeTeamWins)
+select a.gameId, case when a.`seriesStatus.seriesLetter` = '0' then '' else a.`seriesStatus.seriesLetter` end as seriesLetter, 
+       a.`seriesStatus.neededToWin` as neededToWin, a.`seriesStatus.topSeedWins` as topSeedWins,
+       a.`seriesStatus.bottomSeedWins` as bottomSeedWins, a.`seriesStatus.gameNumberOfSeries` as gameNumberOfSeries, 
+       a.awayTeam, b.`seasonSeriesWins.awayTeamWins` as awayTeamWins,
+       a.homeTeam, b.`seasonSeriesWins.homeTeamWins` as homeTeamWins
+  from `puckpandas_import`.`games_import` as a
+  join `puckpandas_import`.`game_center_right_rail_import` as b on a.gameId = b.gameId
+ order by gameId;
+
+
+### GAME SERIES GROUPS ###
+create table `puckpandas`.`game_series_groups` (
+	`gameId` int not null,
+    `seriesNumber` int not null,
+    `refGameId` int not null,
+    key `gameId` (`gameId`),
+    key `refGameId` (`refGameId`)
+) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+insert into `puckpandas`.`game_series_groups` (gameId, seriesNumber, refGameId)
+select a.gameId, a.seriesNumber, a.refGameId
+  from puckpandas_import.season_series_import as a;
+
+
+### GAME TV BROADCASTS ###
+create table `puckpandas`.`game_tv_broadcasts` (
+	`gameBroadcastId` int not null auto_increment,
+    `gameId` int not null,
+    `broadcastId` int not null,
+    `sequenceNumber` int not null,
+    `market` varchar(3) default null,
+    `countryCode` varchar(5) default null,
+    `network` varchar(12) default null,
+    primary key (`gameBroadcastId`),
+    unique key `gameBroadcastId` (`gameBroadcastId`),
+    key `gameId` (`gameId`)
+) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+insert into `puckpandas`.`game_tv_broadcasts` (gameId, broadcastId, sequenceNumber, market, countryCode, network)
+select gameId, broadcastId, sequenceNumber, market, countryCode, network
+  from puckpandas_import.tv_broadcasts_import
+ order by gameId, sequenceNumber;
+
+
+### GAME VIDEOS ###
+create table `puckpandas`.`game_videos` (
+	`gameId` int not null,
+    `threeMinRecap` varchar(25) default null,
+    primary key (`gameId`),
+    unique key `gameId` (`gameId`)
+) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+insert into `puckpandas`.`game_videos` (gameId, threeMinRecap)
+select gameId, case when `gameVideo.threeMinRecap` = '0' then '' else `gameVideo.threeMinRecap` end as threeMinRecap
+  from `puckpandas_import`.`game_center_right_rail_import`;
+
+
+# create game_progress
+# create game_scores
+# create game_team_stats
 
 # create game_roster_spots
 # create game_scratches
-
-# create game_progress
-
-# create game_scores
-# create game_team_stats
-# create game_videos
-
 
 # create game_plays
 # create game_play_timings
