@@ -34,6 +34,7 @@ OPEN ITEMS
 
     "nice to haves" from Drew's .wadl
         standings
+        https://api-web.nhle.com/v1/gamecenter/[gameId]]/landing has otInUse and tiesInUse for game_rules
 
     outside data sources
         suspensions - wikipedia goes back to 2010ish
