@@ -1,13 +1,24 @@
 OPEN ITEMS
+    tests
+        would be good.
+        y'know.
+        people like tests.
+        you made a folder, so now you *have* to do something.
+
 	build normalized database schema from the imported data
 	    * code which controls these transformations will
 		* assign import tables to an import database schema
 		* build import schema agent, separate from normalized schema agent and access
 		reduce each import table to normalized components
-			build tables to store these normalized components
-			write objects to update and control these normalized components
-
-	build a set of controller objects that transforms import data into prod/normalized data
+			* build tables to store these normalized components
+			build a set of controller objects that transforms import data into prod/normalized data
+        build summary tables as desired
+            player stats for each game?
+            team summaries for technicals?
+            player technicals?
+            team technicals?
+        build indexing tables as needed
+            where no combined supporting, data-table native index exists... :)
 
 	add the second controller's functions to the scheduler, such that the import and production schema stay in step
 
@@ -33,12 +44,19 @@ OPEN ITEMS
 	        normalized tables
 
     "nice to haves" from Drew's .wadl
-        standings
+        standings - seems to be only queryable source of division/conference assignments
         https://api-web.nhle.com/v1/gamecenter/[gameId]]/landing has otInUse and tiesInUse for game_rules
+
+    config file
+        "verbose" processing options - as things are, it's just eerie silence for hours... which is
+            a vibe, but not a very helpful one
 
     outside data sources
         suspensions - wikipedia goes back to 2010ish
         contracts?
+        family relationships - wikipedia has good data, just need to lookup playerIds
+        nhlerrata.com - look harder to see anything good/ can be integrated?
+        * past venue names (Kiel->Savvis->Scottrade->Enterprise)
 
 ********************************************************************************
     FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
