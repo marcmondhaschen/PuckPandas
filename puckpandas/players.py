@@ -118,9 +118,9 @@ class SkaterSeasonImport:
         self.json = {}
         self.table_columns = ['playerId', 'assists', 'gameTypeId', 'gamesPlayed', 'goals', 'leagueAbbrev', 'pim',
                               'points', 'season', 'sequence', 'teamName.default', 'teamCommonName.default',
-                              'teamPlaceNameWithPreposition.default', 'plusMinus',
-                              'avgToi', 'faceoffWinningPctg', 'gameWinningGoals', 'otGoals',
-                              'powerPlayGoals', 'shootingPctg', 'shorthandedGoals', 'shorthandedPoints', 'shots']
+                              'teamPlaceNameWithPreposition.default', 'plusMinus', 'avgToi', 'faceoffWinningPctg',
+                              'gameWinningGoals', 'otGoals', 'powerPlayGoals', 'powerPlayPoints', 'shootingPctg',
+                              'shorthandedGoals', 'shorthandedPoints', 'shots']
         self.skater_season_df = pd.DataFrame()
         self.skater_season_df = self.skater_season_df.reindex(columns=self.table_columns)
 
@@ -131,12 +131,13 @@ class SkaterSeasonImport:
             engine = puckpandas.dba_import_login()
             sql = "insert into puckpandas_import.skater_season_import (playerId, assists, gameTypeId, gamesPlayed, " \
                   "goals, leagueAbbrev, pim, points, season, sequence, `teamName.default`, plusMinus, avgToi, " \
-                  "faceoffWinningPctg, gameWinningGoals, otGoals, powerPlayGoals, shootingPctg, shorthandedGoals, " \
-                  "shorthandedPoints, shots, `teamCommonName.default`, `teamPlaceNameWithPreposition.default`) " \
-                  "values (:playerId, :assists, :gameTypeId, :gamesPlayed, :goals, :leagueAbbrev, :pim, :points, " \
-                  ":season, :sequence, :teamNamedefault, :plusMinus, :avgToi, :faceoffWinningPctg, " \
-                  ":gameWinningGoals, :otGoals, :powerPlayGoals, :shootingPctg, :shorthandedGoals, " \
-                  ":shorthandedPoints, :shots, :teamCommonNamedefault, :teamPlaceNameWithPrepositiondefault)"
+                  "faceoffWinningPctg, gameWinningGoals, otGoals, powerPlayGoals, powerPlayPoints, shootingPctg, " \
+                  "shorthandedGoals, shorthandedPoints, shots, `teamCommonName.default`, " \
+                  "`teamPlaceNameWithPreposition.default`) values (:playerId, :assists, :gameTypeId, :gamesPlayed, " \
+                  ":goals, :leagueAbbrev, :pim, :points, :season, :sequence, :teamNamedefault, :plusMinus, :avgToi, " \
+                  ":faceoffWinningPctg, :gameWinningGoals, :otGoals, :powerPlayGoals, :powerPlayPoints, " \
+                  ":shootingPctg, :shorthandedGoals, :shorthandedPoints, :shots, :teamCommonNamedefault, " \
+                  ":teamPlaceNameWithPrepositiondefault)"
             skater_season_transform_df = self.skater_season_df
             skater_season_transform_df.columns = skater_season_transform_df.columns.str.replace('.', '')
             params = skater_season_transform_df.to_dict('records')
@@ -162,9 +163,9 @@ class SkaterSeasonImport:
         engine = puckpandas.dba_import_login()
         sql = "select playerId, assists, gameTypeId, gamesPlayed, goals, leagueAbbrev, pim, points, season, " \
               "sequence, `teamName.default`, plusMinus, avgToi, faceoffWinningPctg, gameWinningGoals, otGoals, " \
-              "powerPlayGoals, shootingPctg, shorthandedGoals, shorthandedPoints, shots, `teamCommonName.default`, " \
-              "`teamPlaceNameWithPreposition.default` from puckpandas_import.skater_season_import where playerId = " + \
-              str(self.player_id)
+              "powerPlayGoals, powerPlayPoints, shootingPctg, shorthandedGoals, shorthandedPoints, shots, " \
+              "`teamCommonName.default`, `teamPlaceNameWithPreposition.default` from " \
+              "puckpandas_import.skater_season_import where playerId = " + str(self.player_id)
         skater_season_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
