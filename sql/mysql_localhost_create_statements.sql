@@ -972,7 +972,6 @@ create table `puckpandas`.`game_goals` (
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 
-
 ### GAME HITS ###
 create table `puckpandas`.`game_hits` (
 	`playId` int not null,
@@ -1071,7 +1070,7 @@ create table `puckpandas`.`shift_goals` (
     `playerId` int not null,
     `period` int not null,
     `goalTimeSeconds` int default 0,
-    `eventDescription` varchar(8) default '',
+    `eventDescription` varchar(255) default '',
     `eventDetails` varchar(50) default '',
     `typeCode` int not null,
 	primary key (`shiftGoalId`),
@@ -1148,7 +1147,7 @@ create table `puckpandas`.`player_drafts` (
 create table `puckpandas`.`player_headshots` (
 	`headshotId` int not null auto_increment,
     `playerId` int not null,
-    `headshot` varchar(50) default null,
+    `headshot` varchar(100) default null,
 	primary key (`headshotId`),
     unique key `headshotId` (`headshotId`),
     key `playerId` (`playerId`)
@@ -1199,7 +1198,7 @@ create table `puckpandas`.`goalie_seasons` (
     `ties` int default null,
     `SA` int default null,
     `GA` int default null,
-    `GAA` decimal(10,8) not null,
+    `GAA` decimal(11,8) not null,
     `SPCT` decimal(10,8) not null,
     `SO` int default null,
     `TOISEC` int default null,

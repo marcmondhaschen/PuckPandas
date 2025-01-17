@@ -1,12 +1,6 @@
 ### COACHES ### 
-create table puckpandas.coaches (
-	`coachId` int not null auto_increment,
-    `coachName` varchar(255) not null,
-    primary key (`coachId`),
-    unique key `coachId` (`coachId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
-insert into puckpandas.coaches (coachName)
+truncate table `puckpandas`.`coaches`;
+insert into `puckpandas`.`coaches` (coachName)
 select distinct a.coachName
   from (select `gameInfo.awayTeam.headCoach.default` as coachName
           from puckpandas_import.game_center_right_rail_import
@@ -18,72 +12,38 @@ select distinct a.coachName
 
 
 ### LEAGUES ###
-create table puckpandas.leagues (
-	`leagueId` int not null auto_increment,
-    `leagueAbbrev` varchar(25) not null,
-    primary key (`leagueId`),
-    unique key `leagueId` (`leagueId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
-insert into puckpandas.leagues (leagueAbbrev)
+truncate table `puckpandas`.`leagues`;
+insert into `puckpandas`.`leagues` (leagueAbbrev)
 select distinct leagueAbbrev
   from puckpandas_import.skater_season_import
  order by leagueAbbrev;
 
 
 ### LINESMEN ###
-create table puckpandas.linesmen (
-	`linesmanId` int not null auto_increment,
-    `linesmanName` varchar(100),
-    primary key (`linesmanId`),
-    unique key `linesmanId` (`linesmanId`)
-) engine=MyISAM default charset=utf8mb4 collate utf8mb4_unicode_ci;
-
-insert into puckpandas.linesmen (linesmanName)
+truncate table `puckpandas`.`linesmen`;
+insert into `puckpandas`.`linesmen` (linesmanName)
 select distinct `default` as linesmanName
   from puckpandas_import.linesmen_import;
 
 
 ### PLAY TYPE CODES ###
-create table puckpandas.playTypeCodes (
-	`typeCode` int not null,
-    `typeDescKey` varchar(100),
-    primary key (`typeCode`),
-    unique key `typeCode` (`typeCode`)
-) engine=MyISAM default charset=utf8mb4 collate utf8mb4_unicode_ci;
-
-insert into puckpandas.playTypeCodes (typeCode, typeDescKey)
+truncate table `puckpandas`.`playTypeCodes`;
+insert into `puckpandas`.`playTypeCodes` (typeCode, typeDescKey)
 select distinct typeCode, typeDescKey
   from puckpandas_import.plays_import
  order by typeCode;
 
 
 ### REFEREES ###
-create table puckpandas.referees (
-	`refereeId` int not null auto_increment,
-    `refereeName` varchar(100),
-    primary key (`refereeId`),
-    unique key `refereeId` (`refereeId`)
-) engine=MyISAM default charset=utf8mb4 collate utf8mb4_unicode_ci;
-
-insert into puckpandas.referees (refereeName)
+truncate table `puckpandas`.`referees`;
+insert into `puckpandas`.`referees` (refereeName)
 select distinct `default` as refereeName
   from puckpandas_import.referees_import;
 
 
 ### TEAM LOGOS ###
-create table puckpandas.team_logos (
-	`logoId` int not null auto_increment,
-	teamLogo varchar(255),
-    teamId	int not null,
-    away tinyint not null,
-    home tinyint not null,
-    primary key (`logoId`),
-    unique key `logoId` (`logoId`),
-    key `teamId` (`teamId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
-insert into puckpandas.team_logos (teamLogo, teamId, away, home)
+truncate table `puckpandas`.`team_logos`;
+insert into `puckpandas`.`team_logos` (teamLogo, teamId, away, home)
 select distinct `awayTeam.logo` as teamLogo, `awayTeam.id` as teamId, 1 as away, 0 as home
   from puckpandas_import.game_center_import
  where `awayTeam.logo` != '0.0'
@@ -94,43 +54,22 @@ select distinct `homeTeam.logo` as teamLogo, `homeTeam.id` as teamId, 0 as away,
 
 
 ### TROPHIES ###
-create table puckpandas.trophies (
-	`trophyId` int not null auto_increment,
-    `trophyName` varchar(100) not null,
-    primary key (`trophyId`),
-    unique key `trophyId` (`trophyId`)
-) engine=MyISAM default charset=utf8mb4 collate utf8mb4_unicode_ci;
-
-insert into puckpandas.trophies (trophyName)
+truncate table `puckpandas`.`trophies`;
+insert into `puckpandas`.`trophies` (trophyName)
 select distinct `trophy.default` as trophyName
   from puckpandas_import.player_award_import;
 
 
 ### VENUES ### 
-create table puckpandas.venues (
-	`venueId` int not null auto_increment,
-    `venue` varchar(255) not null,
-    primary key (`venueId`),
-    unique key `venueId` (`venueId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
-insert into puckpandas.venues (venue)
+truncate table `puckpandas`.`venues`;
+insert into `puckpandas`.`venues` (venue)
 select distinct venue as venueName
   from puckpandas_import.games_import
  order by venue;
 
 
 ### TEAMS ###
-create table `puckpandas`.`teams` (
-	`teamId` int not null,
-    `triCode` varchar(5) default null,
-    `fullName` varchar(100) default null,
-    `commonName` varchar(50) default null,
-    `placeName` varchar(50) default null,
-    primary key (`teamId`),
-    unique key `teamId` (`teamId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`teams`;
 insert into `puckpandas`.`teams` (teamId, triCode, fullName, commonName, placeName)
 select distinct `awayTeam.id` as teamId, `awayTeam.abbrev` as triCode, 
        concat(`awayTeam.placeName.default`, ' ', `awayTeam.commonName.default`) as fullName, 
@@ -142,25 +81,8 @@ select `homeTeam.id` as teamId, `homeTeam.abbrev` as triCode, concat(`homeTeam.p
 
 
 ### GAMES ###
-create table puckpandas.games (
-	`gameId` bigint not null,
-    `seasonId` int not null,
-    `gameType` int not null,
-    `gameDate` date not null,
-    `venueId` int default 0,
-    `startTimeUTC` datetime not null,
-    `startTimeVenue` datetime not null,
-    `awayTeam` int not null,
-    `homeTeam` int not null,
-    primary key (`gameId`),
-    unique key `gameId` (`gameId`),
-    key `seasonId` (`seasonId`),
-    key `gameDate` (`gameDate`),
-    key `awayTeam` (`awayTeam`),
-    key `homeTeam` (`homeTeam`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
-insert into games (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, startTimeVenue, awayTeam, homeTeam)
+truncate table `puckpandas`.`games`;
+insert into `puckpandas`.`games` (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, startTimeVenue, awayTeam, homeTeam)
 select a.gameId, a.seasonId, a.gameType, a.gameDate, b.venueId, a.startTimeUTC, date_add(a.startTimeUTC, INTERVAL
        time_to_sec(left(a.venueUTCOffset, locate(':', a.venueUTCOffset)+2)) second) as startTimeVenue, 
        a.awayTeam, a.homeTeam
@@ -169,21 +91,8 @@ select a.gameId, a.seasonId, a.gameType, a.gameDate, b.venueId, a.startTimeUTC, 
 
 
 ### GAME COACHES ###
-create table `puckpandas`.`game_coaches` (
-	`gameCoachId` int not null auto_increment,
-	`gameId` bigint not null,
-	`teamId` int not null,
-    `coachId` int not null,
-    `home` tinyint not null,
-    `away` tinyint not null,
-    primary key (`gameCoachId`),
-    unique key `gameCoachId` (`gameCoachId`),
-    key `gameId` (`gameId`),
-    key `teamId` (`teamId`),
-    key `coachId` (`coachId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
-insert into game_coaches (gameId, teamId, coachId, home, away)
+truncate table `puckpandas`.`game_coaches`;
+insert into `puckpandas`.`game_coaches` (gameId, teamId, coachId, home, away)
 select a.gameId, a.awayTeam as teamId, c.coachId, 1 as away, 0 as home
   from puckpandas_import.games_import as a
   join puckpandas_import.game_center_right_rail_import as b on a.gameId = b.gameId
@@ -196,16 +105,7 @@ select a.gameId, a.homeTeam as teamId, c.coachId, 0 as away, 1 as home
 
 
 ### GAME LINESMEN ###
-create table `puckpandas`.`game_linesmen` (
-	`id` int not null auto_increment,
-	`gameId` bigint not null,
-    `linesmanId` int not null,
-    primary key (`id`),
-    unique key `id` (`id`),
-    key `gameId` (`gameId`),
-    key `linesmanId` (`linesmanId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_linesmen`;
 insert into `puckpandas`.`game_linesmen` (gameId, linesmanId)
 select a.gameId, b.linesmanId
   from puckpandas_import.linesmen_import as a
@@ -213,16 +113,7 @@ select a.gameId, b.linesmanId
 
 
 ### GAME REFEREES
-create table `puckpandas`.`game_referees` (
-	`id` int not null auto_increment,
-	`gameId` bigint not null,
-    `refereeId` int not null,
-    primary key (`id`),
-    unique key `id` (`id`),
-    key `gameId` (`gameId`),
-    key `refereeId` (`refereeId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_referees`;
 insert into `puckpandas`.`game_referees` (gameId, refereeId)
 select a.gameId, b.refereeId
   from puckpandas_import.referees_import as a
@@ -230,18 +121,7 @@ select a.gameId, b.refereeId
 
 
 ### GAME RULES ###
-create table `puckpandas`.`game_rules` (
-	`gameId` int not null,
-    `neutralSite` tinyInt default 0,
-    `awayTeamSplitSquad` tinyInt default 0,
-    `homeTeamSplitSquad` tinyInt default 0,
-    `maxRegulationPeriods` int default 0,
-    `maxPeriods` int default 0,
-    `regPeriods` int default 3,
-    primary key (`gameId`),
-    unique key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_rules`;
 insert into `puckpandas`.`game_rules` (gameId, neutralSite, awayTeamSplitSquad, homeTeamSplitSquad, maxRegulationPeriods, maxPeriods, regPeriods)
 select a.gameId, a.neutralSite, a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`periodDescriptor.maxRegulationPeriods` as maxRegulationPeriods, 
        b.maxPeriods, b.regPeriods
@@ -250,22 +130,7 @@ select a.gameId, a.neutralSite, a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`p
 
 
 ### GAME SERIES ### 
-create table `puckpandas`.`game_series` (
-    `gameId` int not null,
-    `seriesLetter` varchar(3) default null,
-    `neededToWin` int default 0,
-    `topSeedWins` int default 0,
-    `bottomSeedWins` int default 0,
-    `gameNumberOfSeries` int default 0,
-    `awayTeam` int not null,
-    `awayTeamWins` int default 0,
-    `homeTeam` int not null,
-    `homeTeamWins` int default 0,
-    key `gameId` (`gameId`),
-    key `awayTeam` (`awayTeam`),
-    key `homeTeam` (`homeTeam`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_series`;
 insert into `puckpandas`.`game_series` (gameId, seriesLetter, neededToWin, topSeedWins, bottomSeedWins, gameNumberOfSeries, awayTeam, awayTeamWins, homeTeam, homeTeamWins)
 select a.gameId, case when a.`seriesStatus.seriesLetter` = '0' then '' else a.`seriesStatus.seriesLetter` end as seriesLetter, 
        a.`seriesStatus.neededToWin` as neededToWin, a.`seriesStatus.topSeedWins` as topSeedWins,
@@ -278,33 +143,14 @@ select a.gameId, case when a.`seriesStatus.seriesLetter` = '0' then '' else a.`s
 
 
 ### GAME SERIES GROUPS ###
-create table `puckpandas`.`game_series_groups` (
-	`gameId` int not null,
-    `seriesNumber` int not null,
-    `refGameId` int not null,
-    key `gameId` (`gameId`),
-    key `refGameId` (`refGameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_series_groups`;
 insert into `puckpandas`.`game_series_groups` (gameId, seriesNumber, refGameId)
 select a.gameId, a.seriesNumber, a.refGameId
   from puckpandas_import.season_series_import as a;
 
 
 ### GAME TV BROADCASTS ###
-create table `puckpandas`.`game_tv_broadcasts` (
-	`gameBroadcastId` int not null auto_increment,
-    `gameId` int not null,
-    `broadcastId` int not null,
-    `sequenceNumber` int not null,
-    `market` varchar(3) default null,
-    `countryCode` varchar(5) default null,
-    `network` varchar(12) default null,
-    primary key (`gameBroadcastId`),
-    unique key `gameBroadcastId` (`gameBroadcastId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_tv_broadcasts`;
 insert into `puckpandas`.`game_tv_broadcasts` (gameId, broadcastId, sequenceNumber, market, countryCode, network)
 select gameId, broadcastId, sequenceNumber, market, countryCode, network
   from puckpandas_import.tv_broadcasts_import
@@ -312,35 +158,14 @@ select gameId, broadcastId, sequenceNumber, market, countryCode, network
 
 
 ### GAME VIDEOS ###
-create table `puckpandas`.`game_videos` (
-	`gameId` int not null,
-    `threeMinRecap` varchar(25) default null,
-    primary key (`gameId`),
-    unique key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_videos`;
 insert into `puckpandas`.`game_videos` (gameId, threeMinRecap)
 select gameId, case when `gameVideo.threeMinRecap` = '0' then '' else `gameVideo.threeMinRecap` end as threeMinRecap
   from `puckpandas_import`.`game_center_right_rail_import`;
 
 
 ### GAME PROGRESS ###
-create table `puckpandas`.`game_progress` (
-	`gameId` int not null,
-    `gameState` varchar(8) default null,
-    `gameScheduleState` varchar(8) default null,
-    `periodNumber` int default 0,
-    `periodType` varchar(8) default null,
-    `secondsRemaining` int default 0,
-    `clockRunning` tinyint default 0,
-    `inIntermission` tinyint default 0,
-    `maxPeriods` int default 0,
-    `lastPeriodType` varchar(8) default null,
-    `regPeriods` int default 0,
-    primary key (`gameId`),
-    unique key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_progress`;
 insert into `puckpandas`.`game_progress` (gameId, gameState, gameScheduleState, periodNumber, periodType, secondsRemaining, clockRunning, inIntermission, maxPeriods, lastPeriodType, regPeriods)
 select a.gameId, a.gameState, a.gameScheduleState, b.`periodDescriptor.number` as periodNumber, b.`periodDescriptor.periodType` as periodType, 
        b.`clock.secondsRemaining` as secondsRemaining, b.`clock.running` as clockRunning, b.`clock.inIntermission` as inIntermission, b.maxPeriods,
@@ -350,24 +175,7 @@ select a.gameId, a.gameState, a.gameScheduleState, b.`periodDescriptor.number` a
  
 
 ### GAME SCORES ###
-create table `puckpandas`.`game_scores` (
-  `gameId` int not null,
-  `periodType` varchar(8) default null,
-  `gameOutcome` varchar(8) default null,
-  `awayTeam` int not null,
-  `awayScore` int default null,
-  `awayLineScore` int default null,
-  `awaySOG` int default null,
-  `homeTeam` int not null,
-  `homeScore` int default null,
-  `homeLineScore` int default null,
-  `homeSOG` int default null,
-  primary key (`gameId`),
-  unique key `gameId` (`gameId`),
-  key `awayTeam` (`awayTeam`),
-  key `homeTeam` (`homeTeam`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_scores`;
 insert into `puckpandas`.`game_scores` (gameId, periodType, gameOutcome, awayTeam, awayScore, awayLineScore, awaySOG, homeTeam, homeScore, homeLineScore, homeSOG)
 select a.gameId, a.periodType, a.gameOutcome, a.awayTeam, a.awayTeamScore as awayScore, c.`linescore.totals.away` as awayLineScore, b.`awayTeam.sog` as awaySOG,
        a.homeTeam, a.homeTeamScore as homeScore, c.`linescore.totals.home` as homeLineScore, b.`homeTeam.sog` as homeSOG 
@@ -377,22 +185,7 @@ select a.gameId, a.periodType, a.gameOutcome, a.awayTeam, a.awayTeamScore as awa
 
 
 ### GAME TEAM STATS ###
-create table `puckpandas`.`game_team_stats` (
-	`gameId` int not null,
-    `teamId` int not null,
-    `sog` int default 0,
-    `faceoffWinningPctg` decimal(10,8) default 0,
-    `powerPlay` varchar(12) default null,
-    `powerPlayPctg` decimal(10,8) default 0,
-    `pim` int default 0,
-    `hits` int default 0,
-    `blockedShots` int default 0,
-    `giveaways` int default 0,
-    `takeaways` int default 0,
-    key `gameId` (`gameId`),
-    key `teamId` (`teamId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_team_stats`;
 insert into `puckpandas`.`game_team_stats` (gameId, teamId, sog, faceoffWinningPctg, powerPlay, powerPlayPctg, pim, hits, blockedShots, giveaways, takeaways)
 select a.gameId, b.awayTeam as teamId, 
        sum(case when a.category = 'sog' then a.awayValue else '' end) as sog,
@@ -432,75 +225,28 @@ select a.gameId, b.homeTeam as teamId,
 
 
 ### GAME ROSTER SPOTS ###
-create table `puckpandas`.`game_roster_spots` (
-    `id` int not null auto_increment,
-	`gameId` int not null,
-    `teamId` int not null,
-    `playerId` int not null,
-    `sweaterNumber` int default null,
-    `positionCode` varchar(3) default null,
-    primary key (`id`),
-    unique key `id` (`id`),
-    key `gameId` (`gameId`),
-    key `teamId` (`teamId`),
-    key `playerId` (`playerId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_roster_spots`;
 insert into `puckpandas`.`game_roster_spots` (gameId, teamId, playerId, sweaterNumber, positionCode)
 select gameId, teamId, playerId, sweaterNumber, positionCode
   from `puckpandas_import`.`roster_spots_import`;
 
 
 ### GAME SCRATCHES ###
-create table `puckpandas`.`game_scratches` (
-	`id` int not null auto_increment,
-    `gameId` int not null,
-    `playerId` int not null,
-    primary key (`id`),
-    unique key `id` (`id`),
-    key `gameId` (`gameId`),
-    key `playerId` (`playerId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_scratches`;
 insert into `puckpandas`.`game_scratches` (gameId, playerId)
 select gameId, playerId
   from `puckpandas_import`.`scratches_import`;
 
-### PLAYS ###
-create table `puckpandas`.`plays` (
-	`playId` int not null auto_increment,
-    `gameId` int not null, 
-	`eventId` int not null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameIdeventId` (`gameId`, `eventId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
+### PLAYS ###
+truncate table `puckpandas`.`plays`;
 insert into `puckpandas`.`plays` (gameId, eventId)
 select gameId, eventId
   from `puckpandas_import`.`plays_import`;
 
 
 ### GAME PLAYS ###
-create table `puckpandas`.`game_plays` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-	`sortOrder` int not null, 
-	`teamId` int not null, 
-	`typeCode` int not null, 
-	`situationCode`  int default 0, 
-	`homeTeamDefendingSide` varchar (8) default null, 
-	`xCoord` int default null, 
-	`yCoord` int default null, 
-	`zoneCode` varchar(3) default null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`),
-    key `teamId` (`teamId`),
-    key `typeCode` (`typeCode`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_plays`;
 insert into `puckpandas`.`game_plays` (playId, gameId, eventId, sortOrder, teamId, typeCode, situationCode, homeTeamDefendingSide, xCoord, yCoord, zoneCode)
 select b.playId, a.gameId, a.eventId, a.sortOrder, a.`details.eventOwnerTeamId` as teamId, a.typeCode, a.situationCode, a.homeTeamDefendingSide, 
        a.`details.xCoord` as xCoord, a.`details.yCoord` as yCoord, a.`details.zoneCode` as zoneCode 
@@ -509,21 +255,7 @@ select b.playId, a.gameId, a.eventId, a.sortOrder, a.`details.eventOwnerTeamId` 
 
 
 ### GAME PLAY TIMINGS ###
-create table `puckpandas`.`game_play_timings` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `periodNumber` int default null,
-    `periodType` varchar(8) default null,
-    `maxRegulationPeriods` int default null,
-    `secondsInPeriod` int default 0,
-    `secondsRemaining` int default 0,
-    `sortOrder` int not null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_play_timings`;
 insert into `puckpandas`.`game_play_timings` (playId, gameId, eventId, periodNumber, periodType, maxRegulationPeriods, secondsInPeriod, secondsRemaining, sortOrder)
 select a.playId, b.gameId, b.eventId, b.`periodDescriptor.number` as periodNumber, b.`periodDescriptor.periodType` as periodType, 
        time_to_sec(left(b.timeInPeriod, locate(':', b.timeInPeriod)+2))/60 as secondsInPeriod, 
@@ -534,18 +266,7 @@ select a.playId, b.gameId, b.eventId, b.`periodDescriptor.number` as periodNumbe
 
 
 ### GAME FACEOFFS ###
-create table `puckpandas`.`game_faceoffs` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `losingPlayerId` int default null,
-    `winningPlayerId` int default null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_faceoffs`;
 insert into `puckpandas`.`game_faceoffs` (playId, gameId, eventId, losingPlayerId, winningPlayerId)
 select a.playId, b.gameId, b.eventId, b.`details.losingPlayerId` as losingPlayerId, b.`details.winningPlayerId` as winningPlayerId
   from `puckpandas`.`plays` as a
@@ -554,47 +275,16 @@ select a.playId, b.gameId, b.eventId, b.`details.losingPlayerId` as losingPlayer
 
 
 ### GAME GIVEAWAY TAKEAWAY ###
-create table `puckpandas`.`game_giveaway_takeaway` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `playerId` int default null,
-    `typeCode` int not null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_giveaway_takeaway`;
 insert into `puckpandas`.`game_giveaway_takeaway` (playId, gameId, eventId, sortOrder, playerId, typeCode)
-select a.playId, b.gameId, b.eventId, b.sortOrder, 
+select a.playId, b.gameId, b.eventId, b.sortOrder, b.`details.playerId` as playerId, b.typeCode
   from `puckpandas`.`plays` as a
   join `puckpandas_import`.`plays_import` as b on a.gameId = b.gameId and a.eventId = b.eventId
  where b.typeCode in ('504', '525');
 
 
 ### GAME GOALS ###
-create table `puckpandas`.`game_goals` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `reason` varchar(25) default null,
-    `shotType` varchar(25) default null,
-    `goalieInNetId` int default null,
-    `scoringPlayerId` int not null,
-    `scoringPlayerTotal` int not null,
-    `assist1PlayerId` int default null,
-    `assist1PlayerTotal` int default null,
-    `assist2PlayerId` int default null,
-    `assist2PlayerTotal` int default null,
-    `awayScore` int default null,
-    `homeScore` int default null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_goals`;
 insert into `puckpandas`.`game_goals` (playId, gameId, eventId, sortOrder, reason, shotType, goalieInNetId, scoringPlayerId, scoringPlayerTotal, assist1PlayerId, 
                                        assist1PlayerTotal, assist2PlayerId, assist2PlayerTotal, awayScore, homeScore)
 select a.playId, b.gameId, b.eventId, b.sortOrder, b.`details.reason` as reason, b.`details.shotType` as shotType,
@@ -607,18 +297,7 @@ select a.playId, b.gameId, b.eventId, b.sortOrder, b.`details.reason` as reason,
 
 
 ### GAME HITS ###
-create table `puckpandas`.`game_hits` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `hittingPlayerId` int default null,
-    `hitteePlayerId` int default null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_hits`;
 insert into `puckpandas`.`game_hits` (playId, gameId, eventId, sortOrder, hittingPlayerId, hitteePlayerId)
 select a.playId, b.gameId, b.eventId, b.sortOrder, b.`details.hittingPlayerId` as hittingPlayerId, b.`details.hitteePlayerId` as hitteePlayerId 
   from `puckpandas`.`plays` as a
@@ -627,26 +306,7 @@ select a.playId, b.gameId, b.eventId, b.sortOrder, b.`details.hittingPlayerId` a
 
 
 ### GAME PENALTIES ###
-create table `puckpandas`.`game_penalties` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `typeCode` int not null,
-    `penaltyTypeCode` varchar(5) default null,
-    `penaltyDescKey` varchar(50) default null,
-    `penaltyDuration` int default null,
-    `committedByPlayerId` int default null,
-    `drawnByPlayerId` int default null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`),
-    key `typeCode` (`typeCode`),
-    key `penaltyTypeCode` (`penaltyTypeCode`),
-    key `committedByPlayerId` (`committedByPlayerId`),
-    key `drawnByPlayerId` (`drawnByPlayerId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_penalties`;
 insert into `puckpandas`.`game_penalties` (playId, gameId, eventId, sortOrder, typeCode, penaltyTypeCode, penaltyDescKey, penaltyDuration, committedByPlayerId, drawnByPlayerId)
 select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode, b.`details.typeCode` as penaltyTypeCode, b.`details.descKey` as penaltyDescKey, 
        b.`details.duration` as duration, b.`details.committedByPlayerId` as committedByPlayerId, b.`details.drawnByPlayerId` as drawnByPlayerId
@@ -656,24 +316,7 @@ select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode, b.`details.typeCo
 
  
 ### GAME SHOTS ###
-create table `puckpandas`.`game_shots` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `typeCode` int not null,
-    `reason` varchar(25) default null,
-    `shotType` varchar(25) default null,
-    `shootingPlayerId` int default null,
-    `blockingPlayerId` int default null,
-    `goalieInNetId` int default null,
-    `awaySOG` int default 0,
-    `homeSOG` int default 0,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_shots`;
 insert into `puckpandas`.`game_shots` (playId, gameId, eventId, sortOrder, typeCode, reason, shotType, shootingPlayerId, blockingPlayerId, goalieInNetId, awaySOG, homeSOG)
 select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode, b.`details.reason` as reason, b.`details.shotType` as shotType, b.`details.shootingPlayerId` as shootingPlayerId, 
        b.`details.blockingPlayerId` as blockingPlayerId, b.`details.goalieInNetId` as goalieInNetId, b.`details.awaySOG` as awaySOG, b.`details.homeSOG` as homeSOG
@@ -683,17 +326,7 @@ select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode, b.`details.reason
 
 
 ### GAME STOPPAGES ### 
-create table `puckpandas`.`game_stoppages` (
-	`playId` int not null,
-    `gameId` int not null, 
-	`eventId` int not null, 
-    `sortOrder` int not null,
-    `typeCode` int not null,
-    primary key (`playId`),
-    unique key `playId` (`playId`),
-    key `gameId` (`gameId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
-
+truncate table `puckpandas`.`game_stoppages`;
 insert into `puckpandas`.`game_stoppages` (playId, gameId, eventId, sortOrder, typeCode)
 select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode
   from `puckpandas`.`plays` as a
@@ -702,46 +335,145 @@ select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode
  order by playId;
 
 
-# create shifts
-create table `puckpandas`.`shifts` (
-	`shiftId` int not null auto_increment,
-    `gameId` int not null,
-    `playerId` int not null,
-    `shiftNumber` int default null,
-    `period` int not null,
-    `startTimeSeconds` int default 0,
-    `durationSeconds` int default 0,
-    `detailCode` int default null,
-    `eventNumber` int default null,
-    `typeCode` int default null,
-    primary key (`shiftId`),
-    unique key `shiftId` (`shiftId`),
-    key `gameId` (`gameId`),
-    key `playerId` (`playerId`)
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+### SHIFTS ###
+truncate table `puckpandas`.`shifts`;
+insert into `puckpandas`.`shifts` (gameId, eventNumber, detailCode, playerId, shiftNumber, period, startTimeSeconds, durationSeconds, typeCode)
+select gameId, eventNumber, detailCode, playerId, shiftNumber, period, 
+       time_to_sec(left(startTime, locate(':', startTime)+2))/60 as startTimeSeconds, 
+       time_to_sec(left(duration, locate(':', duration)+2))/60 as durationSeconds, typeCode
+  from `puckpandas_import`.`shifts_import`
+ where typeCode = 517;
 
-insert into `puckpandas`.`shifts` (shiftId, detailCode, duration, eventNumber, gameId, period, playerId, shiftNumber, startTime, typeCode)
-select gameId, eventNumber, detailCode, period, playerId, shiftNumber, startTime, duration, typeCode
-  from `puckpandas_import`.`shifts_import`;
 
-# create shifts_goals
-create table `puckpandas`.`shift_goals` (
-) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+### SHIFT GOALS ###
+truncate table `puckpandas`.`shift_goals`;
+insert into `puckpandas`.`shift_goals` (gameId, eventNumber, detailCode, teamId, playerId, period, 
+       goalTimeSeconds, eventDescription, eventDetails, typeCode)
+select gameId, eventNumber, detailCode, teamId, playerId, period, 
+       time_to_sec(left(endTime, locate(':', endTime)+2))/60 as goalTimeSeconds, 
+       eventDescription, eventDetails, typeCode
+  from `puckpandas_import`.`shifts_import`
+where typeCode = 505;
 
-insert into `puckpandas`.`shift_goals` ()
-where typeCode = 505
 
-# create player_bios
+### PLAYER BIOS ###
+truncate table `puckpandas`.`player_bios`;
+insert into `puckpandas`.`player_bios` (playerId, firstName, lastName, birthDate, birthCountry, birthState, birthCity,
+	   shootsCatches, heightInInches, heightInCentimeters, weightInPounds, weightInKilograms)
+select playerId, `firstName.default` as firstName, `lastName.default` as lastName, birthDate,
+       birthCountry, `birthStateProvince.default` as birthState, `birthCity.default` as birthCity,  
+       shootsCatches, heightInInches, heightInCentimeters, weightInPounds, weightInKilograms
+  from `puckpandas_import`.`player_bios_import`;
 
-# create player_statuses
-# create player_awards
-# create player_drafts
-# create player_headshots
 
-# create goalie_career_totals
-# create goalie_seasons
-# create skater_career_totals
-# create skater_seasons
+### PLAYER STATUSES ###
+truncate table `puckpandas`.`player_statuses`;
+insert into `puckpandas`.`player_statuses` (playerId, isActive, currentTeamId, currentTeamAbbrev, 
+       sweaterNumber, position, inTop100AllTime, inHHOF)
+select playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, inTop100AllTime, inHHOF
+  from `puckpandas_import`.`player_bios_import`;
 
-# create team_rosters
-# create team_seasons
+
+### PLAYER AWARDS ###
+truncate table `puckpandas`.`player_awards`;
+insert into `puckpandas`.`player_awards` (playerId, seasonId, trophyId)
+select a.playerId, a.seasonId, b.trophyId
+  from `puckpandas_import`.`player_award_import` as a
+  join `puckpandas`.`trophies` as b on a.`trophy.default` = b.trophyName;
+
+
+### PLAYER DRAFTS ###
+truncate table `puckpandas`.`player_drafts`;
+insert into `puckpandas`.`player_drafts` (playerId, draftYear, teamId, draftRound, pickInRound, overallPick)
+select playerId, `draftDetails.year` as draftYear, b.teamId, `draftDetails.round` as draftRound, `draftDetails.pickInRound` as pickInRound, `draftDetails.overallPick` as overallPick
+  from `puckpandas_import`.`player_bios_import` as a
+  join `puckpandas_import`.`teams_import` as b on a.`draftDetails.teamAbbrev` = b.triCode;
+
+
+### PLAYER HEADSHOTS ###
+truncate table `puckpandas`.`player_headshots`;
+insert into `puckpandas`.`player_headshots` (playerId, headshot)
+select distinct playerId, headshot
+  from `puckpandas_import`.`roster_spots_import`;
+
+
+### GOALIE CAREER TOTALS ###
+truncate table `puckpandas`.`goalie_career_totals`;
+insert into `puckpandas`.`goalie_career_totals` (playerId, gameType, GP, G, A, PIM, GS, PTS, W, L, OTL, SA, GA, GAA, SPCT, SO, TOISEC)
+select playerId, 2 as gameType, `regularSeason.gamesPlayed` as GP, `regularSeason.goals` as G, `regularSeason.assists` as A, `regularSeason.pim` as PIM, 
+       `regularSeason.gamesStarted` as GS, `regularSeason.points` as PTS, `regularSeason.wins` as W, `regularSeason.losses` as L, 
+       `regularSeason.otLosses` as OTL, `regularSeason.shotsAgainst` as SA, `regularSeason.goalsAgainst` as GA, 
+       `regularSeason.goalsAgainstAvg` as GAA, `regularSeason.savePctg` as SPCT, `regularSeason.shutouts` as SO, 
+       `regularSeason.timeOnIceSeconds` as TOISEC
+  from `puckpandas_import`.`goalie_career_totals_import`
+ union 
+select playerId, 3 as gameType, `playoffs.gamesPlayed` as GP, `playoffs.goals` as G, `playoffs.assists` as A, `playoffs.pim` as PIM, 
+       `playoffs.gamesStarted` as GS, `playoffs.points` as PTS, `playoffs.wins` as W, `playoffs.losses` as L, 
+       `playoffs.otLosses` as OTL, `playoffs.shotsAgainst` as SA, `playoffs.goalsAgainst` as GA, 
+       `playoffs.goalsAgainstAvg` as GAA, `playoffs.savePctg` as SPCT, `playoffs.shutouts` as SO, 
+       `playoffs.timeOnIceSeconds` as TOISEC
+  from `puckpandas_import`.`goalie_career_totals_import`
+ where `playoffs.gamesPlayed` > 0;
+
+
+### GOALIE SEASONS ###
+truncate table `puckpandas`.`goalie_seasons`;
+insert into `puckpandas`.`goalie_seasons` (playerId, seasonId, leagueAbbrev, teamName, teamId, sequence, gameType, GP, GS, G, A, PIM, W, L, OTL, 
+       `ties`, SA, GA, GAA, SPCT, SO, TOISEC)
+select a.playerId, a.`season` as seasonId, a.`leagueAbbrev`, a.`teamName.default` as teamName, b.teamId, a.`sequence`, a.`gameTypeId` as gameType, 
+       a.`gamesPlayed` as GP, a.`gamesStarted` as GS, a.`goals` as G, a.`assists` as A, a.`pim` as PIM, a.`wins` as W, a.`losses` as L, 
+       a.`otLosses` as OTL, a.`ties`, a.`shotsAgainst` as SA, a.`goalsAgainst` as GA, a.`goalsAgainstAvg` as GAA, a.`savePctg` as SPCT, a.`shutouts` as SO, 
+       a.`timeOnIceSeconds` as TOISEC
+  from `puckpandas_import`.`goalie_season_import` as a
+  left join `puckpandas`.`teams` as b on a.`teamName.default` = b.`fullName`;
+
+
+### SKATER CAREER TOTALS ### 
+truncate table `puckpandas`.`skater_career_totals`;
+insert into `puckpandas`.`skater_career_totals` (playerId, gameType, GP, G, A, P, PM, PIM, PPG, PPP, SHG, SHP, GWG, OTG, S, SPCT, FOPCT, AVGTOISEC)
+select playerId, 2 as gameType, `regularSeason.gamesPlayed` as GP, `regularSeason.goals` as G, `regularSeason.assists` as A, 
+       `regularSeason.points` as P, `regularSeason.plusMinus` as PM, `regularSeason.pim` as PIM, `regularSeason.powerPlayGoals` as PPG, 
+       `regularSeason.powerPlayPoints` as PPP, `regularSeason.shorthandedGoals` as SHG, `regularSeason.shorthandedPoints` as SHP, 
+       `regularSeason.gameWinningGoals` as GWG, `regularSeason.otGoals` as OTG, `regularSeason.shots` as S, 
+       `regularSeason.shootingPctg` as SPCT, `regularSeason.faceoffWinningPctg` as FOPCT, 
+       time_to_sec(left(`regularSeason.avgToi`, locate(':', `regularSeason.avgToi`)+2))/60 as AVGTOISEC
+  from `puckpandas_import`.`skater_career_totals_import`
+ union
+select playerId, 3 as gameType, `playoffs.gamesPlayed` as GP, `playoffs.goals` as G, `playoffs.assists` as A, 
+       `playoffs.points` as P, `playoffs.plusMinus` as PM, `playoffs.pim` as PIM, `playoffs.powerPlayGoals` as PPG, 
+       `playoffs.powerPlayPoints` as PPP, `playoffs.shorthandedGoals` as SHG, `playoffs.shorthandedPoints` as SHP, 
+       `playoffs.gameWinningGoals` as GWG, `playoffs.otGoals` as OTG, `playoffs.shots` as S, 
+       `playoffs.shootingPctg` as SPCT, `playoffs.faceoffWinningPctg` as FOPCT, 
+       time_to_sec(left(`playoffs.avgToi`, locate(':', `playoffs.avgToi`)+2))/60 as AVGTOISEC
+  from `puckpandas_import`.`skater_career_totals_import`
+ where `playoffs.gamesPlayed` > 0;
+
+
+
+### SKATER SEASONS ###
+truncate table `puckpandas`.`skater_seasons`;
+insert into `puckpandas`.`skater_seasons` (playerId, seasonId, leagueId, teamName, teamId, sequence, gameType, GP, G, A, P, PM, PIM, PPG, 
+       PPP, SHG, SHP, GWG, OTG, S, SPCT, FOPCT)
+select a.playerId, a.season as seasonId, b.leagueId, a.`teamName.default` as teamName, c.teamId, a.sequence, a.gameTypeId as gameType, 
+	   a.gamesPlayed as GP, a.goals as G, a.assists as A, a.points as P, a.plusMinus as PM, a.pim as PIM, a.powerPlayGoals as PPG, a.powerPlayPoints as PPP,
+       a.shorthandedGoals as SHG, a.shorthandedPoints as SHP, a.gameWinningGoals as GWG, a.otGoals as OTG, a.shots as S, 
+       a.shootingPctg as SPCT, a.faceoffWinningPctg as FOPCT
+  from `puckpandas_import`.`skater_season_import` as a
+  join `puckpandas`.`leagues` as b on a.leagueAbbrev = b.leagueAbbrev
+  left join `puckpandas`.`teams` as c on a.`teamName.default` = c.fullName;
+
+
+### TEAM ROSTERS ### 
+truncate table `puckpandas`.`team_rosters`;
+insert into `puckpandas`.`team_rosters` (teamId, seasonId, playerId)
+select b.teamId, a.seasonId, a.playerId
+  from `puckpandas_import`.`rosters_import` as a
+  join `puckpandas_import`.`teams_import` as b on a.triCode = b.triCode;
+
+
+### TEAMS SEASONS ###
+truncate table `puckpandas`.`team_seasons`;
+insert into `puckpandas`.`team_seasons` (seasonId, teamId)
+select seasonId, teamId
+  from `puckpandas_import`.`team_seasons_import`;
+  
