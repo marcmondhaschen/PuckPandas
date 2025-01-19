@@ -602,7 +602,7 @@ create table `puckpandas`.`linesmen` (
 
 
 ### PLAY TYPE CODES ###
-create table `puckpandas`.`playTypeCodes` (
+create table `puckpandas`.`play_type_codes` (
 	`typeCode` int not null,
     `typeDescKey` varchar(100),
     primary key (`typeCode`),

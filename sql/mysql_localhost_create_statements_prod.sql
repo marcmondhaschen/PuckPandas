@@ -27,8 +27,8 @@ select distinct `default` as linesmanName
 
 
 ### PLAY TYPE CODES ###
-truncate table `puckpandas`.`playTypeCodes`;
-insert into `puckpandas`.`playTypeCodes` (typeCode, typeDescKey)
+truncate table `puckpandas`.`play_type_codes`;
+insert into `puckpandas`.`play_type_codes` (typeCode, typeDescKey)
 select distinct typeCode, typeDescKey
   from puckpandas_import.plays_import
  order by typeCode;
