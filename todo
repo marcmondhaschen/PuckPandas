@@ -12,11 +12,6 @@ OPEN ITEMS
 		reduce each import table to normalized components
 			* build tables to store these normalized components
 			build a set of controller objects that transforms import data into prod/normalized data
-        build summary tables as desired
-            player stats for each game?
-            team summaries for technicals?
-            player technicals?
-            team technicals?
         build indexing tables as needed
             where no combined supporting, data-table native index exists... :)
 
@@ -26,7 +21,12 @@ OPEN ITEMS
         need a second sub folder for database normalization controllers
         need a third sub for any needed visualization controllers
 
-	DRP - backup code & database plan
+
+    build summary tables as desired
+        player stats for each game?
+        team summaries for technicals?
+        player technicals?
+        team technicals?
 
 	build visualization interfaces
 		Tableau - 5 example reports
@@ -58,7 +58,17 @@ OPEN ITEMS
         nhlerrata.com - look harder to see anything good/ can be integrated?
         * past venue names (Kiel->Savvis->Scottrade->Enterprise)
 
+    try explicitly enforcing datatyping on _import functions to more gracefully skirt fillna complaints from Pandas?
+        this will require a good bit of parsing through the _import tables to better
+            establish types as they roll off the API
+        should start with enforcing types in pandas dataframes according to the explicit types in SQL tables?
+
+
 ********************************************************************************
+	DRP - backup code & database plan
+        * git for code
+        * cloud for my local db
+
     FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version
         of pandas. Value '' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
         [some_dataframe].fillna('', inplace=True)
