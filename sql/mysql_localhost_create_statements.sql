@@ -1230,7 +1230,6 @@ create table `puckpandas`.`skater_career_totals` (
     `S` int not null,
     `SPCT` decimal(10,8) default 0.0,
     `FOPCT` decimal(10,8) default 0.0,
-    `AVGTOISEC` int not null,
     key `playerId` (`playerId`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
