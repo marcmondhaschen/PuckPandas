@@ -247,9 +247,14 @@ select gameId, eventId
 
 ### GAME PLAYS ###
 truncate table `puckpandas`.`game_plays`;
-insert into `puckpandas`.`game_plays` (playId, gameId, eventId, sortOrder, teamId, typeCode, situationCode, homeTeamDefendingSide, xCoord, yCoord, zoneCode)
-select b.playId, a.gameId, a.eventId, a.sortOrder, a.`details.eventOwnerTeamId` as teamId, a.typeCode, a.situationCode, a.homeTeamDefendingSide, 
-       a.`details.xCoord` as xCoord, a.`details.yCoord` as yCoord, a.`details.zoneCode` as zoneCode 
+insert into `puckpandas`.`game_plays` (playId, gameId, eventId, sortOrder, teamId, typeCode, situationCode,
+                                       homeTeamDefendingSide, xCoord, yCoord, zoneCode)
+select b.playId, a.gameId, a.eventId, a.sortOrder, a.`details.eventOwnerTeamId` as teamId, a.typeCode,
+       case when a.situationCode = 0 then null else lpad(a.situationCode, 4, '0') end as situationCode,
+       case when a.homeTeamDefendingSide like '0%' then null else a.homeTeamDefendingSide end as homeTeamDefendingSide,
+       case when a.`details.zoneCode` like '0%' then null else a.`details.xCoord` end as xCoord,
+       case when a.`details.zoneCode` like '0%'then null else a.`details.yCoord` end as yCoord,
+       case when a.`details.zoneCode` like '0%' then null else a.`details.zoneCode` end as zoneCode
   from `puckpandas_import`.`plays_import` as a
   join `puckpandas`.`plays` as b on a.gameId = b.gameId and a.eventId = b.eventId;
 
@@ -337,12 +342,17 @@ select a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode
 
 ### SHIFTS ###
 truncate table `puckpandas`.`shifts`;
-insert into `puckpandas`.`shifts` (gameId, eventNumber, detailCode, playerId, shiftNumber, period, startTimeSeconds, durationSeconds, typeCode)
-select gameId, eventNumber, detailCode, playerId, shiftNumber, period, 
-       time_to_sec(left(startTime, locate(':', startTime)+2))/60 as startTimeSeconds, 
-       time_to_sec(left(duration, locate(':', duration)+2))/60 as durationSeconds, typeCode
-  from `puckpandas_import`.`shifts_import`
- where typeCode = 517;
+insert into `puckpandas`.`shifts` (gameId, eventNumber, detailCode, teamId, playerId, shiftNumber, period,
+                                   startTimeSeconds, endTimeSeconds, durationSeconds, typeCode)
+select s.gameId, s.eventNumber, s.detailCode, r.teamId, s.playerId, s.shiftNumber, s.period,
+       time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 as startTimeSeconds,
+       time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 +
+       time_to_sec(left(s.duration, locate(':', s.duration)+2))/60 as endTimeSeconds,
+       time_to_sec(left(s.duration, locate(':', s.duration)+2))/60 as durationSeconds,
+       s.typeCode
+  from `puckpandas_import`.`shifts_import` as s
+  join `puckpandas_import`.`roster_spots_import` as r on s.gameId = r.gameId and s.playerId = r.playerId
+ where s.typeCode = 517;
 
 
 ### SHIFT GOALS ###

@@ -891,7 +891,7 @@ create table `puckpandas`.`game_plays` (
 	`sortOrder` int not null,
 	`teamId` int not null,
 	`typeCode` int not null,
-	`situationCode`  int default 0,
+	`situationCode`  varchar(8) default null,
 	`homeTeamDefendingSide` varchar (8) default null,
 	`xCoord` int default null,
 	`yCoord` int default null,
@@ -1043,18 +1043,20 @@ create table `puckpandas`.`game_stoppages` (
 
 ### SHIFTS ###
 create table `puckpandas`.`shifts` (
-	`shiftId` int not null auto_increment,
+	`id` int not null auto_increment,
     `gameId` int not null,
+    `teamId` int not null,
     `eventNumber` int default null,
     `detailCode` int default null,
     `playerId` int not null,
     `shiftNumber` int default null,
     `period` int not null,
     `startTimeSeconds` int default 0,
+    `endTimeSeconds` int default 0,
     `durationSeconds` int default 0,
     `typeCode` int default null,
-    primary key (`shiftId`),
-    unique key `shiftId` (`shiftId`),
+    primary key (`id`),
+    unique key `id` (`id`),
     key `gameId` (`gameId`),
     key `playerId` (`playerId`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
@@ -1062,7 +1064,7 @@ create table `puckpandas`.`shifts` (
 
 ### SHIFT GOALS ###
 create table `puckpandas`.`shift_goals` (
-	`shiftGoalId` int not null auto_increment,
+	`id` int not null auto_increment,
     `gameId` int not null,
     `eventNumber` int not null,
     `detailCode` int default null,
@@ -1073,8 +1075,8 @@ create table `puckpandas`.`shift_goals` (
     `eventDescription` varchar(255) default '',
     `eventDetails` varchar(50) default '',
     `typeCode` int not null,
-	primary key (`shiftGoalId`),
-    unique key `shiftGoalId` (`shiftGoalId`),
+	primary key (`id`),
+    unique key `id` (`id`),
     key `gameId` (`gameId`),
     key `teamId` (`teamId`),
     key `playerId` (`playerId`)
