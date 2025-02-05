@@ -16,7 +16,7 @@ class RostersImport:
     def update_db(self):
         if self.roster_df.size > 0:
             engine = puckpandas.dba_import_login()
-            sql = "insert into puckpandas_import.puckpandas_import.rosters_import (triCode, seasonId, playerId) " \
+            sql = "insert into puckpandas_import.rosters_import (triCode, seasonId, playerId) " \
                   "values (:triCode, :seasonId, :playerId)"
             params = self.roster_df.to_dict('records')
             with engine.connect() as conn:
