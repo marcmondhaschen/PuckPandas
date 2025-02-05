@@ -1295,3 +1295,26 @@ create table `puckpandas`.`team_seasons` (
     key `teamId` (`teamId`),
     key `seasonId` (`seasonId`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
+
+
+### GAME RESULTS ###
+create table `game_results` (
+    `resultId` varchar(22) character set utf8mb4 collate utf8mb4_0900_ai_ci not null default '',
+    `gameId` bigint not null,
+    `teamId` int not null,
+    `seasonId` int not null,
+    `teamWin` int not null default '0',
+    `awayGame` int not null default '0',
+    `homeGame` int not null default '0',
+    `awayWin` int not null default '0',
+    `homeWin` int not null default '0',
+    `tie` int not null default '0',
+    `overtime` int not null default '0',
+    `awayScore` int default null,
+    `homeScore` int default null,
+    `standingPoints` int not null default '0',
+    unique key `resultId` (`resultId`),
+    key `teamId` (`teamId`),
+    key `seasonId` (`seasonId`),
+    key `gameId` (`gameId`)
+) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
