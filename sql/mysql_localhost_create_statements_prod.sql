@@ -496,14 +496,21 @@ select seasonId, teamId
 truncate table game_results;
 insert into game_results
 select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, teamId, seasonId,
-       teamWin, awayGame, homeGame, awayWin, homeWin, tie, overtime, awayScore,
-       homeScore, case when teamWin = 1 then 2 when
-       overtime = 1 and teamWin = 0 then 1 else tie end as standingPoints
+       teamWin, teamOT, teamLoss, awayGame, awayWin, awayOT, awayLoss, homeGame,
+	   homeWin, homeOT, homeLoss, tie, overtime, awayScore, homeScore,
+       case when teamWin = 1 then 2 when overtime = 1 and teamWin = 0 then 1 else
+       `tie` end as standingPoints
   from (select gameId, teamId, seasonId, awayGame, homeGame,
                case when (awayGame = 1 and awayWin = 1) or (homeGame = 1 and
                homeWin = 1) then 1 else 0 end as teamWin,
+               case when (awayGame = 1 and awayWin = 0 and overtime = 1) or (homeGame = 1 and homeWin = 0 and overtime = 1) then 1 else 0 end as teamOT,
+               case when (awayGame = 1 and awayWin = 0 and overtime = 0) or (homeGame = 1 and homeWin = 0 and overtime = 0) then 1 else 0 end as teamLoss,
                case when awayGame = 1 and awayWin = 1 then 1 else 0 end as awayWin,
+               case when awayGame = 1 and awayWin = 0 and overtime = 1 then 1 else 0 end as awayOT,
+               case when awayGame = 1 and awayWin = 0 and overtime = 0 then 1 else 0 end as awayLoss,
                case when homeGame = 1 and homeWin = 1 then 1 else 0 end as homeWin,
+               case when homeGame = 1 and homeWin = 0 and overtime = 1 then 1 else 0 end as homeOT,
+               case when homeGame = 1 and homeWin = 0 and overtime = 0 then 1 else 0 end as homeLoss,
 			   tie, overtime, awayScore, homeScore
           from (select g.gameId, t.teamId, g.seasonId, 1 as awayGame, 0 as homeGame,
                        case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
