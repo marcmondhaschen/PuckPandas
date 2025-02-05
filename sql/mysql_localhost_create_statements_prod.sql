@@ -4,7 +4,7 @@ insert into `puckpandas`.`coaches` (coachName)
 select distinct a.coachName
   from (select `gameInfo.awayTeam.headCoach.default` as coachName
           from puckpandas_import.game_center_right_rail_import
-         union 
+         union
         select `gameInfo.homeTeam.headCoach.default` as coach
           from puckpandas_import.game_center_right_rail_import) as a
  where a.coachName != '0.0'
@@ -75,8 +75,10 @@ select distinct `awayTeam.id` as teamId, `awayTeam.abbrev` as triCode,
        concat(`awayTeam.placeName.default`, ' ', `awayTeam.commonName.default`) as fullName, 
        `awayTeam.commonName.default` as commonName, `awayTeam.placeName.default` as placeName
   from puckpandas_import.game_center_import
- union 
-select `homeTeam.id` as teamId, `homeTeam.abbrev` as triCode, concat(`homeTeam.placeName.default`, ' ', `homeTeam.commonName.default`) as fullName, `homeTeam.commonName.default` as commonName, `homeTeam.placeName.default` as placeName
+ union
+select `homeTeam.id` as teamId, `homeTeam.abbrev` as triCode,
+       concat(`homeTeam.placeName.default`, ' ', `homeTeam.commonName.default`) as fullName,
+       `homeTeam.commonName.default` as commonName, `homeTeam.placeName.default` as placeName
   from puckpandas_import.game_center_import;
 
 
@@ -416,7 +418,7 @@ select playerId, 2 as gameType, `regularSeason.gamesPlayed` as GP, `regularSeaso
        `regularSeason.goalsAgainstAvg` as GAA, `regularSeason.savePctg` as SPCT, `regularSeason.shutouts` as SO, 
        `regularSeason.timeOnIceSeconds` as TOISEC
   from `puckpandas_import`.`goalie_career_totals_import`
- union 
+ union
 select playerId, 3 as gameType, `playoffs.gamesPlayed` as GP, `playoffs.goals` as G, `playoffs.assists` as A, `playoffs.pim` as PIM, 
        `playoffs.gamesStarted` as GS, `playoffs.points` as PTS, `playoffs.wins` as W, `playoffs.losses` as L, 
        `playoffs.otLosses` as OTL, `playoffs.shotsAgainst` as SA, `playoffs.goalsAgainst` as GA, 
@@ -488,4 +490,45 @@ truncate table `puckpandas`.`team_seasons`;
 insert into `puckpandas`.`team_seasons` (seasonId, teamId)
 select seasonId, teamId
   from `puckpandas_import`.`team_seasons_import`;
-  
+
+
+### GAME RESULTS ###
+truncate table game_results;
+insert into game_results
+select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, teamId, seasonId,
+       teamWin, awayGame, homeGame, awayWin, homeWin, tie, overtime, awayScore,
+       homeScore, case when teamWin = 1 then 2 when
+       overtime = 1 and teamWin = 0 then 1 else tie end as standingPoints
+  from (select gameId, teamId, seasonId, awayGame, homeGame,
+               case when (awayGame = 1 and awayWin = 1) or (homeGame = 1 and
+               homeWin = 1) then 1 else 0 end as teamWin,
+               case when awayGame = 1 and awayWin = 1 then 1 else 0 end as awayWin,
+               case when homeGame = 1 and homeWin = 1 then 1 else 0 end as homeWin,
+			   tie, overtime, awayScore, homeScore
+          from (select g.gameId, t.teamId, g.seasonId, 1 as awayGame, 0 as homeGame,
+                       case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
+                       case when s.awayScore < s.homeScore then 1 else 0 end as homeWin,
+                       case when s.awayScore = s.homeScore then 1 else 0 end as tie,
+                       s.awayScore, s.homeScore,
+                       case when s.periodType in ("OT", "SO") then 1 else 0 end as overtime
+                  from games as g
+                  join game_scores as s on g.gameId = s.gameId
+                  join teams as t on t.teamId = g.awayTeam
+                  join game_progress as p on g.gameId = p.gameId
+        		 where g.gameType = 2
+                   and s.periodType in ('OT', 'REG', 'SO')
+                   and p.gameState in ('FINAL', 'OFF')
+                 union
+				select g.gameId, t.teamId, g.seasonId, 0 as awayGame, 1 as homeGame,
+                       case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
+                       case when s.awayScore < s.homeScore then 1 else 0 end as homeWin,
+                       case when s.awayScore = s.homeScore then 1 else 0 end as tie,
+                       s.awayScore, s.homeScore,
+                       case when s.periodType in ("OT", "SO") then 1 else 0 end as overtime
+                  from games as g
+                  join game_scores as s on g.gameId = s.gameId
+                  join teams as t on t.teamId = g.homeTeam
+                  join game_progress as p on g.gameId = p.gameId
+        		 where g.gameType = 2
+                   and s.periodType in ('OT', 'REG', 'SO')
+                   and p.gameState in ('FINAL', 'OFF')) as a) as b;
