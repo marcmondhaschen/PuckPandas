@@ -21,7 +21,6 @@ OPEN ITEMS
         need a second sub folder for database normalization controllers
         need a third sub for any needed visualization controllers
 
-
     build summary tables as desired
         player stats for each game?
         team summaries for technicals?
@@ -29,8 +28,23 @@ OPEN ITEMS
         team technicals?
 
 	build visualization interfaces
+	    Excel - 3 example reports
+	        avg skater/goalie size over time
+	        recovery from points down
+	        player headshots / live image import
 		Tableau - 5 example reports
+		    shift chart - model from league
+		    hockey's home address
+            home ice advantage
+            goal scoring pace per game - gretzky vs ovi
+	        birthday trends
 		PowerBI - 5 example reports
+		    which ref hates you most
+		    w/l since last coach change
+		    baddest news bears
+
+    config options
+        verbose / succinct / mute progress reporting
 
 	web blog
 
