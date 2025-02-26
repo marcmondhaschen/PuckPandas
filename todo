@@ -1,31 +1,37 @@
 OPEN ITEMS
     tests
-        would be good.
-        y'know.
-        people like tests.
-        you made a folder, so now you *have* to do something.
+        * add pytest to reqs and install on local
+        * build a test file for each Import file before moving on to maturing prod db processes
+        alchemy
+        api_query
+        game_center
+        games
+        games_import_log
+        import_table_update_log
+        player_import_log
+        players
+        rosters
+        scheduler
+        seasons
+        seasons_import_log
+        shifts
+        teams
 
 	build normalized database schema from the imported data
-	    * code which controls these transformations will
-		* assign import tables to an import database schema
-		* build import schema agent, separate from normalized schema agent and access
 		reduce each import table to normalized components
 			* build tables to store these normalized components
-			build a set of controller objects that transforms import data into prod/normalized data
-        build indexing tables as needed
-            where no combined supporting, data-table native index exists... :)
-
-	add the second controller's functions to the scheduler, such that the import and production schema stay in step
-
-    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
-        need a second sub folder for database normalization controllers
-        need a third sub for any needed visualization controllers
-
-    build summary tables as desired
-        player stats for each game?
-        team summaries for technicals?
-        player technicals?
-        team technicals?
+			* build import schema agent, separate from normalized schema agent and access
+		    * assign import tables to an import database schema
+        establish solid indexing and foreign key constraints
+            establish a "better than `id`" primary key for each prod table
+            catalog "primary" indexes (within the set of prod tables) and the order in which they should
+                be updated (i.e. in reverse-dependence order)
+            build intersect tables for these indexes as needed
+            establish foreign key constraints between tables with explicit 'on update'/'on delete'
+		build a set of controller objects that transforms import data into prod data
+			add these controller objects to the Scheduler such that Import and Prod updates stay in step
+			set a specific time interval for each Prod object to be truncated/updated, based on new import data
+			set these update intervals in the Config file
 
 	build visualization interfaces
 	    Excel - 3 example reports
@@ -33,8 +39,8 @@ OPEN ITEMS
 	        recovery from points down
 	        player headshots / live image import
 		Tableau - 5 example reports
-		    shift chart - model from league
 		    hockey's home address
+		    shift chart - model from league
             home ice advantage
             goal scoring pace per game - gretzky vs ovi
 	        birthday trends
@@ -43,8 +49,22 @@ OPEN ITEMS
 		    w/l since last coach change
 		    baddest news bears
 
-    config options
-        verbose / succinct / mute progress reporting
+    config / options file
+        verbose / succinct / mute progress reporting printed out to the console
+        update intervals - how often does each query repoll/table update?
+
+    "nice to haves" from Drew's .wadl
+        standings - seems to be only queryable source of division/conference assignments
+        https://api-web.nhle.com/v1/gamecenter/[gameId]]/landing has otInUse and tiesInUse for game_rules
+        player stats for each game - where?
+
+    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
+        need a second sub folder for database normalization controllers (prod)
+        need a third sub for any needed visualization controllers (ana)
+
+    build prod stat summary tables as desired
+        player technical stats
+        team technical stats
 
 	web blog
 
@@ -57,18 +77,16 @@ OPEN ITEMS
 	        this may mean i don't need to use pandas to build the controller that converts import tables to
 	        normalized tables
 
-    "nice to haves" from Drew's .wadl
-        standings - seems to be only queryable source of division/conference assignments
-        https://api-web.nhle.com/v1/gamecenter/[gameId]]/landing has otInUse and tiesInUse for game_rules
-
-    config file
-        "verbose" processing options - as things are, it's just eerie silence for hours... which is
-            a vibe, but not a very helpful one
+	local media storage
+	    capture player images, team logos to local DB and store as BLOBs
+	        identify "we don't have an image of this guy, blank player head" image file and do not store multiples
+	    add config option for this functionality
 
     outside data sources
         suspensions - wikipedia goes back to 2010ish
         contracts?
         family relationships - wikipedia has good data, just need to lookup playerIds
+        local media feeds - Jeremy Rutherford, Lou Korac, Matthew DeFranks, Benjamin Hochman
         nhlerrata.com - look harder to see anything good/ can be integrated?
         * past venue names (Kiel->Savvis->Scottrade->Enterprise)
 
@@ -76,7 +94,6 @@ OPEN ITEMS
         this will require a good bit of parsing through the _import tables to better
             establish types as they roll off the API
         should start with enforcing types in pandas dataframes according to the explicit types in SQL tables?
-
 
 ********************************************************************************
 	DRP - backup code & database plan
