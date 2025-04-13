@@ -493,14 +493,20 @@ select seasonId, teamId
 
 
 ### GAME RESULTS ###
-truncate table game_results;
-insert into game_results
-select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, teamId, seasonId,
+truncate table `puckpandas`.`game_results`;
+insert into`puckpandas`.`game_results`
+select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, teamId, seasonId,
        teamWin, teamOT, teamLoss, awayGame, awayWin, awayOT, awayLoss, homeGame,
 	   homeWin, homeOT, homeLoss, tie, overtime, awayScore, homeScore,
-       case when teamWin = 1 then 2 when overtime = 1 and teamWin = 0 then 1 else
-       `tie` end as standingPoints
-  from (select gameId, teamId, seasonId, awayGame, homeGame,
+       case when gameType = 2 and teamWin = 1
+                 then 2
+            when gameType = 2 and overtime = 1 and teamWin = 0
+                 then 1
+            when gameType = 3 and teamWin = 1
+                 then 1
+            else 0
+                 end as standingPoints
+  from (select gameId, gameType, teamId, seasonId, awayGame, homeGame,
                case when (awayGame = 1 and awayWin = 1) or (homeGame = 1 and
                homeWin = 1) then 1 else 0 end as teamWin,
                case when (awayGame = 1 and awayWin = 0 and overtime = 1) or (homeGame = 1 and homeWin = 0 and overtime = 1) then 1 else 0 end as teamOT,
@@ -512,30 +518,30 @@ select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, teamId, seasonId,
                case when homeGame = 1 and homeWin = 0 and overtime = 1 then 1 else 0 end as homeOT,
                case when homeGame = 1 and homeWin = 0 and overtime = 0 then 1 else 0 end as homeLoss,
 			   tie, overtime, awayScore, homeScore
-          from (select g.gameId, t.teamId, g.seasonId, 1 as awayGame, 0 as homeGame,
+          from (select g.gameId, g.gameType, t.teamId, g.seasonId, 1 as awayGame, 0 as homeGame,
                        case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
                        case when s.awayScore < s.homeScore then 1 else 0 end as homeWin,
                        case when s.awayScore = s.homeScore then 1 else 0 end as tie,
                        s.awayScore, s.homeScore,
                        case when s.periodType in ("OT", "SO") then 1 else 0 end as overtime
-                  from games as g
-                  join game_scores as s on g.gameId = s.gameId
-                  join teams as t on t.teamId = g.awayTeam
-                  join game_progress as p on g.gameId = p.gameId
-        		 where g.gameType = 2
+                  from `puckpandas`.`games` as g
+                  join `puckpandas`.`game_scores` as s on g.gameId = s.gameId
+                  join `puckpandas`.`teams` as t on t.teamId = g.awayTeam
+                  join `puckpandas`.`game_progress` as p on g.gameId = p.gameId
+        		 where g.gameType in (2, 3)
                    and s.periodType in ('OT', 'REG', 'SO')
                    and p.gameState in ('FINAL', 'OFF')
                  union
-				select g.gameId, t.teamId, g.seasonId, 0 as awayGame, 1 as homeGame,
+				select g.gameId, g.gameType, t.teamId, g.seasonId, 0 as awayGame, 1 as homeGame,
                        case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
                        case when s.awayScore < s.homeScore then 1 else 0 end as homeWin,
                        case when s.awayScore = s.homeScore then 1 else 0 end as tie,
                        s.awayScore, s.homeScore,
                        case when s.periodType in ("OT", "SO") then 1 else 0 end as overtime
-                  from games as g
-                  join game_scores as s on g.gameId = s.gameId
-                  join teams as t on t.teamId = g.homeTeam
-                  join game_progress as p on g.gameId = p.gameId
-        		 where g.gameType = 2
+                  from `puckpandas`.`games` as g
+                  join `puckpandas`.`game_scores` as s on g.gameId = s.gameId
+                  join `puckpandas`.`teams` as t on t.teamId = g.homeTeam
+                  join `puckpandas`.`game_progress` as p on g.gameId = p.gameId
+        		 where g.gameType in (2, 3)
                    and s.periodType in ('OT', 'REG', 'SO')
                    and p.gameState in ('FINAL', 'OFF')) as a) as b;
