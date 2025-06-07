@@ -432,11 +432,12 @@ select playerId, 3 as gameType, `playoffs.gamesPlayed` as GP, `playoffs.goals` a
 truncate table `puckpandas`.`goalie_seasons`;
 insert into `puckpandas`.`goalie_seasons` (playerId, seasonId, leagueAbbrev, teamName, teamId, sequence, gameType, GP, GS, G, A, PIM, W, L, OTL, 
        `ties`, SA, GA, GAA, SPCT, SO, TOISEC)
-select a.playerId, a.`season` as seasonId, a.`leagueAbbrev`, a.`teamName.default` as teamName, b.teamId, a.`sequence`, a.`gameTypeId` as gameType, 
+select a.playerId, a.`season` as seasonId, b.leagueId, a.`teamName.default` as teamName, b.teamId, a.`sequence`, a.`gameTypeId` as gameType,
        a.`gamesPlayed` as GP, a.`gamesStarted` as GS, a.`goals` as G, a.`assists` as A, a.`pim` as PIM, a.`wins` as W, a.`losses` as L, 
        a.`otLosses` as OTL, a.`ties`, a.`shotsAgainst` as SA, a.`goalsAgainst` as GA, a.`goalsAgainstAvg` as GAA, a.`savePctg` as SPCT, a.`shutouts` as SO, 
        a.`timeOnIceSeconds` as TOISEC
   from `puckpandas_import`.`goalie_season_import` as a
+  join `puckpandas`.`leagues` as b on a.leagueAbbrev = b.leagueAbbrev
   left join (select g.seasonId, t.teamId, t.fullName, count(gameId) as games
 			   from game_results as g
                join teams as t on g.teamId = t.teamId
