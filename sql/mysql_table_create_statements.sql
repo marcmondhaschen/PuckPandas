@@ -1122,7 +1122,7 @@ create table `puckpandas`.`goalie_seasons` (
 	`id` int not null auto_increment,
 	`playerId` int not null,
     `seasonId` int default null,
-    `leagueAbbrev` varchar(12) default null,
+    `leagueId` int default null,
     `teamName` varchar(50) default null,
     `teamId` int default null,
     `sequence` int not null,
@@ -1146,6 +1146,7 @@ create table `puckpandas`.`goalie_seasons` (
     unique key `id` (`id`),
     key `playerId` (`playerId`),
     key `seasonId` (`seasonId`),
+    key `leagueId` (`leagueId`),
     key `teamId` (`teamId`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
@@ -2316,7 +2317,7 @@ create table `puckpandas_test`.`goalie_seasons` (
 	`id` int not null auto_increment,
 	`playerId` int not null,
     `seasonId` int default null,
-    `leagueAbbrev` varchar(12) default null,
+    `leagueId` int default null,
     `teamName` varchar(50) default null,
     `teamId` int default null,
     `sequence` int not null,
@@ -2340,6 +2341,7 @@ create table `puckpandas_test`.`goalie_seasons` (
     unique key `id` (`id`),
     key `playerId` (`playerId`),
     key `seasonId` (`seasonId`),
+    key `leagueId` (`leagueId`),
     key `teamId` (`teamId`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
