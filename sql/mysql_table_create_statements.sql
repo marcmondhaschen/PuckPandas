@@ -390,7 +390,8 @@ create table `puckpandas_import`.`roster_spots_import` (
   unique key `id` (`id`),
   key `gameId` (`gameId`),
   key `teamId` (`teamId`),
-  key `playerId` (`playerId`)
+  key `playerId` (`playerId`),
+  key `player_headshots` (`playerId`, `headshot`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 create table `puckpandas_import`.`rosters_import` (
@@ -448,7 +449,8 @@ create table `puckpandas_import`.`shifts_import` (
   primary key (`id`),
   key `gameId_index` (`gameId`),
   key `playerId_index` (`playerId`),
-  key `teamId_index` (`teamId`)
+  key `teamId_index` (`teamId`),
+  key `typeCode_index (`typeCode)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 create table `puckpandas_import`.`skater_career_totals_import` (
@@ -1225,31 +1227,33 @@ create table `puckpandas`.`team_seasons` (
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 create table `puckpandas`.`game_results` (
-  `resultId` varchar(22) NOT NULL DEFAULT '',
-  `gameId` bigint NOT NULL DEFAULT '0',
-  `gameType` int NOT NULL,
-  `teamId` int NOT NULL DEFAULT '0',
-  `seasonId` int NOT NULL DEFAULT '0',
-  `teamWin` int NOT NULL DEFAULT '0',
-  `teamOT` int NOT NULL DEFAULT '0',
-  `teamLoss` int NOT NULL DEFAULT '0',
-  `awayGame` bigint NOT NULL DEFAULT '0',
-  `awayWin` int NOT NULL DEFAULT '0',
-  `awayOT` int NOT NULL DEFAULT '0',
-  `awayLoss` int NOT NULL DEFAULT '0',
-  `homeGame` bigint NOT NULL DEFAULT '0',
-  `homeWin` int NOT NULL DEFAULT '0',
-  `homeOT` int NOT NULL DEFAULT '0',
-  `homeLoss` int NOT NULL DEFAULT '0',
-  `tie` bigint NOT NULL DEFAULT '0',
-  `overtime` bigint NOT NULL DEFAULT '0',
-  `awayScore` int DEFAULT NULL,
-  `homeScore` int DEFAULT NULL,
-  `standingPoints` bigint NOT NULL DEFAULT '0',
-  UNIQUE KEY `resultId` (`resultId`),
-  KEY `gameId` (`gameId`),
-  KEY `teamId` (`teamId`),
-  KEY `seasonId` (`seasonId`)
+  `resultId` varchar(22) not null,
+  `gameId` bigint not null,
+  `gameType` int not null,
+  `seasonId` int not null,
+  `teamId` int not null,
+  `opponentTeamId` int not null,
+  `teamWin` int not null default '0',
+  `teamOT` int not null default '0',
+  `teamLoss` int not null default '0',
+  `awayGame` bigint not null default '0',
+  `awayWin` int not null default '0',
+  `awayOT` int not null default '0',
+  `awayLoss` int not null default '0',
+  `homeGame` bigint not null default '0',
+  `homeWin` int not null default '0',
+  `homeOT` int not null default '0',
+  `homeLoss` int not null default '0',
+  `tie` bigint not null default '0',
+  `overtime` bigint not null default '0',
+  `awayScore` int default null,
+  `homeScore` int default null,
+  `standingPoints` bigint not null default '0',
+  unique key `resultId` (`resultId`),
+  key `gameid` (`gameId`),
+  key `teamid` (`teamId`),
+  key `opponentTeamId` (`opponentTeamId`),
+  key `seasonId` (`seasonId`)
 ) engine=myisam default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 # import test tables
@@ -1580,7 +1584,8 @@ create table `puckpandas_imp_test`.`roster_spots_import` (
   unique key `id` (`id`),
   key `gameId` (`gameId`),
   key `teamId` (`teamId`),
-  key `playerId` (`playerId`)
+  key `playerId` (`playerId`),
+  key `player_headshots` (`playerId`, `headshot`)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 create table `puckpandas_imp_test`.`rosters_import` (
@@ -1638,7 +1643,8 @@ create table `puckpandas_imp_test`.`shifts_import` (
   primary key (`id`),
   key `gameId_index` (`gameId`),
   key `playerId_index` (`playerId`),
-  key `teamId_index` (`teamId`)
+  key `teamId_index` (`teamId`),
+  key `typeCode_index (`typeCode)
 ) engine=MyISAM default charset=utf8mb4 collate=utf8mb4_unicode_ci;
 
 create table `puckpandas_imp_test`.`skater_career_totals_import` (
@@ -2417,8 +2423,10 @@ create table `puckpandas_test`.`team_seasons` (
 create table `puckpandas_test`.`game_results` (
   `resultId` varchar(22) not null,
   `gameId` bigint not null,
-  `teamId` int not null,
+  `gameType` int not null,
   `seasonId` int not null,
+  `teamId` int not null,
+  `opponentTeamId` int not null,
   `teamWin` int not null default '0',
   `teamOT` int not null default '0',
   `teamLoss` int not null default '0',
@@ -2438,5 +2446,6 @@ create table `puckpandas_test`.`game_results` (
   unique key `resultId` (`resultId`),
   key `gameid` (`gameId`),
   key `teamid` (`teamId`),
+  key `opponentTeamId` (`opponentTeamId`),
   key `seasonId` (`seasonId`)
 ) engine=myisam default charset=utf8mb4 collate=utf8mb4_unicode_ci;

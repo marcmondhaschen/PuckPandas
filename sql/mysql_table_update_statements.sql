@@ -437,7 +437,12 @@ select a.playerId, a.`season` as seasonId, a.`leagueAbbrev`, a.`teamName.default
        a.`otLosses` as OTL, a.`ties`, a.`shotsAgainst` as SA, a.`goalsAgainst` as GA, a.`goalsAgainstAvg` as GAA, a.`savePctg` as SPCT, a.`shutouts` as SO, 
        a.`timeOnIceSeconds` as TOISEC
   from `puckpandas_import`.`goalie_season_import` as a
-  left join `puckpandas`.`teams` as b on a.`teamName.default` = b.`fullName`;
+  left join (select g.seasonId, t.teamId, t.fullName, count(gameId) as games
+			   from game_results as g
+               join teams as t on g.teamId = t.teamId
+              where t.teamId between 1 and 99
+                and g.gameType = 2
+			  group by g.seasonId, t.teamId) as b on a.season = b.seasonId and a.`teamName.default` = b.fullName;
 
 
 ### SKATER CAREER TOTALS ### 
@@ -474,7 +479,12 @@ select a.playerId, a.season as seasonId, b.leagueId, a.`teamName.default` as tea
        a.shootingPctg as SPCT, a.faceoffWinningPctg as FOPCT
   from `puckpandas_import`.`skater_season_import` as a
   join `puckpandas`.`leagues` as b on a.leagueAbbrev = b.leagueAbbrev
-  left join `puckpandas`.`teams` as c on a.`teamName.default` = c.fullName;
+  left join (select g.seasonId, t.teamId, t.fullName, count(gameId) as games
+			   from game_results as g
+               join teams as t on g.teamId = t.teamId
+              where t.teamId between 1 and 99
+                and g.gameType = 2
+			  group by g.seasonId, t.teamId) as c on a.season = c.seasonId and a.`teamName.default` = c.fullName;
 
 
 ### TEAM ROSTERS ### 
@@ -495,9 +505,10 @@ select seasonId, teamId
 ### GAME RESULTS ###
 truncate table `puckpandas`.`game_results`;
 insert into`puckpandas`.`game_results`
-select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, teamId, seasonId,
-       teamWin, teamOT, teamLoss, awayGame, awayWin, awayOT, awayLoss, homeGame,
-	   homeWin, homeOT, homeLoss, tie, overtime, awayScore, homeScore,
+select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, seasonId,
+       teamId, opponentTeamId, teamWin, teamOT, teamLoss, awayGame, awayWin,
+       awayOT, awayLoss, homeGame, homeWin, homeOT, homeLoss, tie, overtime,
+       awayScore, homeScore,
        case when gameType = 2 and teamWin = 1
                  then 2
             when gameType = 2 and overtime = 1 and teamWin = 0
@@ -506,7 +517,7 @@ select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, teamId,
                  then 1
             else 0
                  end as standingPoints
-  from (select gameId, gameType, teamId, seasonId, awayGame, homeGame,
+  from (select gameId, gameType, seasonId, teamId, opponentTeamId, awayGame, homeGame,
                case when (awayGame = 1 and awayWin = 1) or (homeGame = 1 and
                homeWin = 1) then 1 else 0 end as teamWin,
                case when (awayGame = 1 and awayWin = 0 and overtime = 1) or (homeGame = 1 and homeWin = 0 and overtime = 1) then 1 else 0 end as teamOT,
@@ -518,7 +529,8 @@ select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, teamId,
                case when homeGame = 1 and homeWin = 0 and overtime = 1 then 1 else 0 end as homeOT,
                case when homeGame = 1 and homeWin = 0 and overtime = 0 then 1 else 0 end as homeLoss,
 			   tie, overtime, awayScore, homeScore
-          from (select g.gameId, g.gameType, t.teamId, g.seasonId, 1 as awayGame, 0 as homeGame,
+          from (select g.gameId, g.gameType, g.seasonId, g.awayTeam as teamId,
+                       g.homeTeam as opponentTeamId, 1 as awayGame, 0 as homeGame,
                        case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
                        case when s.awayScore < s.homeScore then 1 else 0 end as homeWin,
                        case when s.awayScore = s.homeScore then 1 else 0 end as tie,
@@ -526,13 +538,13 @@ select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, teamId,
                        case when s.periodType in ("OT", "SO") then 1 else 0 end as overtime
                   from `puckpandas`.`games` as g
                   join `puckpandas`.`game_scores` as s on g.gameId = s.gameId
-                  join `puckpandas`.`teams` as t on t.teamId = g.awayTeam
                   join `puckpandas`.`game_progress` as p on g.gameId = p.gameId
         		 where g.gameType in (2, 3)
                    and s.periodType in ('OT', 'REG', 'SO')
                    and p.gameState in ('FINAL', 'OFF')
                  union
-				select g.gameId, g.gameType, t.teamId, g.seasonId, 0 as awayGame, 1 as homeGame,
+				select g.gameId, g.gameType, g.seasonId, g.homeTeam as teamId,
+                       g.awayTeam as opponentTeamId, 0 as awayGame, 1 as homeGame,
                        case when s.awayScore > s.homeScore then 1 else 0 end as awayWin,
                        case when s.awayScore < s.homeScore then 1 else 0 end as homeWin,
                        case when s.awayScore = s.homeScore then 1 else 0 end as tie,
@@ -540,7 +552,6 @@ select concat(gameId, lpad(teamId, 2, 0)) as resultId, gameId, gameType, teamId,
                        case when s.periodType in ("OT", "SO") then 1 else 0 end as overtime
                   from `puckpandas`.`games` as g
                   join `puckpandas`.`game_scores` as s on g.gameId = s.gameId
-                  join `puckpandas`.`teams` as t on t.teamId = g.homeTeam
                   join `puckpandas`.`game_progress` as p on g.gameId = p.gameId
         		 where g.gameType in (2, 3)
                    and s.periodType in ('OT', 'REG', 'SO')
