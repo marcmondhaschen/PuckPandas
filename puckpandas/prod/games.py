@@ -117,7 +117,7 @@ class GamesImport:
     def query_api_update_db(self):
         # For this object, this pattern has the side effect of deleting duplicate gameIds in the games_import table.
         # Each game is presented twice by the API - once for each opposing team. the
-        # clear method will drop games from a team about to be imported, removing their impending duplication on import
+        # clear method will drop games from a team about to be imported, removing their impending duplication on import_feed
         # but leaving behind all the previous competitors' matches that didn't involve them.
         self.query_api()
         self.clear_db()

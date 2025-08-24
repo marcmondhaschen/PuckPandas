@@ -1,4 +1,12 @@
 OPEN ITEMS
+	implement SQL abstraction via SQLAlchemy ORM
+	    consider writing the db initialization (table and index creation, mostly)
+	    using automap_base() on a connection, we can end up with a Base object full of Table objects
+	    try to find a pattern that swaps between pandas DataFrame objects and sqlalchemy Table objects
+	        this may mean that i can sometimes skip pandas on my way to the database
+	        this may mean i don't need to use pandas to build the controller that converts import tables to
+	        normalized tables
+
     tests
         * add pytest to reqs and install on local
         * build a test file for each Import file before moving on to maturing prod db processes
@@ -58,24 +66,11 @@ OPEN ITEMS
         https://api-web.nhle.com/v1/gamecenter/[gameId]]/landing has otInUse and tiesInUse for game_rules
         player stats for each game - where?
 
-    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
-        need a second sub folder for database normalization controllers (prod)
-        need a third sub for any needed visualization controllers (ana)
-
     build prod stat summary tables as desired
         player technical stats
         team technical stats
 
 	web blog
-
-	implement SQL abstraction via SQLAlchemy ORM
-	    (or other alternatives? isn't there a VRM or something, too?)
-	    consider writing the db initialization (table and index creation, mostly)
-	    using automap_base() on a connection, we can end up with a Base object full of Table objects
-	    try to find a pattern that swaps between pandas DataFrame objects and sqlalchemy Table objects
-	        this may mean that i can sometimes skip pandas on my way to the database
-	        this may mean i don't need to use pandas to build the controller that converts import tables to
-	        normalized tables
 
 	local media storage
 	    capture player images, team logos to local DB and store as BLOBs
@@ -96,6 +91,10 @@ OPEN ITEMS
         should start with enforcing types in pandas dataframes according to the explicit types in SQL tables?
 
 ********************************************************************************
+    start breaking the init into subfolders, then clean up import blocks in class files so that they just import
+        need a second sub folder for database normalization controllers (prod)
+        need a third sub for any needed visualization controllers (ana)
+
 	DRP - backup code & database plan
         * git for code
         * cloud for my local db

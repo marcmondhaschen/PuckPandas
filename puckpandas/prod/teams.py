@@ -15,11 +15,15 @@ class TeamsImport:
                 self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
 
             engine = puckpandas.dba_import_login(test=self.test)
+
             sql = "insert into puckpandas_import.teams_import (teamId, franchiseId, fullName, leagueId, triCode) " \
                   "values (:teamId, :franchiseId, :fullName, :leagueId, :triCode)"
             params = self.teams_df.to_dict('records')
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
+
+            # self.teams_df.to_sql(name='teams_import', con=engine, schema='puckpandas_import', if_exists='replace',
+            #                      index=False)
 
         return True
 
