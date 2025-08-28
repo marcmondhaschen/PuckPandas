@@ -29,34 +29,35 @@ create schema `puckpandas_test`
 ### create users ###
 
 # import
-create user `puckpandas_import`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas_import`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select, insert, update, delete on `puckpandas_import`.* to `puckpandas_import`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 # import transform
-create user `puckpandas_tx`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas_tx`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select, insert, update, delete on `puckpandas`.* to `puckpandas_tx`@`"YOURDBHOSTNAMEGOESHERE"`;
 grant select on `puckpandas_import`.* to `puckpandas_tx`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 # prod
-create user `puckpandas`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select insert, update, delete on `puckpandas`.* to `puckpandas`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 # analysis
-create user `puckpandas_ana`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas_ana`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select, insert, update, delete on `puckpandas_ana`.* to `puckpandas_ana`@`"YOURDBHOSTNAMEGOESHERE"`;
-grant select on `puckpandas`.* to `puckpandas_ana`@`"YOURDBHOSTNAMEGOESHERE"`;
+grant select on `puckpandas`.* to `puckpandas_ana`@`"YOURDBHOSTNAMEGOESHERE"`
+grant select on `puckpandas_import`.* to `puckpandas_ana`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 # import test
-create user `puckpandas_imp_test`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas_imp_test`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select, insert, update, delete on `puckpandas_imp_test`.* to `puckpandas_imp_test`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 # import transform test
-create user `puckpandas_tx_test`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas_tx_test`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select, insert, update, delete on `puckpandas_test`.* to `puckpandas_tx_test`@`"YOURDBHOSTNAMEGOESHERE"`;
 grant select on `puckpandas_imp_test`.* to `puckpandas_tx_test`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 # prod test
-create user `puckpandas_test`@`"YOURDBHOSTNAMEGOESHERE"` identified by `"YOURPASSWORDGOESHERE"`;
+create user `puckpandas_test`@`"YOURDBHOSTNAMEGOESHERE"` identified by '"YOURPASSWORDGOESHERE"';
 grant select, insert, update, delete on `puckpandas_test`.* to `puckpandas_test`@`"YOURDBHOSTNAMEGOESHERE"`;
 
 
