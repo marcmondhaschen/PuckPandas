@@ -87,3 +87,16 @@ class SeasonsImport:
         self.update_db(tri_code)
 
         return True
+
+    @staticmethod
+    def current_season():
+        current_season = 0
+        engine = puckpandas.dba_import_login()
+        sql = "select max(seasonId) as currentSeasonId from puckpandas_import.team_seasons_import"
+        season_df = pd.read_sql_query(sql, engine)
+
+        if season_df.size > 0:
+            current_season = season_df['currentSeasonId'].iloc[0]
+        engine.dispose()
+
+        return current_season
