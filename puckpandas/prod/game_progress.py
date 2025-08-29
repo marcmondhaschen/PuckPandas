@@ -11,7 +11,7 @@ class GameProgress:
         self.game_progress_df = pd.DataFrame()
         self.query_db()
         self.game_progress_df = self.game_progress_df.reindex(columns=self.table_columns)
-        self.current_season = pp.SeasonsImport.current_season()
+        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.game_progress_df.size > 0:

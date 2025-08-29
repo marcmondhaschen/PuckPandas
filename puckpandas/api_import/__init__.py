@@ -4,12 +4,13 @@ from .goalie_career_totals_import import *
 from .goalie_seasons_import import *
 from .linesmen_import import *
 from .player_awards_import import *
-from .players_import import *
+from .player_bios_import import *
+from .plays_import import *
 from .referees_import import *
 from .roster_spots_import import *
 from .scratches_import import *
 from .season_series_import import *
-from .seasons_import import *
+from .team_seasons_import import *
 from .skater_career_totals_import import *
 from .skater_seasons_import import *
 from .team_game_stats_import import *

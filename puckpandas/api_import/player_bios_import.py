@@ -3,7 +3,7 @@ import puckpandas as pp
 from sqlalchemy import text
 
 
-class PlayersImport:
+class PlayersBiosImport:
     def __init__(self, player_id):
         self.player_id = player_id
         self.json = {}

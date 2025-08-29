@@ -217,7 +217,7 @@ class Scheduler:
         return True
 
     def update_seasons_import(self):
-        seasons = pp.SeasonsImport()
+        seasons = pp.TeamSeasonsImport()
         seasons.query_api_update_db()
 
         log_object = pp.ImportTableUpdateLog()
@@ -227,7 +227,7 @@ class Scheduler:
         return True
 
     def update_games_import(self, seasons):
-        update_seasons = pp.SeasonsImport().seasons_df
+        update_seasons = pp.TeamSeasonsImport().seasons_df
         update_seasons.sort_values(by=['seasonId', 'teamId'], inplace=True)
 
         if seasons['seasonId'].values[0] != '99999999':
@@ -267,7 +267,7 @@ class Scheduler:
         return True
 
     def update_rosters_import(self, seasons):
-        update_seasons = pp.SeasonsImport().seasons_df
+        update_seasons = pp.TeamSeasonsImport().seasons_df
         update_seasons.sort_values(by=['seasonId', 'teamId'], inplace=True)
 
         if seasons['seasonId'].values[0] != '99999999':
@@ -286,7 +286,7 @@ class Scheduler:
 
     def update_players_import(self, players):
         for idx, player_id in players['playerId'].items():
-            player = pp.PlayersImport(player_id=player_id)
+            player = pp.PlayersBiosImport(player_id=player_id)
             player.query_api_update_db()
 
         log_object = pp.ImportTableUpdateLog()

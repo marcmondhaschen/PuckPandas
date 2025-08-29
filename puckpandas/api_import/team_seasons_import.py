@@ -3,7 +3,7 @@ import puckpandas as pp
 from sqlalchemy import text
 
 
-class SeasonsImport:
+class TeamSeasonsImport:
     def __init__(self):
         self.table_columns = ['triCode', 'teamId', 'seasonId']
         self.seasons_df = self.query_db()
