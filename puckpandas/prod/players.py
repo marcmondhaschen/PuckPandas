@@ -1,5 +1,5 @@
 import pandas as pd
-import puckpandas
+import puckpandas as pp
 from sqlalchemy import text
 
 
@@ -26,7 +26,7 @@ class SkaterCareerTotalsImport:
         career_totals_found = 0
         if self.json != {}:
             career_totals_found = 1
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.skater_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
                   "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, `regularSeason.points`, " \
                   "`regularSeason.plusMinus`, `regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, " \
@@ -54,13 +54,13 @@ class SkaterCareerTotalsImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-        log = puckpandas.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
+        log = pp.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
         log.insert_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.skater_career_totals_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -69,7 +69,7 @@ class SkaterCareerTotalsImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, " \
               "`regularSeason.pim`, `regularSeason.points`, `regularSeason.plusMinus`, " \
               "`regularSeason.powerPlayGoals`, `regularSeason.powerPlayPoints`, `regularSeason.shorthandedPoints`, " \
@@ -128,7 +128,7 @@ class SkaterSeasonImport:
         season_totals_found = 0
         if self.json != {}:
             season_totals_found = 1
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.skater_season_import (playerId, assists, gameTypeId, gamesPlayed, " \
                   "goals, leagueAbbrev, pim, points, season, sequence, `teamName.default`, plusMinus, avgToi, " \
                   "faceoffWinningPctg, gameWinningGoals, otGoals, powerPlayGoals, powerPlayPoints, shootingPctg, " \
@@ -145,13 +145,13 @@ class SkaterSeasonImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-        log = puckpandas.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
+        log = pp.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
         log.insert_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.skater_season_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -160,7 +160,7 @@ class SkaterSeasonImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select playerId, assists, gameTypeId, gamesPlayed, goals, leagueAbbrev, pim, points, season, " \
               "sequence, `teamName.default`, plusMinus, avgToi, faceoffWinningPctg, gameWinningGoals, otGoals, " \
               "powerPlayGoals, powerPlayPoints, shootingPctg, shorthandedGoals, shorthandedPoints, shots, " \
@@ -218,7 +218,7 @@ class GoalieCareerTotalsImport:
         career_totals_found = 0
         if self.json != {}:
             career_totals_found = 1
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.goalie_career_totals_import (playerId, `regularSeason.gamesPlayed`, " \
                   "`regularSeason.goals`, `regularSeason.assists`, `regularSeason.pim`, " \
                   "`regularSeason.gamesStarted`, `regularSeason.points`, `regularSeason.wins`, " \
@@ -247,13 +247,13 @@ class GoalieCareerTotalsImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-        log = puckpandas.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
+        log = pp.PlayerImportLog(player_id=self.player_id, career_totals_found=career_totals_found)
         log.insert_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.goalie_career_totals_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -262,7 +262,7 @@ class GoalieCareerTotalsImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql= "select playerId, `regularSeason.gamesPlayed`, `regularSeason.goals`, `regularSeason.assists`, " \
               "`regularSeason.pim`, `regularSeason.gamesStarted`, `regularSeason.points`, `regularSeason.wins`, " \
               "`regularSeason.losses`, `regularSeason.otLosses`, `regularSeason.shotsAgainst`, " \
@@ -332,7 +332,7 @@ class GoalieSeasonImport:
         season_totals_found = 0
         if self.json != {}:
             season_totals_found = 1
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.goalie_season_import (playerId, gameTypeId, gamesPlayed, " \
                   "goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, season, sequence, shutouts, ties, timeOnIce, " \
                   "timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, savePctg, shotsAgainst, " \
@@ -347,13 +347,13 @@ class GoalieSeasonImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-        log = puckpandas.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
+        log = pp.PlayerImportLog(player_id=self.player_id, season_totals_found=season_totals_found)
         log.insert_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.goalie_season_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -361,7 +361,7 @@ class GoalieSeasonImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, season, "\
               "sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, `teamName.default`, "\
               "savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, pim from " \
@@ -416,7 +416,7 @@ class PlayerAwardsImport:
         awards_found = 0
         if self.json != {}:
             awards_found = 1
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.player_award_import (playerId, seasonId, `trophy.default`) values " \
                   "(:playerId, :seasonId, :trophydefault)"
             player_awards_transform_df = self.player_awards_df
@@ -426,13 +426,13 @@ class PlayerAwardsImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-        log = puckpandas.PlayerImportLog(player_id=self.player_id, awards_found=awards_found)
+        log = pp.PlayerImportLog(player_id=self.player_id, awards_found=awards_found)
         log.insert_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.player_award_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -441,7 +441,7 @@ class PlayerAwardsImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select playerId, gameTypeId, gamesPlayed, goalsAgainst, goalsAgainstAvg, leagueAbbrev, losses, " \
                      "season, sequence, shutouts, ties, timeOnIce, timeOnIceMinutes, timeOnIceSeconds, wins, " \
                      "`teamName.default`, savePctg, shotsAgainst, otLosses, assists, gamesStarted, goals, " \
@@ -500,7 +500,7 @@ class PlayersImport:
         if self.json != {}:
             player_found = 1
 
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.player_bios_import (playerId, isActive, currentTeamId, " \
                   "currentTeamAbbrev, " \
                   "sweaterNumber, position, heightInInches, heightInCentimeters, weightInPounds, weightInKilograms, " \
@@ -528,13 +528,13 @@ class PlayersImport:
                 self.skater_career_totals.update_db()
             self.player_awards.update_db()
 
-        log = puckpandas.PlayerImportLog(player_id=self.player_id, player_found=player_found)
+        log = pp.PlayerImportLog(player_id=self.player_id, player_found=player_found)
         log.insert_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.player_bios_import where playerId = " + str(self.player_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -551,7 +551,7 @@ class PlayersImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select id, playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, " \
               "heightInInches, heightInCentimeters, weightInPounds, weightInKilograms, birthDate, birthCountry, " \
               "shootsCatches, inTop100AllTime, inHHOF, `firstName.default`, `lastName.default`, `birthCity.default`, " \
@@ -581,7 +581,7 @@ class PlayersImport:
         url_prefix = 'https://api-web.nhle.com/v1/player/'
         url_suffix = '/landing'
         url_string = "{}{}{}".format(url_prefix, self.player_id, url_suffix)
-        self.json = puckpandas.fetch_json_data(url_string)
+        self.json = pp.fetch_json_data(url_string)
         player_bios_df = pd.json_normalize(self.json)
 
         if player_bios_df.size == 0:

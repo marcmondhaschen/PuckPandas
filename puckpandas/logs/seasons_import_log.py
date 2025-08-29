@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
-import puckpandas
+import puckpandas as pp
 from sqlalchemy import text
 
 
@@ -12,7 +12,7 @@ class SeasonsImportLog:
         self.games_found = games_found
 
     def insert_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "insert into puckpandas_import.team_seasons_import_log (teamId, seasonId, lastDateUpdated, gamesFound) " \
               "values (:teamId, :seasonId, :lastDateUpdated, :gamesFound)"
         params = {'teamId': self.team_id, 'seasonId': self.season_id,
@@ -26,7 +26,7 @@ class SeasonsImportLog:
     def last_update(self):
         last_update = ''
 
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         prefix_sql = "select teamId, seasonId, max(lastDateUpdated) as lastDateUpdated from " \
                      "puckpandas_import.team_seasons_import_log where teamId = "
         mid_sql = " and seasonId = '"
@@ -42,7 +42,7 @@ class SeasonsImportLog:
 
     @staticmethod
     def seasons_without_games():
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select a.seasonId, count(b.gameId) as gameCount from puckpandas_import.team_seasons_import as a left " \
               "join puckpandas_import.games_import as b on a.seasonId = b.seasonId group by a.seasonId having " \
               "gameCount = 0"
@@ -53,7 +53,7 @@ class SeasonsImportLog:
 
     @staticmethod
     def seasons_without_rosters():
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select a.seasonId, count(b.playerId) as playerCount from puckpandas_import.team_seasons_import as a " \
               "left join rosters_import as b on a.seasonId = b.seasonId group by a.seasonId having playerCount = 0"
         seasons = pd.read_sql_query(sql, engine)

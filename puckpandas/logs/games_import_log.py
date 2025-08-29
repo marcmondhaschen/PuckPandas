@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 import numpy as np
 import pandas as pd
-import puckpandas
+import puckpandas as pp
 from sqlalchemy import text
 
 
@@ -35,7 +35,7 @@ class GamesImportLog:
                 return True
 
             if self.update_details['gameId'] != '':
-                engine = puckpandas.dba_import_login()
+                engine = pp.dba_import_login()
                 sql = "insert into puckpandas_import.games_import_log (gameId, lastDateUpdated, gameFound, " \
                       "gameCenterFound, " \
                       "tvBroadcastsFound, playsFound, rosterSpotsFound, teamGameStatsFound, seasonSeriesFound, " \
@@ -64,7 +64,7 @@ class GamesImportLog:
     def update_db(self):
         if self.update_details['gameId'] != '':
             if (len(self.update_details) > 0) and ('gameId' in self.update_details):
-                engine = puckpandas.dba_import_login()
+                engine = pp.dba_import_login()
 
                 set_string = "set lastDateUpdated = '" + \
                              np.datetime64(datetime.now(timezone.utc).replace(tzinfo=None)).astype(str) + "'"
@@ -104,7 +104,7 @@ class GamesImportLog:
     def query_db(game_id):
         last_update = ''
 
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select gameId, max(lastDateUpdated) as lastDateUpdated, gameFound, gameCenterFound from " \
               "puckpandas_import.games_import_log where gameId = " + str(game_id) + " group by gameId, " \
               "gameFound, gameCenterFound"
@@ -118,7 +118,7 @@ class GamesImportLog:
 
     @staticmethod
     def games_not_queried():
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select gameId from puckpandas_import.games_import_log where (gameCenterFound is Null or " \
               "gameCenterFound = 0)"
         games_open_work_df = pd.read_sql_query(sql, engine)
@@ -128,7 +128,7 @@ class GamesImportLog:
 
     @staticmethod
     def games_played_recently(start_date, stop_date):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select gameId from puckpandas_import.games_import where gameDate between '" + str(start_date) + \
               "' and '" + str(stop_date) + "'"
         games_open_work_df = pd.read_sql_query(sql, engine)
@@ -140,7 +140,7 @@ class GamesImportLog:
     @staticmethod
     def shifts_not_queried():
         """ shift details first appear in the NHL's API set in the 20102011 season """
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select gameId from puckpandas_import.games_import_log where shiftsFound is Null and gameId >= 2010010000"
         shifts_open_work_df = pd.read_sql_query(sql, engine)
         engine.dispose()
@@ -150,7 +150,7 @@ class GamesImportLog:
     @staticmethod
     def shifts_played_recently(start_date, stop_date):
         """ shift details first appear in the NHL's API set in the 20102011 season """
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select a.gameId from puckpandas_import.games_import_log as a join puckpandas_import.games_import as b " \
               "on a.gameId = b.gameId where a.shiftsFound = 0 and b.gameDate between '" + str(start_date) + "' and '" \
               + str(stop_date) + "' a.gameId >= 2010010000"
@@ -161,7 +161,7 @@ class GamesImportLog:
 
     @staticmethod
     def games_between_dates(begin_date, end_date):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select gameId from puckpandas_import.games_import where gameDate between '" + str(begin_date) + \
               "' and '" + str(end_date) + "'"
         games = pd.read_sql_query(sql, engine)

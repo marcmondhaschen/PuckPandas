@@ -1,5 +1,5 @@
 import pandas as pd
-import puckpandas
+import puckpandas as pp
 from sqlalchemy import text
 
 class TeamsImport:
@@ -14,7 +14,7 @@ class TeamsImport:
             if tri_code != '':
                 self.teams_df = self.teams_df[self.teams_df['triCode'] == tri_code]
 
-            engine = puckpandas.dba_import_login(test=self.test)
+            engine = pp.dba_import_login(test=self.test)
 
             sql = "insert into puckpandas_import.teams_import (teamId, franchiseId, fullName, leagueId, triCode) " \
                   "values (:teamId, :franchiseId, :fullName, :leagueId, :triCode)"
@@ -22,13 +22,10 @@ class TeamsImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-            # self.teams_df.to_sql(name='teams_import', con=engine, schema='puckpandas_import', if_exists='replace',
-            #                      index=False)
-
         return True
 
     def clear_db(self, tri_code=''):
-        engine = puckpandas.dba_import_login(test=self.test)
+        engine = pp.dba_import_login(test=self.test)
         if tri_code == '':
             sql = "truncate table puckpandas_import.teams_import"
         else:
@@ -40,7 +37,7 @@ class TeamsImport:
         return True
 
     def query_db(self, tri_code=''):
-        engine = puckpandas.dba_import_login(test=self.test)
+        engine = pp.dba_import_login(test=self.test)
         sql_prefix = "select teamId, franchiseId, fullName, leagueId, triCode from puckpandas_import.teams_import "
         sql_suffix = ""
         if tri_code != '':
@@ -52,7 +49,7 @@ class TeamsImport:
         return teams_df
 
     def query_api(self, tri_code=''):
-        json_data = puckpandas.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
+        json_data = pp.fetch_json_data('https://api.nhle.com/stats/rest/en/team')
         if json_data != {}:
             teams_df = pd.json_normalize(json_data, record_path=['data'])
             teams_df.rename(columns={'id': 'teamId'}, inplace=True)
@@ -73,11 +70,11 @@ class TeamsImport:
         return True
 
     def team_id_from_tri_code(self, tri_code):
-        team_id = self.teams_df.loc[self.teams_df['triCode'] == tri_code, 'teamId'].item()
+        team_id = self.teams_df.loc[self.teams_df['triCode'] == tri_code, 'teamId'].item
 
         return team_id
 
     def tri_code_from_team_id(self, team_id):
-        tri_code = self.teams_df.loc[self.teams_df['teamId'] == team_id, 'triCode'].item()
+        tri_code = self.teams_df.loc[self.teams_df['teamId'] == team_id, 'triCode'].item
 
         return tri_code

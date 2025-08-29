@@ -1,5 +1,5 @@
 import pandas as pd
-import puckpandas
+import puckpandas as pp
 from sqlalchemy import text
 
 
@@ -13,7 +13,7 @@ class SeasonsImport:
             if tri_code != '':
                 self.seasons_df = self.seasons_df[self.seasons_df['triCode'] == tri_code]
 
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.team_seasons_import (triCode, teamId, seasonId) values (:triCode, " \
                   ":teamId, :seasonId)"
             params = self.seasons_df.to_dict('records')
@@ -24,7 +24,7 @@ class SeasonsImport:
 
     @staticmethod
     def clear_db(tri_code=''):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         if tri_code == '':
             sql = "truncate table puckpandas_import.team_seasons_import"
         else:
@@ -36,7 +36,7 @@ class SeasonsImport:
         return True
 
     def query_db(self, tri_code='', season_id=''):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql_prefix = "select a.triCode, a.teamId, a.seasonId from puckpandas_import.team_seasons_import as a where " \
                      "a.teamId is not null"
         sql_suffix = ""
@@ -54,7 +54,7 @@ class SeasonsImport:
         return seasons_df
 
     def query_api(self, tri_code=''):
-        teams = puckpandas.TeamsImport()
+        teams = pp.TeamsImport()
         teams.query_db()
 
         team_seasons_df = pd.DataFrame()
@@ -62,7 +62,7 @@ class SeasonsImport:
         for index, row in teams.teams_df.iterrows():
             base_url = 'https://api-web.nhle.com/v1/roster-season/'
             query_string = "{}{}".format(base_url, row['triCode'])
-            json_data = puckpandas.fetch_json_data(query_string)
+            json_data = pp.fetch_json_data(query_string)
 
             seasons_df = pd.DataFrame(json_data)
             seasons_df.rename(columns={0: "seasonId"}, inplace=True)
@@ -91,7 +91,7 @@ class SeasonsImport:
     @staticmethod
     def current_season():
         current_season = 0
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select max(seasonId) as currentSeasonId from puckpandas_import.team_seasons_import"
         season_df = pd.read_sql_query(sql, engine)
 

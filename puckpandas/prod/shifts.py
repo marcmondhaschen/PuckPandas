@@ -1,5 +1,5 @@
 import pandas as pd
-import puckpandas
+import puckpandas as pp
 from sqlalchemy import text
 
 """ shift details first appear in the NHL's API set in the 20102011 season """
@@ -17,7 +17,7 @@ class ShiftsImport:
         if self.shifts_df.size > 0:
             shifts_found = 1
 
-            engine = puckpandas.dba_import_login()
+            engine = pp.dba_import_login()
             sql = "insert into puckpandas_import.shifts_import (id, detailCode, duration, endTime, eventDescription, " \
                   "eventDetails, " \
                   "eventNumber, firstName, gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, " \
@@ -29,13 +29,13 @@ class ShiftsImport:
             with engine.connect() as conn:
                 conn.execute(text(sql), parameters=params)
 
-        log = puckpandas.GamesImportLog(game_id=self.game_id, shifts_found=shifts_found)
+        log = pp.GamesImportLog(game_id=self.game_id, shifts_found=shifts_found)
         log.update_db()
 
         return True
 
     def clear_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "delete from puckpandas_import.shifts_import where gameId =" + str(self.game_id)
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -43,7 +43,7 @@ class ShiftsImport:
         return True
 
     def query_db(self):
-        engine = puckpandas.dba_import_login()
+        engine = pp.dba_import_login()
         sql = "select id, detailCode, duration, endTime, eventDescription, eventDetails, eventNumber, firstName, " \
               "gameId, hexValue, lastName, period, playerId, shiftNumber, startTime, teamAbbrev, teamId, teamName, " \
               "typeCode from puckpandas_import.shifts_import where gameId = " + str(self.game_id)
@@ -61,7 +61,7 @@ class ShiftsImport:
     def query_api(self):
         url_prefix = 'https://api.nhle.com/stats/rest/en/shiftcharts?cayenneExp=gameId='
         url_string = "{}{}".format(url_prefix, self.game_id)
-        json_data = puckpandas.fetch_json_data(url_string)
+        json_data = pp.fetch_json_data(url_string)
 
         if len(json_data['data']) > 0:
             shifts_df = pd.json_normalize(json_data, record_path=['data'])
