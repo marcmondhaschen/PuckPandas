@@ -86,11 +86,12 @@ class PowerRankIterator:
             # said object needs to be able to call games by date range
         self.games_results_object = pp.GameResults()
             # should build and use a games results object for games_results prod
-        self.games_data_frame = pandas.DataFrame() # will contain row of gameIDs
+        self.games_data_frame = pd.DataFrame() # will contain row of gameIDs
 
 
     @staticmethod
     def iterateOverDatesThinger():
+
         pass
 
     @staticmethod
