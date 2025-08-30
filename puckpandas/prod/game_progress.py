@@ -43,7 +43,8 @@ class GameProgress:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = ""
+        sql = "select gameId, gameState, gameScheduleState, periodNumber, periodType, secondsRemaining, " \
+              "clockRunning, inIntermission, maxPeriods, lastPeriodType, regPeriods from puckpandas.game_progress"
         game_progress_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
