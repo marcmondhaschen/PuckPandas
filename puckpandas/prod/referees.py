@@ -5,13 +5,13 @@ from sqlalchemy import text
 class Referees:
     def __init__(self):
         self.table_columns = ['']
-        self.xxxx_df = pd.DataFrame()
+        self.referees_df = pd.DataFrame()
         self.query_db()
-        self.xxxx_df = self.xxxx_df.reindex(columns=self.table_columns)
+        self.referees_df = self.referees_df.reindex(columns=self.table_columns)
         self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
-        if self.xxxx_df.size > 0:
+        if self.referees_df.size > 0:
             engine = pp.dba_prod_login()
             sql = "insert into " + str(self.current_season)
 
@@ -34,13 +34,13 @@ class Referees:
     def query_db(self):
         engine = pp.dba_prod_login()
         sql = "select "
-        xxxx_df = pd.read_sql_query(sql, engine)
+        referees_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
-        if xxxx_df.size > 0:
-            xxxx_df = xxxx_df.reindex(columns=self.table_columns)
-            xxxx_df.infer_objects().fillna('', inplace=True)
-            xxxx_df.drop_duplicates(inplace=True)
-            self.xxxx_df = xxxx_df
+        if referees_df.size > 0:
+            referees_df = referees_df.reindex(columns=self.table_columns)
+            referees_df.infer_objects().fillna('', inplace=True)
+            referees_df.drop_duplicates(inplace=True)
+            self.referees_df = referees_df
 
-        return self.xxxx_df
+        return self.referees_df

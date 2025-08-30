@@ -5,13 +5,13 @@ from sqlalchemy import text
 class GameTeamStats:
     def __init__(self):
         self.table_columns = ['']
-        self.xxxx_df = pd.DataFrame()
+        self.game_team_stats_df = pd.DataFrame()
         self.query_db()
-        self.xxxx_df = self.xxxx_df.reindex(columns=self.table_columns)
+        self.game_team_stats_df = self.game_team_stats_df.reindex(columns=self.table_columns)
         self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
-        if self.xxxx_df.size > 0:
+        if self.game_team_stats_df.size > 0:
             engine = pp.dba_prod_login()
             sql = "insert into " + str(self.current_season)
 
@@ -34,13 +34,13 @@ class GameTeamStats:
     def query_db(self):
         engine = pp.dba_prod_login()
         sql = "select "
-        xxxx_df = pd.read_sql_query(sql, engine)
+        game_team_stats_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
-        if xxxx_df.size > 0:
-            xxxx_df = xxxx_df.reindex(columns=self.table_columns)
-            xxxx_df.infer_objects().fillna('', inplace=True)
-            xxxx_df.drop_duplicates(inplace=True)
-            self.xxxx_df = xxxx_df
+        if game_team_stats_df.size > 0:
+            game_team_stats_df = game_team_stats_df.reindex(columns=self.table_columns)
+            game_team_stats_df.infer_objects().fillna('', inplace=True)
+            game_team_stats_df.drop_duplicates(inplace=True)
+            self.game_team_stats_df = game_team_stats_df
 
-        return self.xxxx_df
+        return self.game_team_stats_df
