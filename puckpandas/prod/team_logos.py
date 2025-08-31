@@ -33,7 +33,7 @@ class TeamLogos:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select logoId, teamLogo, teamId, away, home from puckpandas.team_logos"
         team_logos_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -33,7 +33,7 @@ class Linesmen:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select linesmanId, linesmanName from puckpandas.linesmen"
         linesmen_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -34,7 +34,8 @@ class SkaterSeasons:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select id, playerId, seasonId, leagueId, teamName, teamId, sequence, gameType, GP, G, A, P, PM, PIM, " \
+              "PPG, PPP, SHG, SHP, TOIGSEC, GWG, OTG, S, SPCT, FOPCT from puckpandas.skater_seasons"
         skater_seasons_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

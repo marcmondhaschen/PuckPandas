@@ -34,7 +34,8 @@ class GameTVBroadcasts:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select gameBroadcastId, gameId, broadcastId, sequenceNumber, market, countryCode, network from " \
+              "puckpandas.game_tv_broadcasts"
         game_tv_broadcasts_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

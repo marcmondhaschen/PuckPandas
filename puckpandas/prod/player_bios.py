@@ -35,7 +35,8 @@ class PlayerBios:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select playerId, firstName, lastName, birthDate, birthCountry, birthState, birthCity, shootsCatches, " \
+              "heightInInches, heightInCentimeters, weightInPounds, weightInKilograms from puckpandas.player_bios"
         player_bios_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -33,7 +33,7 @@ class GameStoppages:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select playId, gameId, eventId, sortOrder, typeCode from puckpandas.game_stoppages"
         game_stoppages_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

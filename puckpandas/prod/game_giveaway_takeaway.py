@@ -33,7 +33,7 @@ class GameGiveawayTakeaway:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select playId, gameId, eventId, sortOrder, playerId, typeCode from puckpandas.game_giveaway_takeaway"
         game_giveaway_takeaway_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

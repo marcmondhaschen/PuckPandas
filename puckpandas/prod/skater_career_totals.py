@@ -34,7 +34,8 @@ class SkaterCareerTotals:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select playerId, gameType, GP, G, A, P, PM, PIM, PPG, PPP, SHG, SHP, TOIGSEC, GWG, OTG, S, SPCT, " \
+              "FOPCT from puckpandas.skater_career_totals"
         skater_career_totals_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

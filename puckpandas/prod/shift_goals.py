@@ -34,7 +34,8 @@ class ShiftGoals:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select id, gameId, eventNumber, detailCode, teamId, playerId, period, goalTimeSeconds, " \
+              "eventDescription, eventDetails, typeCode from puckpandas.shift_goals"
         shift_goals_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

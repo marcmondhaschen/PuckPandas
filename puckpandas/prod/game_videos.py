@@ -33,7 +33,7 @@ class GameVideos:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select gameId, threeMinRecap from puckpandas.game_videos"
         game_videos_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

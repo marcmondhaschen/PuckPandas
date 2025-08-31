@@ -33,7 +33,7 @@ class TeamRosters:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select id, teamId, seasonId, playerId from puckpandas.team_rosters"
         team_rosters_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

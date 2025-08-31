@@ -33,7 +33,7 @@ class GameRosterSpots:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select id, gameId, teamId, playerId, sweaterNumber, positionCode from puckpandas.game_roster_spots"
         game_roster_spots_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

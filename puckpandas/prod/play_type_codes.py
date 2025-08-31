@@ -33,7 +33,7 @@ class PlayTypeCodes:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select typeCode, typeDescKey from puckpandas.play_type_codes"
         play_type_codes_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

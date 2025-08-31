@@ -33,7 +33,8 @@ class SupBirthCityLatLong:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select id, birthCity, birthState, birthCountry, placeNameLong, lat, long from " \
+              "puckpandas.sup_birth_city_lat_long"
         sup_birth_city_lat_long_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -35,7 +35,9 @@ class GameGoals:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select playId, gameId, eventId, sortOrder, reason, shotType, goalieInNetId, scoringPlayerId, " \
+              "scoringPlayerTotal, assist1PlayerId, assist1PlayerTotal, assist2PlayerId, assist2PlayerTotal, " \
+              "awayScore, homeScore from puckpandas.game_goals"
         game_goals_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -34,7 +34,8 @@ class PlayerStatuses:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, " \
+              "inTop100AllTime, inHHOF from puckpandas.player_statuses"
         player_statuses_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

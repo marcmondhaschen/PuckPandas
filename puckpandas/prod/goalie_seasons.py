@@ -34,7 +34,8 @@ class GoalieSeasons:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
+        sql = "select id, playerId, seasonId, leagueId, teamName, teamId, sequence, gameType, GP, GS, G, A, PIM, W, " \
+              "L, OTL, ties, SA, GA, GAA, SPCT, SO, TOISEC from puckpandas.goalie_seasons"
         goalie_seasons_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

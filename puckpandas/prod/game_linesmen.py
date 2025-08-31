@@ -33,8 +33,8 @@ class GameLinesmen:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select "
-        xxxx_df = pd.read_sql_query(sql, engine)
+        sql = "select id, gameId, linesmanId from puckpandas.game_linesmen"
+        game_linesmen_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
         if game_linesmen_df.size > 0:
