@@ -4,7 +4,8 @@ from sqlalchemy import text
 
 class GamePenalties:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['playId','gameId','eventId','sortOrder','typeCode','penaltyTypeCode','penaltyDescKey',
+                              'penaltyDuration','committedByPlayerId','drawnByPlayerId']
         self.game_penalties_df = pd.DataFrame()
         self.query_db()
         self.game_penalties_df = self.game_penalties_df.reindex(columns=self.table_columns)

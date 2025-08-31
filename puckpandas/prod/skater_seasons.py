@@ -4,7 +4,8 @@ from sqlalchemy import text
 
 class SkaterSeasons:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['id','playerId','seasonId','leagueId','teamName','teamId','sequence','gameType','GP','G',
+                              'A','P','PM','PIM','PPG','PPP','SHG','SHP','TOIGSEC','GWG','OTG','S','SPCT','FOPCT']
         self.skater_seasons_df = pd.DataFrame()
         self.query_db()
         self.skater_seasons_df = self.skater_seasons_df.reindex(columns=self.table_columns)

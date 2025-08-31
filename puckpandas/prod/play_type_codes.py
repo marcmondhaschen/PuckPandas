@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class PlayTypeCodes:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['typeCode','typeDescKey']
         self.play_type_codes_df = pd.DataFrame()
         self.query_db()
         self.play_type_codes_df = self.play_type_codes_df.reindex(columns=self.table_columns)

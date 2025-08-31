@@ -4,7 +4,8 @@ from sqlalchemy import text
 
 class Shifts:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['id','gameId','eventNumber','detailCode','teamId','playerId','shiftNumber','period',
+                              'startTimeSeconds','endTimeSeconds','durationSeconds','typeCode']
         self.shifts_df = pd.DataFrame()
         self.query_db()
         self.shifts_df = self.shifts_df.reindex(columns=self.table_columns)

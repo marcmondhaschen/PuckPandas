@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class GameGiveawayTakeaway:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['playId','gameId','eventId','sortOrder','playerId','typeCode']
         self.game_giveaway_takeaway_df = pd.DataFrame()
         self.query_db()
         self.game_giveaway_takeaway_df = self.game_giveaway_takeaway_df.reindex(columns=self.table_columns)

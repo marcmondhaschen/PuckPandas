@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class TeamLogos:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['logoId','teamLogo','teamId','away','home']
         self.team_logos_df = pd.DataFrame()
         self.query_db()
         self.team_logos_df = self.team_logos_df.reindex(columns=self.table_columns)

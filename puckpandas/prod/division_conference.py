@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class DivisionConference:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['id','seasonId','teamId','fullName','era','conference','division']
         self.division_conference_df = pd.DataFrame()
         self.query_db()
         self.division_conference_df = self.division_conference_df.reindex(columns=self.table_columns)

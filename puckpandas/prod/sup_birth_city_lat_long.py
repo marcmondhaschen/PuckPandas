@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class SupBirthCityLatLong:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['id','birthCity','birthState','birthCountry','placeNameLong','lat','long']
         self.sup_birth_city_lat_long_df = pd.DataFrame()
         self.query_db()
         self.sup_birth_city_lat_long_df = self.sup_birth_city_lat_long_df.reindex(columns=self.table_columns)

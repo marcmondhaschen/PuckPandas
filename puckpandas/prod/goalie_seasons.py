@@ -4,7 +4,8 @@ from sqlalchemy import text
 
 class GoalieSeasons:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['id','playerId','seasonId','leagueId','teamName','teamId','sequence','gameType','GP',
+                              'GS','G','A','PIM','W','L','OTL','ties','SA','GA','GAA','SPCT','SO','TOISEC']
         self.goalie_seasons_df = pd.DataFrame()
         self.query_db()
         self.goalie_seasons_df = self.goalie_seasons_df.reindex(columns=self.table_columns)

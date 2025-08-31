@@ -4,7 +4,9 @@ from sqlalchemy import text
 
 class PlayerBios:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['playerId','firstName','lastName','birthDate','birthCountry','birthState','birthCity',
+                              'shootsCatches','heightInInches','heightInCentimeters','weightInPounds',
+                              'weightInKilograms']
         self.player_bios_df = pd.DataFrame()
         self.query_db()
         self.player_bios_df = self.player_bios_df.reindex(columns=self.table_columns)

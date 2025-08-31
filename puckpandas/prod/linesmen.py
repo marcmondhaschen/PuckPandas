@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class Linesmen:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['linesmanId','linesmanName']
         self.linesmen_df = pd.DataFrame()
         self.query_db()
         self.linesmen_df = self.linesmen_df.reindex(columns=self.table_columns)

@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class GameFaceoffs:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['playId','gameId','eventId','losingPlayerId','winningPlayerId']
         self.game_faceoffs_df = pd.DataFrame()
         self.query_db()
         self.game_faceoffs_df = self.game_faceoffs_df.reindex(columns=self.table_columns)

@@ -4,7 +4,9 @@ from sqlalchemy import text
 
 class GameGoals:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['playId','gameId','eventId','sortOrder','reason','shotType','goalieInNetId',
+                              'scoringPlayerId','scoringPlayerTotal','assist1PlayerId','assist1PlayerTotal',
+                              'assist2PlayerId','assist2PlayerTotal','awayScore','homeScore']
         self.game_goals_df = pd.DataFrame()
         self.query_db()
         self.game_goals_df = self.game_goals_df.reindex(columns=self.table_columns)

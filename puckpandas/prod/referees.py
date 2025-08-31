@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class Referees:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['refereeId','refereeName']
         self.referees_df = pd.DataFrame()
         self.query_db()
         self.referees_df = self.referees_df.reindex(columns=self.table_columns)

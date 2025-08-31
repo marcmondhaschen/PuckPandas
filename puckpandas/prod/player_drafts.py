@@ -4,7 +4,7 @@ from sqlalchemy import text
 
 class PlayerDrafts:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['playerId','draftYear','teamId','draftRound','pickInRound','overallPick']
         self.player_drafts_df = pd.DataFrame()
         self.query_db()
         self.player_drafts_df = self.player_drafts_df.reindex(columns=self.table_columns)
