@@ -23,7 +23,7 @@ class Plays:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from "
+        sql = "delete from puckpandas.plays"
 
         with engine.connect() as conn:
             conn.execute(text(sql))

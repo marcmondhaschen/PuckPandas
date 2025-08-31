@@ -23,7 +23,7 @@ class GameGiveawayTakeaway:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from "
+        sql = "delete from puckpandas.game_giveaway_takeaway"
 
         with engine.connect() as conn:
             conn.execute(text(sql))

@@ -23,7 +23,7 @@ class Linesmen:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from "
+        sql = "delete from puckpandas.linesmen"
 
         with engine.connect() as conn:
             conn.execute(text(sql))

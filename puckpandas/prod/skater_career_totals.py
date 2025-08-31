@@ -24,7 +24,7 @@ class SkaterCareerTotals:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from "
+        sql = "delete from puckpandas.skater_career_totals"
 
         with engine.connect() as conn:
             conn.execute(text(sql))
