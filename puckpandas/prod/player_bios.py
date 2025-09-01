@@ -15,7 +15,12 @@ class PlayerBios:
     def update_db(self):
         if self.player_bios_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.player_bios (playerId, firstName, lastName, birthDate, birthCountry, 
+            birthState, birthCity, shootsCatches, heightInInches, heightInCentimeters, weightInPounds, 
+            weightInKilograms) select playerId, `firstName.default` as firstName, `lastName.default` as lastName, 
+            birthDate, birthCountry, `birthStateProvince.default` as birthState, `birthCity.default` as birthCity, 
+            shootsCatches, heightInInches, heightInCentimeters, weightInPounds, weightInKilograms from 
+            puckpandas_import.player_bios_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

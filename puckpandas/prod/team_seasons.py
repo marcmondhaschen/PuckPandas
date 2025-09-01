@@ -13,7 +13,8 @@ class TeamSeasons:
     def update_db(self):
         if self.team_seasons_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.team_seasons (seasonId, teamId) select seasonId, teamId from 
+            puckpandas_import.team_seasons_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

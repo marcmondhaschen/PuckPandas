@@ -14,7 +14,16 @@ class GameSeries:
     def update_db(self):
         if self.game_series_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_series (gameId, seriesLetter, neededToWin, topSeedWins, " \
+                  "bottomSeedWins, gameNumberOfSeries, awayTeam, awayTeamWins, homeTeam, homeTeamWins) select " \
+                  "a.gameId, case when a.`seriesStatus.seriesLetter` = '0' then '' else a.`seriesStatus.seriesLetter` "\
+                  "end as seriesLetter, a.`seriesStatus.neededToWin` as neededToWin, a.`seriesStatus.topSeedWins` as " \
+                  "topSeedWins, a.`seriesStatus.bottomSeedWins` as bottomSeedWins, " \
+                  "a.`seriesStatus.gameNumberOfSeries` as gameNumberOfSeries, a.awayTeam, " \
+                  "b.`seasonSeriesWins.awayTeamWins` as awayTeamWins, a.homeTeam, b.`seasonSeriesWins.homeTeamWins` " \
+                  "as homeTeamWins from puckpandas_import.games_import as a join " \
+                  "puckpandas_import.game_center_right_rail_import as b on a.gameId = b.gameId where " \
+                  "a.seasonId = " + str(self.current_season) + " order by gameId"
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

@@ -14,7 +14,15 @@ class GamePenalties:
     def update_db(self):
         if self.game_penalties_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_penalties (playId, gameId, eventId, sortOrder, typeCode, " \
+                  "penaltyTypeCode, penaltyDescKey, penaltyDuration, committedByPlayerId, drawnByPlayerId) select " \
+                  "a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode, b.`details.typeCode` as penaltyTypeCode, " \
+                  "b.`details.descKey` as penaltyDescKey, b.`details.duration` as duration, " \
+                  "b.`details.committedByPlayerId` as committedByPlayerId, b.`details.drawnByPlayerId` as " \
+                  "drawnByPlayerId from puckpandas.plays as a  join puckpandas_import.games_import as g on " \
+                  "a.gameId = g.gameId join puckpandas_import.plays_import as b on a.gameId = b.gameId and " \
+                  "a.eventId = b.eventId where b.typeCode in ('509', '535') and " \
+                  "g.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

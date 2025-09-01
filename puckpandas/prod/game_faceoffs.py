@@ -13,7 +13,12 @@ class GameFaceoffs:
     def update_db(self):
         if self.game_faceoffs_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_faceoffs (playId, gameId, eventId, losingPlayerId, " \
+                  "winningPlayerId) select a.playId, b.gameId, b.eventId, b.details.losingPlayerId as " \
+                  "losingPlayerId, b.details.winningPlayerId as winningPlayerId from puckpandas.plays as a join " \
+                  "puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import " \
+                  "as b on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode = '502' and " \
+                  "g.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

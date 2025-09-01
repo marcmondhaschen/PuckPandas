@@ -15,7 +15,18 @@ class GameGoals:
     def update_db(self):
         if self.game_goals_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_goals (playId, gameId, eventId, sortOrder, reason, shotType, " \
+                  "goalieInNetId, scoringPlayerId, scoringPlayerTotal, assist1PlayerId, assist1PlayerTotal, " \
+                  "assist2PlayerId, assist2PlayerTotal, awayScore, homeScore) select a.playId, b.gameId, b.eventId, " \
+                  "b.sortOrder, b.`details.reason` as reason, b.`details.shotType` as shotType, " \
+                  "b.`details.goalieInNetId` as goalieInNetId, b.`details.scoringPlayerId` as scoringPlayerId, " \
+                  "b.`details.scoringPlayerTotal` as scoringPlayerTotal, b.`details.assist1PlayerId` as " \
+                  "assist1PlayerId, b.`details.assist1PlayerTotal` as assist1PlayerTotal, b.`details.assist2PlayerId` "\
+                  "as assist2PlayerId, b.`details.assist2PlayerTotal` as assist2PlayerTotal, b.`details.awayScore` " \
+                  "as awayScore, b.`details.homeScore` as homeScore from puckpandas.plays as a join " \
+                  "puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as " \
+                  "b on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode = '505' and " \
+                  "g.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

@@ -13,7 +13,8 @@ class DivisionConference:
     def update_db(self):
         if self.division_conference_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into `puckpandas`.`leagues` (leagueAbbrev) select distinct leagueAbbrev from " \
+                  "puckpandas_import.skater_season_import"
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

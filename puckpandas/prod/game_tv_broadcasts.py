@@ -14,7 +14,11 @@ class GameTVBroadcasts:
     def update_db(self):
         if self.game_tv_broadcasts_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.game_tv_broadcasts (gameId, broadcastId, sequenceNumber, market, 
+            countryCode, network) select t.gameId, t.broadcastId, t.sequenceNumber, t.market, t.countryCode, 
+            t.network from puckpandas_import.tv_broadcasts_import as t join puckpandas_import.games_import as g on 
+            t.gameId = g.gameId where g.seasonId = """ + str(self.current_season) + """ order by t.gameId, 
+            t.sequenceNumber"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

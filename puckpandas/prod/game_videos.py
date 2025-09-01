@@ -13,7 +13,10 @@ class GameVideos:
     def update_db(self):
         if self.game_videos_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.game_videos (gameId, threeMinRecap) select r.gameId, case when 
+            r.`gameVideo.threeMinRecap` = '0' then '' else r.`gameVideo.threeMinRecap` end as threeMinRecap from 
+            puckpandas_import.game_center_right_rail_import as r join puckpandas_import.games_import as g on 
+            g.gameId = r.gameId where g.seasonId = """ + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

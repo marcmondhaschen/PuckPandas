@@ -13,7 +13,11 @@ class GameStoppages:
     def update_db(self):
         if self.game_stoppages_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.game_stoppages (playId, gameId, eventId, sortOrder, typeCode) select 
+            a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode from puckpandas.plays as a join 
+            puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as b 
+            on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode in ('516', '520', '521', '523', 
+            '524') and g.seasonId = """ + str(self.current_season) + """ order by playId"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

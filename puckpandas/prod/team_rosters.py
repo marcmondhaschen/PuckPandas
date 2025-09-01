@@ -13,7 +13,9 @@ class TeamRosters:
     def update_db(self):
         if self.team_rosters_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.team_rosters (teamId, seasonId, playerId) select b.teamId, a.seasonId, 
+            a.playerId from puckpandas_import.rosters_import as a join puckpandas_import.teams_import as b on 
+            a.triCode = b.triCode where a.seasonId = """ + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

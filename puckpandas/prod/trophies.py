@@ -13,8 +13,8 @@ class Trophies:
     def update_db(self):
         if self.trophies_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
-
+            sql = """insert into puckpandas.trophies (trophyName) select distinct `trophy.default` as trophyName from 
+            puckpandas_import.player_award_import"""
             with engine.connect() as conn:
                 conn.execute(text(sql))
 

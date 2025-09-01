@@ -13,7 +13,9 @@ class GameScratches:
     def update_db(self):
         if self.game_scratches_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_scratches (gameId, playerId) select s.gameId, s.playerId from " \
+                  "puckpandas_import.scratches_import as s join puckpandas_import.games_import as g on " \
+                  "s.gameId = g.gameId where g.seasonId =  " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

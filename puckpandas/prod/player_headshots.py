@@ -13,7 +13,8 @@ class PlayerHeadshots:
     def update_db(self):
         if self.player_headshots_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.player_headshots (playerId, headshot) select distinct playerId, headshot 
+            from puckpandas_import.roster_spots_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

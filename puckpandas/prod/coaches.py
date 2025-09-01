@@ -13,7 +13,11 @@ class Coaches:
     def update_db(self):
         if self.coaches_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into `puckpandas`.`coaches` (coachName) select distinct a.coachName from (select " \
+                  "`gameInfo.awayTeam.headCoach.default` as coachName from " \
+                  "puckpandas_import.game_center_right_rail_import union select " \
+                  "`gameInfo.homeTeam.headCoach.default` as coach from " \
+                  "puckpandas_import.game_center_right_rail_import) as a where a.coachName != '0.0'"
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

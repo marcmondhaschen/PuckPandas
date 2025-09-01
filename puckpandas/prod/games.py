@@ -14,11 +14,11 @@ class Games:
     def update_db(self):
         if self.games_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.games (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, " \
-                  "startTimeVenue, awayTeam, homeTeam) select a.gameId, a.seasonId, a.gameType, a.gameDate, " \
-                  "b.venueId, a.startTimeUTC, date_add(a.startTimeUTC, INTERVAL time_to_sec(left(a.venueUTCOffset, " \
-                  "locate(':', a.venueUTCOffset)+2)) second) as startTimeVenue, a.awayTeam, a.homeTeam from " \
-                  "puckpandas_import.games_import as a join puckpandas.venues as b on a.venue = b.venue"
+            sql = """insert into puckpandas.games (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, 
+            startTimeVenue, awayTeam, homeTeam) select a.gameId, a.seasonId, a.gameType, a.gameDate, b.venueId, 
+            a.startTimeUTC, date_add(a.startTimeUTC, INTERVAL time_to_sec(left(a.venueUTCOffset, locate(':', 
+            a.venueUTCOffset)+2)) second) as startTimeVenue, a.awayTeam, a.homeTeam from puckpandas_import.games_import 
+            as a join puckpandas.venues as b on a.venue = b.venue"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

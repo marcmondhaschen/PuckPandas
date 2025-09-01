@@ -13,7 +13,11 @@ class PlayerAwards:
     def update_db(self):
         if self.player_awards_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.player_drafts (playerId, draftYear, teamId, draftRound, pickInRound, 
+            overallPick) select playerId, `draftDetails.year` as draftYear, b.teamId, `draftDetails.round` as 
+            draftRound, `draftDetails.pickInRound` as pickInRound, `draftDetails.overallPick` as overallPick from 
+            puckpandas_import.player_bios_import as a join puckpandas_import.teams_import as b on 
+            a.`draftDetails.teamAbbrev` = b.triCode"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

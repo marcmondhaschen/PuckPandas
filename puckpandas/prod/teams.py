@@ -13,8 +13,13 @@ class Teams:
     def update_db(self):
         if self.teams_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
-
+            sql = """insert into puckpandas.teams (teamId, triCode, fullName, commonName, placeName) select distinct 
+            `awayTeam.id` as teamId, `awayTeam.abbrev` as triCode, concat(`awayTeam.placeName.default`, ' ', 
+            `awayTeam.commonName.default`) as fullName, `awayTeam.commonName.default` as commonName, 
+            `awayTeam.placeName.default` as placeName from puckpandas_import.game_center_import union select 
+            `homeTeam.id` as teamId, `homeTeam.abbrev` as triCode, concat(`homeTeam.placeName.default`, ' ', 
+            `homeTeam.commonName.default`) as fullName, `homeTeam.commonName.default` as commonName, 
+            `homeTeam.placeName.default` as placeName from puckpandas_import.game_center_import"""
             with engine.connect() as conn:
                 conn.execute(text(sql))
 

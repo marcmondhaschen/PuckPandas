@@ -13,7 +13,8 @@ class Linesmen:
     def update_db(self):
         if self.linesmen_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.linesmen (linesmanName) select distinct `default` as linesmanName from 
+            puckpandas_import.linesmen_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

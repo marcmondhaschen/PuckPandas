@@ -13,7 +13,8 @@ class Referees:
     def update_db(self):
         if self.referees_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.referees (refereeName) select distinct `default` as refereeName from 
+            puckpandas_import.referees_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

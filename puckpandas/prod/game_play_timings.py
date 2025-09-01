@@ -14,7 +14,15 @@ class GamePlayTimings:
     def update_db(self):
         if self.game_play_timings_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_play_timings (playId, gameId, eventId, periodNumber, periodType, " \
+                  "maxRegulationPeriods, secondsInPeriod, secondsRemaining, sortOrder) select a.playId, b.gameId, " \
+                  "b.eventId, b.`periodDescriptor.number` as periodNumber, b.`periodDescriptor.periodType` as " \
+                  "periodType, time_to_sec(left(b.timeInPeriod, locate(':', b.timeInPeriod)+2))/60 as " \
+                  "secondsInPeriod, time_to_sec(left(b.timeRemaining, locate(':', b.timeRemaining)+2))/60 as " \
+                  "secondsRemaining, b.`periodDescriptor.maxRegulationPeriods` as maxRegulationPeriods, b.sortOrder " \
+                  "from puckpandas.plays as a join puckpandas_import.games_import as g on a.gameId = g.gameId join " \
+                  "puckpandas_import.plays_import as b on a.gameId = b.gameId and a.eventId = b.eventId where " \
+                  "g.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

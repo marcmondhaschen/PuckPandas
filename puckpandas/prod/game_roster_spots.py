@@ -13,7 +13,10 @@ class GameRosterSpots:
     def update_db(self):
         if self.game_roster_spots_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_roster_spots (gameId, teamId, playerId, sweaterNumber, positionCode) " \
+                  "select r.gameId, r.teamId, r.playerId, r.sweaterNumber, r.positionCode from " \
+                  "puckpandas_import.roster_spots_import as r  join puckpandas_import.games_import as g on " \
+                  "r.gameId = g.gameId where g.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

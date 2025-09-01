@@ -13,7 +13,8 @@ class PlayTypeCodes:
     def update_db(self):
         if self.play_type_codes_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.play_type_codes (typeCode, typeDescKey) select distinct typeCode, 
+            typeDescKey from puckpandas_import.plays_import order by typeCode"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

@@ -13,7 +13,15 @@ class GameCoaches:
     def update_db(self):
         if self.game_coaches_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into `puckpandas`.`game_coaches` (gameId, teamId, coachId, home, away) select a.gameId, " \
+                  "a.awayTeam as teamId, c.coachId, 1 as away, 0 as home  from `puckpandas_import`.`games_import` " \
+                  "as a  join `puckpandas_import`.`game_center_right_rail_import` as b on a.gameId = b.gameId join " \
+                  "`puckpandas`.`coaches` as c on b.`gameInfo.awayTeam.headCoach.default` = c.coachName where " \
+                  "a.seasonId = " + str(self.current_season) + " union select a.gameId, a.homeTeam as teamId, " \
+                  "c.coachId, 0 as away, 1 as home from puckpandas_import.games_import as a  join " \
+                  "puckpandas_import.game_center_right_rail_import as b on a.gameId = b.gameId join " \
+                  "puckpandas.coaches as c on b.`gameInfo.homeTeam.headCoach.default` = c.coachName where " \
+                  "a.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

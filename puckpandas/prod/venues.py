@@ -13,8 +13,8 @@ class Venues:
     def update_db(self):
         if self.venues_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into `puckpandas`.`venues` (venue) select distinct venue as venueName from "\
-                  "puckpandas_import.games_import order by venue"
+            sql = """insert into `puckpandas`.`venues` (venue) select distinct venue as venueName from 
+            puckpandas_import.games_import order by venue"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

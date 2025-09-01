@@ -14,7 +14,10 @@ class PlayerStatuses:
     def update_db(self):
         if self.player_statuses_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.player_statuses (playerId, isActive, currentTeamId, currentTeamAbbrev, 
+            sweaterNumber, position, inTop100AllTime, inHHOF) select playerId, isActive, currentTeamId, 
+            currentTeamAbbrev, sweaterNumber, position, inTop100AllTime, inHHOF from 
+            puckpandas_import.player_bios_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

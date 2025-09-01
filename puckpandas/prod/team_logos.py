@@ -13,7 +13,10 @@ class TeamLogos:
     def update_db(self):
         if self.team_logos_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.team_logos (teamLogo, teamId, away, home) select distinct `awayTeam.logo` 
+            as teamLogo, `awayTeam.id` as teamId, 1 as away, 0 as home from puckpandas_import.game_center_import 
+            where `awayTeam.logo` != '0.0' unionselect distinct `homeTeam.logo` as teamLogo, `homeTeam.id` as teamId, 
+            0 as away, 1 as home from puckpandas_import.game_center_import where `homeTeam.logo` != '0.0'"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

@@ -14,7 +14,12 @@ class ShiftGoals:
     def update_db(self):
         if self.shift_goals_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = """insert into puckpandas.shift_goals (gameId, eventNumber, detailCode, teamId, playerId, period, 
+            goalTimeSeconds, eventDescription, eventDetails, typeCode) select s.gameId, s.eventNumber, s.detailCode, 
+            s.teamId, s.playerId, s.period, time_to_sec(left(s.endTime, locate(':', s.endTime)+2))/60 as 
+            goalTimeSeconds, s.eventDescription, s.eventDetails, s.typeCode from puckpandas_import.shifts_import as s 
+            join puckpandas_import.games_import as g on s.gameId = g.gameId where s.typeCode = 505 and 
+            g.seasonid = """ + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))

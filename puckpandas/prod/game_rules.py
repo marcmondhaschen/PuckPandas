@@ -14,7 +14,12 @@ class GameRules:
     def update_db(self):
         if self.game_rules_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into " + str(self.current_season)
+            sql = "insert into puckpandas.game_rules (gameId, neutralSite, awayTeamSplitSquad, homeTeamSplitSquad, " \
+                  "maxRegulationPeriods, maxPeriods, regPeriods) select a.gameId, a.neutralSite, " \
+                  "a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`periodDescriptor.maxRegulationPeriods` as " \
+                  "maxRegulationPeriods, b.maxPeriods, b.regPeriods from puckpandas_import.games_import as a join " \
+                  "puckpandas_import.game_center_import as b on a.gameId = b.gameId where " \
+                  "a.seasonId = " + str(self.current_season)
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
