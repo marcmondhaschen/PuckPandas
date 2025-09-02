@@ -11,14 +11,23 @@ class Games:
         self.query_db()
         self.games_df = self.games_df.reindex(columns=self.table_columns)
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.games_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = """insert into puckpandas.games (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, 
-            startTimeVenue, awayTeam, homeTeam) select a.gameId, a.seasonId, a.gameType, a.gameDate, b.venueId, 
-            a.startTimeUTC, date_add(a.startTimeUTC, INTERVAL time_to_sec(left(a.venueUTCOffset, locate(':', 
-            a.venueUTCOffset)+2)) second) as startTimeVenue, a.awayTeam, a.homeTeam from puckpandas_import.games_import 
-            as a join puckpandas.venues as b on a.venue = b.venue"""
+
+            if season_id != 0:
+                sql = """insert into puckpandas.games (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, 
+                startTimeVenue, awayTeam, homeTeam) select a.gameId, a.seasonId, a.gameType, a.gameDate, b.venueId, 
+                a.startTimeUTC, date_add(a.startTimeUTC, INTERVAL time_to_sec(left(a.venueUTCOffset, locate(':', 
+                a.venueUTCOffset)+2)) second) as startTimeVenue, a.awayTeam, a.homeTeam from 
+                puckpandas_import.games_import as a join puckpandas.venues as b on a.venue = b.venue where 
+                a.seasonId = """ + str(season_id)
+            else:
+                sql = """insert into puckpandas.games (gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, 
+                startTimeVenue, awayTeam, homeTeam) select a.gameId, a.seasonId, a.gameType, a.gameDate, b.venueId, 
+                a.startTimeUTC, date_add(a.startTimeUTC, INTERVAL time_to_sec(left(a.venueUTCOffset, locate(':', 
+                a.venueUTCOffset)+2)) second) as startTimeVenue, a.awayTeam, a.homeTeam from 
+                puckpandas_import.games_import as a join puckpandas.venues as b on a.venue = b.venue"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -26,9 +35,12 @@ class Games:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.games"
+        sql = """delete from puckpandas.games"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -38,8 +50,9 @@ class Games:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, startTimeVenue, awayTeam, " \
-              "homeTeam from puckpandas.games"
+        sql = """select gameId, seasonId, gameType, gameDate, venueId, startTimeUTC, startTimeVenue, awayTeam, 
+        homeTeam from puckpandas.games"""
+
         games_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

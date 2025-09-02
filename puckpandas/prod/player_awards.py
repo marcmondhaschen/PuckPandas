@@ -8,7 +8,6 @@ class PlayerAwards:
         self.player_awards_df = pd.DataFrame()
         self.query_db()
         self.player_awards_df = self.player_awards_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.player_awards_df.size > 0:
@@ -27,7 +26,7 @@ class PlayerAwards:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.player_awards"
+        sql = """delete from puckpandas.player_awards"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -37,7 +36,7 @@ class PlayerAwards:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select id, playerId, seasonId, trophyId from puckpandas.player_awards"
+        sql = """select id, playerId, seasonId, trophyId from puckpandas.player_awards"""
         player_awards_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

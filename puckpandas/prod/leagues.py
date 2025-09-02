@@ -8,7 +8,6 @@ class Leagues:
         self.leagues_df = pd.DataFrame()
         self.query_db()
         self.leagues_df = self.leagues_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.leagues_df.size > 0:
@@ -24,7 +23,7 @@ class Leagues:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.leagues"
+        sql = """delete from puckpandas.leagues"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -34,7 +33,7 @@ class Leagues:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select leagueId, leagueAbbrev from puckpandas.leagues"
+        sql = """select leagueId, leagueAbbrev from puckpandas.leagues"""
         leagues_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

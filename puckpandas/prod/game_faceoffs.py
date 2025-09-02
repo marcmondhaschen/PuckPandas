@@ -8,17 +8,25 @@ class GameFaceoffs:
         self.game_faceoffs_df = pd.DataFrame()
         self.query_db()
         self.game_faceoffs_df = self.game_faceoffs_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_faceoffs_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_faceoffs (playId, gameId, eventId, losingPlayerId, " \
-                  "winningPlayerId) select a.playId, b.gameId, b.eventId, b.details.losingPlayerId as " \
-                  "losingPlayerId, b.details.winningPlayerId as winningPlayerId from puckpandas.plays as a join " \
-                  "puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import " \
-                  "as b on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode = '502' and " \
-                  "g.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_faceoffs (playId, gameId, eventId, losingPlayerId, 
+                winningPlayerId) select a.playId, b.gameId, b.eventId, b.details.losingPlayerId as losingPlayerId, 
+                b.details.winningPlayerId as winningPlayerId from puckpandas.plays as a join 
+                puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as b on 
+                a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode = '502' and 
+                g.seasonId = """ + str(season_id)
+
+            else:
+                sql = """insert into puckpandas.game_faceoffs (playId, gameId, eventId, losingPlayerId, 
+                winningPlayerId) select a.playId, b.gameId, b.eventId, b.details.losingPlayerId as losingPlayerId, 
+                b.details.winningPlayerId as winningPlayerId from puckpandas.plays as a join 
+                puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as b on 
+                a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode = '502'"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -26,9 +34,12 @@ class GameFaceoffs:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_faceoffs"
+        sql = """delete from puckpandas.game_faceoffs"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -38,7 +49,7 @@ class GameFaceoffs:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playId, gameId, eventId, losingPlayerId, winningPlayerId from puckpandas.game_faceoffs"
+        sql = """select playId, gameId, eventId, losingPlayerId, winningPlayerId from puckpandas.game_faceoffs"""
         game_faceoffs_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -9,17 +9,24 @@ class ShiftGoals:
         self.shift_goals_df = pd.DataFrame()
         self.query_db()
         self.shift_goals_df = self.shift_goals_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.shift_goals_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = """insert into puckpandas.shift_goals (gameId, eventNumber, detailCode, teamId, playerId, period, 
-            goalTimeSeconds, eventDescription, eventDetails, typeCode) select s.gameId, s.eventNumber, s.detailCode, 
-            s.teamId, s.playerId, s.period, time_to_sec(left(s.endTime, locate(':', s.endTime)+2))/60 as 
-            goalTimeSeconds, s.eventDescription, s.eventDetails, s.typeCode from puckpandas_import.shifts_import as s 
-            join puckpandas_import.games_import as g on s.gameId = g.gameId where s.typeCode = 505 and 
-            g.seasonid = """ + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.shift_goals (gameId, eventNumber, detailCode, teamId, playerId, period, 
+                goalTimeSeconds, eventDescription, eventDetails, typeCode) select s.gameId, s.eventNumber, s.detailCode, 
+                s.teamId, s.playerId, s.period, time_to_sec(left(s.endTime, locate(':', s.endTime)+2))/60 as 
+                goalTimeSeconds, s.eventDescription, s.eventDetails, s.typeCode from puckpandas_import.shifts_import 
+                as s join puckpandas_import.games_import as g on s.gameId = g.gameId where s.typeCode = 505 and 
+                g.seasonId = """ + str(season_id)
+            else:
+                sql = """insert into puckpandas.shift_goals (gameId, eventNumber, detailCode, teamId, playerId, period, 
+                goalTimeSeconds, eventDescription, eventDetails, typeCode) select s.gameId, s.eventNumber, s.detailCode, 
+                s.teamId, s.playerId, s.period, time_to_sec(left(s.endTime, locate(':', s.endTime)+2))/60 as 
+                goalTimeSeconds, s.eventDescription, s.eventDetails, s.typeCode from puckpandas_import.shifts_import 
+                as s join puckpandas_import.games_import as g on s.gameId = g.gameId where s.typeCode = 505"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -27,9 +34,12 @@ class ShiftGoals:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.shift_goals"
+        sql = """delete from puckpandas.shift_goals"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -39,8 +49,9 @@ class ShiftGoals:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select id, gameId, eventNumber, detailCode, teamId, playerId, period, goalTimeSeconds, " \
-              "eventDescription, eventDetails, typeCode from puckpandas.shift_goals"
+        sql = """select id, gameId, eventNumber, detailCode, teamId, playerId, period, goalTimeSeconds, 
+        eventDescription, eventDetails, typeCode from puckpandas.shift_goals"""
+
         shift_goals_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

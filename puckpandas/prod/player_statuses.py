@@ -9,7 +9,6 @@ class PlayerStatuses:
         self.player_statuses_df = pd.DataFrame()
         self.query_db()
         self.player_statuses_df = self.player_statuses_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.player_statuses_df.size > 0:
@@ -27,7 +26,7 @@ class PlayerStatuses:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.player_statuses"
+        sql = """delete from puckpandas.player_statuses"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -37,8 +36,9 @@ class PlayerStatuses:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, " \
-              "inTop100AllTime, inHHOF from puckpandas.player_statuses"
+        sql = """select playerId, isActive, currentTeamId, currentTeamAbbrev, sweaterNumber, position, inTop100AllTime, 
+        inHHOF from puckpandas.player_statuses"""
+
         player_statuses_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

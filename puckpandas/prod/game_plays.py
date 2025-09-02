@@ -8,22 +8,35 @@ class GamePlays:
         self.game_plays_df = pd.DataFrame()
         self.query_db()
         self.game_plays_df = self.game_plays_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_plays_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_plays` (playId, gameId, eventId, sortOrder, teamId, typeCode, " \
-                  "situationCode, homeTeamDefendingSide, xCoord, yCoord, zoneCode) select b.playId, a.gameId, " \
-                  "a.eventId, a.sortOrder, a.`details.eventOwnerTeamId` as teamId, a.typeCode, case when " \
-                  "a.situationCode = 0 then null else lpad(a.situationCode, 4, '0') end as situationCode, case when " \
-                  "a.homeTeamDefendingSide like '0%' then null else a.homeTeamDefendingSide end as " \
-                  "homeTeamDefendingSide, case when a.`details.zoneCode` like '0%' then null else a.`details.xCoord` " \
-                  "end as xCoord, case when a.`details.zoneCode` like '0%' then null else a.`details.yCoord` end as " \
-                  "yCoord, case when a.`details.zoneCode` like '0%' then null else a.`details.zoneCode` end as " \
-                  "zoneCode from puckpandas_import.plays_import as a join puckpandas_import.games_import as g on " \
-                  "a.gameId = g.gameId join puckpandas.plays as b on a.gameId = b.gameId and a.eventId = b.eventId " \
-                  "where g.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_plays` (playId, gameId, eventId, sortOrder, teamId, typeCode, 
+                situationCode, homeTeamDefendingSide, xCoord, yCoord, zoneCode) select b.playId, a.gameId, a.eventId, 
+                a.sortOrder, a.`details.eventOwnerTeamId` as teamId, a.typeCode, case when a.situationCode = 0 then 
+                null else lpad(a.situationCode, 4, '0') end as situationCode, case when a.homeTeamDefendingSide like 
+                '0%' then null else a.homeTeamDefendingSide end as homeTeamDefendingSide, case when 
+                a.`details.zoneCode` like '0%' then null else a.`details.xCoord` end as xCoord, case when 
+                a.`details.zoneCode` like '0%' then null else a.`details.yCoord` end as yCoord, case when 
+                a.`details.zoneCode` like '0%' then null else a.`details.zoneCode` end as zoneCode from 
+                puckpandas_import.plays_import as a join puckpandas_import.games_import as g on a.gameId = g.gameId 
+                join puckpandas.plays as b on a.gameId = b.gameId and a.eventId = b.eventId where 
+                g.seasonId = """ + str(season_id)
+
+            else:
+                sql = """insert into puckpandas.game_plays` (playId, gameId, eventId, sortOrder, teamId, typeCode, 
+                situationCode, homeTeamDefendingSide, xCoord, yCoord, zoneCode) select b.playId, a.gameId, a.eventId, 
+                a.sortOrder, a.`details.eventOwnerTeamId` as teamId, a.typeCode, case when a.situationCode = 0 then 
+                null else lpad(a.situationCode, 4, '0') end as situationCode, case when a.homeTeamDefendingSide like 
+                '0%' then null else a.homeTeamDefendingSide end as homeTeamDefendingSide, case when 
+                a.`details.zoneCode` like '0%' then null else a.`details.xCoord` end as xCoord, case when 
+                a.`details.zoneCode` like '0%' then null else a.`details.yCoord` end as yCoord, case when 
+                a.`details.zoneCode` like '0%' then null else a.`details.zoneCode` end as zoneCode from 
+                puckpandas_import.plays_import as a join puckpandas_import.games_import as g on a.gameId = g.gameId 
+                join puckpandas.plays as b on a.gameId = b.gameId and a.eventId = b.eventId"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -31,9 +44,12 @@ class GamePlays:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_plays"
+        sql = """delete from puckpandas.game_plays"""
+
+        if season_id != 0:
+            sql += " where seasonId = " + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -43,8 +59,8 @@ class GamePlays:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playId, gameId, eventId, sortOrder, teamId, typeCode, situationCode, homeTeamDefendingSide, " \
-              "xCoord, yCoord, zoneCode from puckpandas.game_plays"
+        sql = """select playId, gameId, eventId, sortOrder, teamId, typeCode, situationCode, homeTeamDefendingSide, 
+        xCoord, yCoord, zoneCode from puckpandas.game_plays"""
         game_plays_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

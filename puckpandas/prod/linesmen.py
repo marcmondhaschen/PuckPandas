@@ -8,7 +8,6 @@ class Linesmen:
         self.linesmen_df = pd.DataFrame()
         self.query_db()
         self.linesmen_df = self.linesmen_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.linesmen_df.size > 0:
@@ -24,7 +23,7 @@ class Linesmen:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.linesmen"
+        sql = """delete from puckpandas.linesmen"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -34,7 +33,7 @@ class Linesmen:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select linesmanId, linesmanName from puckpandas.linesmen"
+        sql = """select linesmanId, linesmanName from puckpandas.linesmen"""
         linesmen_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

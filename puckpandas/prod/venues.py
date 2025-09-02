@@ -24,7 +24,7 @@ class Venues:
     @staticmethod
     def clear_db():
             engine = pp.dba_prod_login()
-            sql = "delete from puckpandas.venues"
+            sql = """delete from puckpandas.venues"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -34,7 +34,7 @@ class Venues:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select venueId, venue from puckpandas.venues"
+        sql = """select venueId, venue from puckpandas.venues"""
         venues_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

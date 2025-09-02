@@ -8,13 +8,12 @@ class DivisionConference:
         self.division_conference_df = pd.DataFrame()
         self.query_db()
         self.division_conference_df = self.division_conference_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.division_conference_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into `puckpandas`.`leagues` (leagueAbbrev) select distinct leagueAbbrev from " \
-                  "puckpandas_import.skater_season_import"
+            sql = """insert into `puckpandas`.`leagues` (leagueAbbrev) select distinct leagueAbbrev from 
+            puckpandas_import.skater_season_import"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -24,7 +23,7 @@ class DivisionConference:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.division_conference"
+        sql = """delete from puckpandas.division_conference"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -34,7 +33,7 @@ class DivisionConference:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select id, seasonId, teamId, fullName, era, conference, division from puckpandas.division_conference"
+        sql = """select id, seasonId, teamId, fullName, era, conference, division from puckpandas.division_conference"""
         division_conference_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

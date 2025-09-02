@@ -4,20 +4,18 @@ from sqlalchemy import text
 
 class Coaches:
     def __init__(self):
-        self.table_columns = ['']
+        self.table_columns = ['coachId', 'coachName']
         self.coaches_df = pd.DataFrame()
         self.query_db()
         self.coaches_df = self.coaches_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.coaches_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into `puckpandas`.`coaches` (coachName) select distinct a.coachName from (select " \
-                  "`gameInfo.awayTeam.headCoach.default` as coachName from " \
-                  "puckpandas_import.game_center_right_rail_import union select " \
-                  "`gameInfo.homeTeam.headCoach.default` as coach from " \
-                  "puckpandas_import.game_center_right_rail_import) as a where a.coachName != '0.0'"
+            sql = """insert into `puckpandas`.`coaches` (coachName) select distinct a.coachName from (select 
+            `gameInfo.awayTeam.headCoach.default` as coachName from puckpandas_import.game_center_right_rail_import 
+            union select `gameInfo.homeTeam.headCoach.default` as coach from 
+            puckpandas_import.game_center_right_rail_import) as a where a.coachName != '0.0'"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -27,7 +25,7 @@ class Coaches:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.coaches"
+        sql = """delete from puckpandas.coaches"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -37,7 +35,7 @@ class Coaches:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select coachId, coachName from puckpandas.coaches"
+        sql = """select coachId, coachName from puckpandas.coaches"""
         coaches_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

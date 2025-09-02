@@ -9,7 +9,6 @@ class GameCareerTotals:
         self.goalie_career_totals_df = pd.DataFrame()
         self.query_db()
         self.goalie_career_totals_df = self.goalie_career_totals_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.goalie_career_totals_df.size > 0:

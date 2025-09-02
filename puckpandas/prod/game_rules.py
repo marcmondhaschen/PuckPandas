@@ -9,17 +9,24 @@ class GameRules:
         self.game_rules_df = pd.DataFrame()
         self.query_db()
         self.game_rules_df = self.game_rules_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_rules_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_rules (gameId, neutralSite, awayTeamSplitSquad, homeTeamSplitSquad, " \
-                  "maxRegulationPeriods, maxPeriods, regPeriods) select a.gameId, a.neutralSite, " \
-                  "a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`periodDescriptor.maxRegulationPeriods` as " \
-                  "maxRegulationPeriods, b.maxPeriods, b.regPeriods from puckpandas_import.games_import as a join " \
-                  "puckpandas_import.game_center_import as b on a.gameId = b.gameId where " \
-                  "a.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_rules (gameId, neutralSite, awayTeamSplitSquad, 
+                homeTeamSplitSquad, maxRegulationPeriods, maxPeriods, regPeriods) select a.gameId, a.neutralSite, 
+                a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`periodDescriptor.maxRegulationPeriods` as 
+                maxRegulationPeriods, b.maxPeriods, b.regPeriods from puckpandas_import.games_import as a join 
+                puckpandas_import.game_center_import as b on a.gameId = b.gameId where 
+                a.seasonId = """ + str(self.current_season)
+            else:
+                sql = """insert into puckpandas.game_rules (gameId, neutralSite, awayTeamSplitSquad, 
+                homeTeamSplitSquad, maxRegulationPeriods, maxPeriods, regPeriods) select a.gameId, a.neutralSite, 
+                a.awayTeamSplitSquad, a.homeTeamSplitSquad, b.`periodDescriptor.maxRegulationPeriods` as 
+                maxRegulationPeriods, b.maxPeriods, b.regPeriods from puckpandas_import.games_import as a join 
+                puckpandas_import.game_center_import as b on a.gameId = b.gameId """
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -27,9 +34,12 @@ class GameRules:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_rules"
+        sql = """delete from puckpandas.game_rules"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))

@@ -11,19 +11,28 @@ class GameProgress:
         self.game_progress_df = pd.DataFrame()
         self.query_db()
         self.game_progress_df = self.game_progress_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_progress_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_progress (gameId, gameState, gameScheduleState, periodNumber, " \
-                  "periodType, secondsRemaining, clockRunning, inIntermission, maxPeriods, lastPeriodType, " \
-                  "regPeriods) select a.gameId, a.gameState, a.gameScheduleState, b.`periodDescriptor.number` as " \
-                  "periodNumber, b.`periodDescriptor.periodType` as periodType, b.`clock.secondsRemaining` as " \
-                  "secondsRemaining, b.`clock.running` as clockRunning, b.`clock.inIntermission` as inIntermission, " \
-                  "b.maxPeriods, b.`gameOutcome.lastPeriodType` as lastPeriodType, b.regPeriods from " \
-                  "puckpandas_import.games_import as a join puckpandas_import.game_center_import as b on " \
-                  "a.gameId = b.gameId where a.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_progress (gameId, gameState, gameScheduleState, periodNumber, 
+                periodType, secondsRemaining, clockRunning, inIntermission, maxPeriods, lastPeriodType, regPeriods) 
+                select a.gameId, a.gameState, a.gameScheduleState, b.`periodDescriptor.number` as periodNumber, 
+                b.`periodDescriptor.periodType` as periodType, b.`clock.secondsRemaining` as secondsRemaining, 
+                b.`clock.running` as clockRunning, b.`clock.inIntermission` as inIntermission, b.maxPeriods, 
+                b.`gameOutcome.lastPeriodType` as lastPeriodType, b.regPeriods from puckpandas_import.games_import 
+                as a join puckpandas_import.game_center_import as b on a.gameId = b.gameId where 
+                a.seasonId = """ + str(self.current_season)
+            else:
+                sql = """insert into puckpandas.game_progress (gameId, gameState, gameScheduleState, periodNumber, 
+                periodType, secondsRemaining, clockRunning, inIntermission, maxPeriods, lastPeriodType, regPeriods) 
+                select a.gameId, a.gameState, a.gameScheduleState, b.`periodDescriptor.number` as periodNumber, 
+                b.`periodDescriptor.periodType` as periodType, b.`clock.secondsRemaining` as secondsRemaining, 
+                b.`clock.running` as clockRunning, b.`clock.inIntermission` as inIntermission, b.maxPeriods, 
+                b.`gameOutcome.lastPeriodType` as lastPeriodType, b.regPeriods from puckpandas_import.games_import 
+                as a join puckpandas_import.game_center_import as b on a.gameId = b.gameId"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -31,9 +40,12 @@ class GameProgress:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_progress"
+        sql = """delete from puckpandas.game_progress"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -43,8 +55,9 @@ class GameProgress:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select gameId, gameState, gameScheduleState, periodNumber, periodType, secondsRemaining, " \
-              "clockRunning, inIntermission, maxPeriods, lastPeriodType, regPeriods from puckpandas.game_progress"
+        sql = """select gameId, gameState, gameScheduleState, periodNumber, periodType, secondsRemaining, clockRunning, 
+        inIntermission, maxPeriods, lastPeriodType, regPeriods from puckpandas.game_progress"""
+
         game_progress_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

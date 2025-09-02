@@ -8,16 +8,23 @@ class GameStoppages:
         self.game_stoppages_df = pd.DataFrame()
         self.query_db()
         self.game_stoppages_df = self.game_stoppages_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_stoppages_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = """insert into puckpandas.game_stoppages (playId, gameId, eventId, sortOrder, typeCode) select 
-            a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode from puckpandas.plays as a join 
-            puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as b 
-            on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode in ('516', '520', '521', '523', 
-            '524') and g.seasonId = """ + str(self.current_season) + """ order by playId"""
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_stoppages (playId, gameId, eventId, sortOrder, typeCode) select 
+                a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode from puckpandas.plays as a join 
+                puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as b 
+                on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode in ('516', '520', '521', '523', 
+                '524') and g.seasonId = """ + str(season_id) + """ order by playId"""
+            else:
+                sql = """insert into puckpandas.game_stoppages (playId, gameId, eventId, sortOrder, typeCode) select 
+                a.playId, b.gameId, b.eventId, b.sortOrder, b.typeCode from puckpandas.plays as a join 
+                puckpandas_import.games_import as g on a.gameId = g.gameId join puckpandas_import.plays_import as b 
+                on a.gameId = b.gameId and a.eventId = b.eventId where b.typeCode in ('516', '520', '521', '523', 
+                '524')"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -25,9 +32,12 @@ class GameStoppages:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_stoppages"
+        sql = """delete from puckpandas.game_stoppages"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -37,7 +47,7 @@ class GameStoppages:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playId, gameId, eventId, sortOrder, typeCode from puckpandas.game_stoppages"
+        sql = """select playId, gameId, eventId, sortOrder, typeCode from puckpandas.game_stoppages"""
         game_stoppages_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

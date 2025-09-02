@@ -8,14 +8,20 @@ class TeamRosters:
         self.team_rosters_df = pd.DataFrame()
         self.query_db()
         self.team_rosters_df = self.team_rosters_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+
+    def update_db(self, season_id=0):
         if self.team_rosters_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = """insert into puckpandas.team_rosters (teamId, seasonId, playerId) select b.teamId, a.seasonId, 
-            a.playerId from puckpandas_import.rosters_import as a join puckpandas_import.teams_import as b on 
-            a.triCode = b.triCode where a.seasonId = """ + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.team_rosters (teamId, seasonId, playerId) select b.teamId, a.seasonId, 
+                a.playerId from puckpandas_import.rosters_import as a join puckpandas_import.teams_import as b on 
+                a.triCode = b.triCode where a.seasonId = """ + str(season_id)
+            else:
+                sql = """insert into puckpandas.team_rosters (teamId, seasonId, playerId) select b.teamId, a.seasonId, 
+                a.playerId from puckpandas_import.rosters_import as a join puckpandas_import.teams_import as b on 
+                a.triCode = b.triCode"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -23,9 +29,12 @@ class TeamRosters:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.team_rosters"
+        sql = """delete from puckpandas.team_rosters"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -35,7 +44,8 @@ class TeamRosters:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select id, teamId, seasonId, playerId from puckpandas.team_rosters"
+        sql = """select id, teamId, seasonId, playerId from puckpandas.team_rosters"""
+
         team_rosters_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

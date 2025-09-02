@@ -9,20 +9,30 @@ class GamePlayTimings:
         self.game_play_timings_df = pd.DataFrame()
         self.query_db()
         self.game_play_timings_df = self.game_play_timings_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_play_timings_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_play_timings (playId, gameId, eventId, periodNumber, periodType, " \
-                  "maxRegulationPeriods, secondsInPeriod, secondsRemaining, sortOrder) select a.playId, b.gameId, " \
-                  "b.eventId, b.`periodDescriptor.number` as periodNumber, b.`periodDescriptor.periodType` as " \
-                  "periodType, time_to_sec(left(b.timeInPeriod, locate(':', b.timeInPeriod)+2))/60 as " \
-                  "secondsInPeriod, time_to_sec(left(b.timeRemaining, locate(':', b.timeRemaining)+2))/60 as " \
-                  "secondsRemaining, b.`periodDescriptor.maxRegulationPeriods` as maxRegulationPeriods, b.sortOrder " \
-                  "from puckpandas.plays as a join puckpandas_import.games_import as g on a.gameId = g.gameId join " \
-                  "puckpandas_import.plays_import as b on a.gameId = b.gameId and a.eventId = b.eventId where " \
-                  "g.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_play_timings (playId, gameId, eventId, periodNumber, periodType, 
+                maxRegulationPeriods, secondsInPeriod, secondsRemaining, sortOrder) select a.playId, b.gameId, 
+                b.eventId, b.`periodDescriptor.number` as periodNumber, b.`periodDescriptor.periodType` as periodType, 
+                time_to_sec(left(b.timeInPeriod, locate(':', b.timeInPeriod)+2))/60 as secondsInPeriod, 
+                time_to_sec(left(b.timeRemaining, locate(':', b.timeRemaining)+2))/60 as secondsRemaining, 
+                b.`periodDescriptor.maxRegulationPeriods` as maxRegulationPeriods, b.sortOrder from puckpandas.plays 
+                as a join puckpandas_import.games_import as g on a.gameId = g.gameId join 
+                puckpandas_import.plays_import as b on a.gameId = b.gameId and a.eventId = b.eventId where 
+                g.seasonId = """ + str(season_id)
+            else:
+                sql = """insert into puckpandas.game_play_timings (playId, gameId, eventId, periodNumber, periodType, 
+                maxRegulationPeriods, secondsInPeriod, secondsRemaining, sortOrder) select a.playId, b.gameId, 
+                b.eventId, b.`periodDescriptor.number` as periodNumber, b.`periodDescriptor.periodType` as periodType, 
+                time_to_sec(left(b.timeInPeriod, locate(':', b.timeInPeriod)+2))/60 as secondsInPeriod, 
+                time_to_sec(left(b.timeRemaining, locate(':', b.timeRemaining)+2))/60 as secondsRemaining, 
+                b.`periodDescriptor.maxRegulationPeriods` as maxRegulationPeriods, b.sortOrder from puckpandas.plays 
+                as a join puckpandas_import.games_import as g on a.gameId = g.gameId join 
+                puckpandas_import.plays_import as b on a.gameId = b.gameId and a.eventId = b.eventId"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -30,9 +40,12 @@ class GamePlayTimings:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_play_timings"
+        sql = """delete from puckpandas.game_play_timings"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -42,8 +55,9 @@ class GamePlayTimings:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playId, gameId, eventId, periodNumber, periodType, maxRegulationPeriods, secondsInPeriod, " \
-              "secondsRemaining, sortOrder from puckpandas.game_play_timings"
+        sql = """select playId, gameId, eventId, periodNumber, periodType, maxRegulationPeriods, secondsInPeriod, 
+        secondsRemaining, sortOrder from puckpandas.game_play_timings"""
+
         game_play_timings_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

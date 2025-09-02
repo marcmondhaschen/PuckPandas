@@ -8,7 +8,6 @@ class Plays:
         self.plays_df = pd.DataFrame()
         self.query_db()
         self.plays_df = self.plays_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.plays_df.size > 0:
@@ -25,7 +24,7 @@ class Plays:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.plays"
+        sql = """delete from puckpandas.plays"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -35,7 +34,8 @@ class Plays:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playId, gameId, eventId from puckpandas.plays"
+        sql = """select playId, gameId, eventId from puckpandas.plays"""
+
         plays_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

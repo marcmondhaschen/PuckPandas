@@ -8,7 +8,6 @@ class Referees:
         self.referees_df = pd.DataFrame()
         self.query_db()
         self.referees_df = self.referees_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.referees_df.size > 0:
@@ -24,7 +23,7 @@ class Referees:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.referees"
+        sql = """delete from puckpandas.referees"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -34,7 +33,8 @@ class Referees:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select refereeId, refereeName from puckpandas.referees"
+        sql = """select refereeId, refereeName from puckpandas.referees"""
+
         referees_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

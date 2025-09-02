@@ -8,15 +8,21 @@ class GameLinesmen:
         self.game_linesmen_df = pd.DataFrame()
         self.query_db()
         self.game_linesmen_df = self.game_linesmen_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_linesmen_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_linesmen (gameId, linesmanId) select a.gameId, b.linesmanId from " \
-                  "puckpandas_import.linesmen_import as a  join puckpandas_import.games_import as g on a.gameId = " \
-                  "g.gameId  join puckpandas.linesmen as b on a.default = b.linesmanName where " \
-                  "g.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_linesmen (gameId, linesmanId) select a.gameId, b.linesmanId from 
+                puckpandas_import.linesmen_import as a  join puckpandas_import.games_import as g on a.gameId = g.gameId 
+                join puckpandas.linesmen as b on a.default = b.linesmanName where 
+                g.seasonId = """ + str(season_id)
+
+            else:
+                sql = """insert into puckpandas.game_linesmen (gameId, linesmanId) select a.gameId, b.linesmanId from 
+                puckpandas_import.linesmen_import as a  join puckpandas_import.games_import as g on a.gameId = 
+                g.gameId join puckpandas.linesmen as b on a.default = b.linesmanName"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -24,9 +30,12 @@ class GameLinesmen:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_linesmen"
+        sql = """delete from puckpandas.game_linesmen"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -36,7 +45,7 @@ class GameLinesmen:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select id, gameId, linesmanId from puckpandas.game_linesmen"
+        sql = """select id, gameId, linesmanId from puckpandas.game_linesmen"""
         game_linesmen_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

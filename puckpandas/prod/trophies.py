@@ -8,7 +8,6 @@ class Trophies:
         self.trophies_df = pd.DataFrame()
         self.query_db()
         self.trophies_df = self.trophies_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.trophies_df.size > 0:
@@ -23,7 +22,7 @@ class Trophies:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.trophies"
+        sql = """delete from puckpandas.trophies"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -33,7 +32,7 @@ class Trophies:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select trophyId, trophyName from puckpandas.trophies"
+        sql = """select trophyId, trophyName from puckpandas.trophies"""
         trophies_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

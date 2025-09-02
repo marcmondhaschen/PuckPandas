@@ -8,7 +8,6 @@ class Teams:
         self.teams_df = pd.DataFrame()
         self.query_db()
         self.teams_df = self.teams_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.teams_df.size > 0:
@@ -20,6 +19,7 @@ class Teams:
             `homeTeam.id` as teamId, `homeTeam.abbrev` as triCode, concat(`homeTeam.placeName.default`, ' ', 
             `homeTeam.commonName.default`) as fullName, `homeTeam.commonName.default` as commonName, 
             `homeTeam.placeName.default` as placeName from puckpandas_import.game_center_import"""
+
             with engine.connect() as conn:
                 conn.execute(text(sql))
 
@@ -28,7 +28,7 @@ class Teams:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.teams"
+        sql = """delete from puckpandas.teams"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -38,7 +38,7 @@ class Teams:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select teamId, triCode, fullName, commonName, placeName from puckpandas.teams"
+        sql = """select teamId, triCode, fullName, commonName, placeName from puckpandas.teams"""
         teams_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

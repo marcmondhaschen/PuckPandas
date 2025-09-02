@@ -10,7 +10,6 @@ class PlayerBios:
         self.player_bios_df = pd.DataFrame()
         self.query_db()
         self.player_bios_df = self.player_bios_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.player_bios_df.size > 0:
@@ -30,7 +29,7 @@ class PlayerBios:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.player_bios"
+        sql = """delete from puckpandas.player_bios"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -40,8 +39,9 @@ class PlayerBios:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playerId, firstName, lastName, birthDate, birthCountry, birthState, birthCity, shootsCatches, " \
-              "heightInInches, heightInCentimeters, weightInPounds, weightInKilograms from puckpandas.player_bios"
+        sql = """select playerId, firstName, lastName, birthDate, birthCountry, birthState, birthCity, shootsCatches, 
+        eightInInches, heightInCentimeters, weightInPounds, weightInKilograms from puckpandas.player_bios"""
+
         player_bios_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

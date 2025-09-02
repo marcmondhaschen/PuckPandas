@@ -10,19 +10,28 @@ class GameScores:
         self.game_scores_df = pd.DataFrame()
         self.query_db()
         self.game_scores_df = self.game_scores_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.game_scores_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = "insert into puckpandas.game_scores (gameId, periodType, gameOutcome, awayTeam, awayScore, " \
-                  "awayLineScore, awaySOG, homeTeam, homeScore, homeLineScore, homeSOG) select a.gameId, " \
-                  "a.periodType, a.gameOutcome, a.awayTeam, a.awayTeamScore as awayScore, c.`linescore.totals.away` " \
-                  "as awayLineScore, b.`awayTeam.sog` as awaySOG, a.homeTeam, a.homeTeamScore as homeScore, " \
-                  "c.`linescore.totals.home` as homeLineScore, b.`homeTeam.sog` as homeSOG from " \
-                  "puckpandas_import.games_import as a join puckpandas_import.game_center_import as b on " \
-                  "a.gameId = b.gameId join puckpandas_import.game_center_right_rail_import as c on a.gameId = " \
-                  "c.gameId where a.seasonId = " + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.game_scores (gameId, periodType, gameOutcome, awayTeam, awayScore, 
+                awayLineScore, awaySOG, homeTeam, homeScore, homeLineScore, homeSOG) select a.gameId, a.periodType, 
+                a.gameOutcome, a.awayTeam, a.awayTeamScore as awayScore, c.`linescore.totals.away` as awayLineScore, 
+                b.`awayTeam.sog` as awaySOG, a.homeTeam, a.homeTeamScore as homeScore, c.`linescore.totals.home` as 
+                homeLineScore, b.`homeTeam.sog` as homeSOG from puckpandas_import.games_import as a join 
+                puckpandas_import.game_center_import as b on a.gameId = b.gameId join 
+                puckpandas_import.game_center_right_rail_import as c on a.gameId = c.gameId where 
+                a.seasonId = """ + str(self.current_season)
+            else:
+                sql = """insert into puckpandas.game_scores (gameId, periodType, gameOutcome, awayTeam, awayScore, 
+                awayLineScore, awaySOG, homeTeam, homeScore, homeLineScore, homeSOG) select a.gameId, a.periodType, 
+                a.gameOutcome, a.awayTeam, a.awayTeamScore as awayScore, c.`linescore.totals.away` as awayLineScore, 
+                b.`awayTeam.sog` as awaySOG, a.homeTeam, a.homeTeamScore as homeScore, c.`linescore.totals.home` as 
+                homeLineScore, b.`homeTeam.sog` as homeSOG from puckpandas_import.games_import as a join 
+                puckpandas_import.game_center_import as b on a.gameId = b.gameId join 
+                puckpandas_import.game_center_right_rail_import as c on a.gameId = c.gameId"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -30,9 +39,12 @@ class GameScores:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.game_scores"
+        sql = """delete from puckpandas.game_scores"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -42,8 +54,8 @@ class GameScores:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select gameId, periodType, gameOutcome, awayTeam, awayScore, awayLineScore, awaySOG, homeTeam, " \
-              "homeScore, homeLineScore, homeSOG from puckpandas.game_scores"
+        sql = """select gameId, periodType, gameOutcome, awayTeam, awayScore, awayLineScore, awaySOG, homeTeam, 
+        homeScore, homeLineScore, homeSOG from puckpandas.game_scores"""
         game_scores_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

@@ -8,7 +8,6 @@ class TeamLogos:
         self.team_logos_df = pd.DataFrame()
         self.query_db()
         self.team_logos_df = self.team_logos_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.team_logos_df.size > 0:
@@ -26,7 +25,7 @@ class TeamLogos:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.team_logos"
+        sql = """delete from puckpandas.team_logos"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -36,7 +35,7 @@ class TeamLogos:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select logoId, teamLogo, teamId, away, home from puckpandas.team_logos"
+        sql = """select logoId, teamLogo, teamId, away, home from puckpandas.team_logos"""
         team_logos_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

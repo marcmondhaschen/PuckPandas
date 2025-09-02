@@ -8,7 +8,6 @@ class PlayTypeCodes:
         self.play_type_codes_df = pd.DataFrame()
         self.query_db()
         self.play_type_codes_df = self.play_type_codes_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.play_type_codes_df.size > 0:
@@ -24,7 +23,7 @@ class PlayTypeCodes:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.play_type_codes"
+        sql = """delete from puckpandas.play_type_codes"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -34,7 +33,7 @@ class PlayTypeCodes:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select typeCode, typeDescKey from puckpandas.play_type_codes"
+        sql = """select typeCode, typeDescKey from puckpandas.play_type_codes"""
         play_type_codes_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

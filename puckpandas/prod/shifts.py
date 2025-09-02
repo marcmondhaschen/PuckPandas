@@ -9,21 +9,33 @@ class Shifts:
         self.shifts_df = pd.DataFrame()
         self.query_db()
         self.shifts_df = self.shifts_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
-    def update_db(self):
+    def update_db(self, season_id=0):
         if self.shifts_df.size > 0:
             engine = pp.dba_prod_login()
-            sql = """insert into puckpandas.shifts (gameId, eventNumber, detailCode, teamId, playerId, shiftNumber, 
-            period, startTimeSeconds, endTimeSeconds, durationSeconds, typeCode) select s.gameId, s.eventNumber, 
-            s.detailCode, r.teamId, s.playerId, s.shiftNumber, s.period, 
-            time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 as startTimeSeconds, 
-            time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 + time_to_sec(left(s.duration, 
-            locate(':', s.duration)+2))/60 as endTimeSeconds, time_to_sec(left(s.duration, 
-            locate(':', s.duration)+2))/60 as durationSeconds, s.typeCode from puckpandas_import.shifts_import as s 
-            join puckpandas_import.games_import as g on s.gameId = g.gameId join puckpandas_import.roster_spots_import 
-            as r on s.gameId = r.gameId and s.playerId = r.playerId where s.typeCode = 517 and 
-            g.seasonId = """ + str(self.current_season)
+
+            if season_id != 0:
+                sql = """insert into puckpandas.shifts (gameId, eventNumber, detailCode, teamId, playerId, shiftNumber, 
+                period, startTimeSeconds, endTimeSeconds, durationSeconds, typeCode) select s.gameId, s.eventNumber, 
+                s.detailCode, r.teamId, s.playerId, s.shiftNumber, s.period, 
+                time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 as startTimeSeconds, 
+                time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 + time_to_sec(left(s.duration, 
+                locate(':', s.duration)+2))/60 as endTimeSeconds, time_to_sec(left(s.duration, 
+                locate(':', s.duration)+2))/60 as durationSeconds, s.typeCode from puckpandas_import.shifts_import as s 
+                join puckpandas_import.games_import as g on s.gameId = g.gameId join 
+                puckpandas_import.roster_spots_import as r on s.gameId = r.gameId and s.playerId = r.playerId where 
+                s.typeCode = 517 and g.seasonId = """ + str(season_id)
+            else:
+                sql = """insert into puckpandas.shifts (gameId, eventNumber, detailCode, teamId, playerId, shiftNumber, 
+                period, startTimeSeconds, endTimeSeconds, durationSeconds, typeCode) select s.gameId, s.eventNumber, 
+                s.detailCode, r.teamId, s.playerId, s.shiftNumber, s.period, 
+                time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 as startTimeSeconds, 
+                time_to_sec(left(s.startTime, locate(':', s.startTime)+2))/60 + time_to_sec(left(s.duration, 
+                locate(':', s.duration)+2))/60 as endTimeSeconds, time_to_sec(left(s.duration, 
+                locate(':', s.duration)+2))/60 as durationSeconds, s.typeCode from puckpandas_import.shifts_import as s 
+                join puckpandas_import.games_import as g on s.gameId = g.gameId join 
+                puckpandas_import.roster_spots_import as r on s.gameId = r.gameId and s.playerId = r.playerId where 
+                s.typeCode = 517"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -31,9 +43,12 @@ class Shifts:
         return True
 
     @staticmethod
-    def clear_db():
+    def clear_db(season_id=0):
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.shifts"
+        sql = """delete from puckpandas.shifts"""
+
+        if season_id != 0:
+            sql += """ where seasonId = """ + str(season_id)
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -43,8 +58,9 @@ class Shifts:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select id, gameId, eventNumber, detailCode, teamId, playerId, shiftNumber, period, startTimeSeconds, " \
-              "endTimeSeconds, durationSeconds, typeCode from puckpandas.shifts"
+        sql = """select id, gameId, eventNumber, detailCode, teamId, playerId, shiftNumber, period, startTimeSeconds, 
+        endTimeSeconds, durationSeconds, typeCode from puckpandas.shifts"""
+
         shifts_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 

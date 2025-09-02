@@ -9,7 +9,6 @@ class SkaterCareerTotals:
         self.skater_career_totals_df = pd.DataFrame()
         self.query_db()
         self.skater_career_totals_df = self.skater_career_totals_df.reindex(columns=self.table_columns)
-        self.current_season = pp.TeamSeasonsImport.current_season()
 
     def update_db(self):
         if self.skater_career_totals_df.size > 0:
@@ -30,7 +29,7 @@ class SkaterCareerTotals:
             time_to_sec(left(`playoffs.avgToi`, locate(':', `playoffs.avgToi`)+2))/60 as TOIGSEC, 
             `playoffs.gameWinningGoals` as GWG, `playoffs.otGoals` as OTG, `playoffs.shots` as S, 
             `playoffs.shootingPctg` as SPCT, `playoffs.faceoffWinningPctg` as FOPCT from 
-            puckpandas_import.skater_career_totals_import where `playoffs.gamesPlayed` > 0""" + str(self.current_season)
+            puckpandas_import.skater_career_totals_import where `playoffs.gamesPlayed` > 0"""
 
             with engine.connect() as conn:
                 conn.execute(text(sql))
@@ -40,7 +39,7 @@ class SkaterCareerTotals:
     @staticmethod
     def clear_db():
         engine = pp.dba_prod_login()
-        sql = "delete from puckpandas.skater_career_totals"
+        sql = """delete from puckpandas.skater_career_totals"""
 
         with engine.connect() as conn:
             conn.execute(text(sql))
@@ -50,8 +49,9 @@ class SkaterCareerTotals:
 
     def query_db(self):
         engine = pp.dba_prod_login()
-        sql = "select playerId, gameType, GP, G, A, P, PM, PIM, PPG, PPP, SHG, SHP, TOIGSEC, GWG, OTG, S, SPCT, " \
-              "FOPCT from puckpandas.skater_career_totals"
+        sql = """select playerId, gameType, GP, G, A, P, PM, PIM, PPG, PPP, SHG, SHP, TOIGSEC, GWG, OTG, S, SPCT, 
+        FOPCT from puckpandas.skater_career_totals"""
+
         skater_career_totals_df = pd.read_sql_query(sql, engine)
         engine.dispose()
 
