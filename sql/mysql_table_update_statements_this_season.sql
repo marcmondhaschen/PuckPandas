@@ -270,8 +270,8 @@ select a.gameId, b.homeTeam as teamId,
        sum(case when a.category = 'pim' then a.homeValue else '' end) as pim,
        sum(case when a.category = 'hits' then a.homeValue else '' end) as hits,
        sum(case when a.category = 'blockedShots' then a.homeValue else '' end) as blockedShots,
-       sum(case when a.category = 'giveaways' then a.homeValue else '' end) as givehomes,
-       sum(case when a.category = 'takeaways' then a.homeValue else '' end) as takehomes
+       sum(case when a.category = 'giveaways' then a.homeValue else '' end) as giveaways,
+       sum(case when a.category = 'takeaways' then a.homeValue else '' end) as takeaways
   from puckpandas_import.team_game_stats_import as a
   join puckpandas_import.games_import as b on a.gameId = b.gameId
   join (select c.gameId, d.awayTeam, c.awayValue, d.homeTeam, c.homeValue
