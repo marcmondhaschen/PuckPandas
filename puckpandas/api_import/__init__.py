@@ -8,11 +8,13 @@ from .player_bios_import import *
 from .plays_import import *
 from .referees_import import *
 from .roster_spots_import import *
+from .rosters_import import *
 from .scratches_import import *
 from .season_series_import import *
-from .team_seasons_import import *
+from .shifts_import import *
 from .skater_career_totals_import import *
 from .skater_seasons_import import *
 from .team_game_stats_import import *
+from .team_seasons_import import *
 from .teams_import import *
 from .tv_broadcasts_import import *
